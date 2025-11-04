@@ -1,0 +1,18 @@
+@page "/input"
+@rendermode InteractiveServer
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Input</h1>
+
+<input @onchange="InputChanged" />
+<p> @message </p>
+
+@code {
+    string message = "";
+
+    void InputChanged(ChangeEventArgs e)
+    {
+        message = (string)e.Value;
+    }
+}

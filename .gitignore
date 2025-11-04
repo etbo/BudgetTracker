@@ -52,3 +52,8 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# BDD sqlite
+*.db
+*.db-journal
+/Database/*
