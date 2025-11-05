@@ -1,5 +1,5 @@
 @page "/importfiles"
-@using System.Globalization
+@using System.Text
 @inject BlazorApp.Data.Services.CompteCourantService CompteService
 @rendermode InteractiveServer
 
@@ -20,65 +20,44 @@
     {
         var file = e.File;
 
-        if (file == null)
-        {
-            message = "Aucun fichier sélectionné.";
-            return;
-        }
+        Console.WriteLine($"Taille fichier: {file.Size} octets");
+
+        message = "En cours...";
+        Console.WriteLine("\n-_-_-_-_-_-azerty-_-_-_-_-_");
 
         try
         {
             using var stream = file.OpenReadStream();
-            using var reader = new StreamReader(stream);
+            using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
 
-            var comptes = new List<BlazorApp.Data.OperationCC>();
+            Console.WriteLine("Lecture du fichier...");
+            var content = await reader.ReadToEndAsync();
 
-            string? line;
-            bool isHeader = true;
+            Console.WriteLine("Contenu lu !");
+            message = $"Longueur du contenu: {content.Length}";
 
-            while ((line = await reader.ReadLineAsync()) != null)
+            // Déterminer banque → choisir bon parser
+            var parser = BanqueCsvParserFactory.GetParser(content);
+
+            Console.WriteLine("-_-_-_-_-_-_parser_-_-_-_-_-_");
+            message = parser.ToString();
+
+            Console.WriteLine(parser);
+            // Parser et transformer données
+            var Operations = parser.ParseCsv(new MemoryStream(Encoding.UTF8.GetBytes(content)));
+
+            // Import en base
+            foreach (var Operation in Operations)
             {
-                if (isHeader)
-                {
-                    isHeader = false; // skip header line
-                    continue;
-                }
-
-                Console.WriteLine(line);
-
-                var values = line.Split(',');
-
-                Console.WriteLine(values);
-                Console.WriteLine($"Date: {values[0]}, Description: {values[1]}, Montant: {values[2]}");
-
-                // Adapter en fonction de ton CSV
-                var compte = new BlazorApp.Data.OperationCC
-                {
-                    Date = values[0],
-                    Description = values[1],
-                    Montant = double.Parse(values[2], CultureInfo.InvariantCulture),
-                    Type = values[3],
-                    Commentaire = values[4],
-                    Banque = values[5]
-                };
-
-                // Modification possible ici
-                // Par exemple : compte.Description = compte.Description?.ToUpper();
-
-                comptes.Add(compte);
+                await CompteService.AddAsync(Operation);
             }
-
-            // Insertion en base
-            foreach (var compte in comptes)
-            {
-                await CompteService.AddAsync(compte);
-            }
-
-            message = $"Import terminé : {comptes.Count} lignes ajoutées.";
         }
-        catch (Exception ex)
+        catch(Exception ex)
         {
-            message = $"Erreur : {ex.Message}";
+            Console.WriteLine($"ERREUR CSV: {ex.Message}");
+            message = $"Erreur: {ex.Message}";
         }
+
+        
     }
 }

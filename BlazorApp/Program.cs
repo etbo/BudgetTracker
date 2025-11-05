@@ -1,7 +1,10 @@
+global using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.Components;
 using BlazorApp.Data;
 using BlazorApp.Data.Services;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
