@@ -1,0 +1,44 @@
+@inject BlazorApp.Data.Services.CompteCourantService CompteService
+
+@if (listeOperations == null)
+{
+    <p>Chargement...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Montant</th>
+                <th>Type</th>
+                <th>Commentaire</th>
+                <th>Banque</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var operation in listeOperations)
+            {
+                <tr>
+                    <td>@operation.Date</td>
+                    <td>@operation.Description</td>
+                    <td>@operation.Montant</td>
+                    <td>@operation.Type</td>
+                    <td>@operation.Commentaire</td>
+                    <td>@operation.Banque</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<BlazorApp.Data.OperationCC>? listeOperations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Lecture de la première ligne dans la table
+        listeOperations = await CompteService.GetAllAsync();
+    }
+}

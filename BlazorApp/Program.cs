@@ -1,10 +1,20 @@
+using Microsoft.EntityFrameworkCore;
 using BlazorApp.Components;
+using BlazorApp.Data;
+using BlazorApp.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=Database/BudgetTracker.db"));
+
+// Add of custom CompteCourant service, defined in Data/Services
+builder.Services.AddScoped<CompteCourantService>();
+
 
 var app = builder.Build();
 
