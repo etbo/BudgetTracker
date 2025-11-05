@@ -1,0 +1,84 @@
+@page "/importfiles"
+@using System.Globalization
+@inject BlazorApp.Data.Services.CompteCourantService CompteService
+@rendermode InteractiveServer
+
+
+<h1>Importer un fichier</h1>
+
+<InputFile OnChange="HandleFileSelected" />
+
+<p>@message</p>
+
+@* <button class="btn btn-primary" @onclick="ImportData">Importer</button> *@
+
+
+@code {
+    private string message = "";
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file == null)
+        {
+            message = "Aucun fichier sélectionné.";
+            return;
+        }
+
+        try
+        {
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream);
+
+            var comptes = new List<BlazorApp.Data.OperationCC>();
+
+            string? line;
+            bool isHeader = true;
+
+            while ((line = await reader.ReadLineAsync()) != null)
+            {
+                if (isHeader)
+                {
+                    isHeader = false; // skip header line
+                    continue;
+                }
+
+                Console.WriteLine(line);
+
+                var values = line.Split(',');
+
+                Console.WriteLine(values);
+                Console.WriteLine($"Date: {values[0]}, Description: {values[1]}, Montant: {values[2]}");
+
+                // Adapter en fonction de ton CSV
+                var compte = new BlazorApp.Data.OperationCC
+                {
+                    Date = values[0],
+                    Description = values[1],
+                    Montant = double.Parse(values[2], CultureInfo.InvariantCulture),
+                    Type = values[3],
+                    Commentaire = values[4],
+                    Banque = values[5]
+                };
+
+                // Modification possible ici
+                // Par exemple : compte.Description = compte.Description?.ToUpper();
+
+                comptes.Add(compte);
+            }
+
+            // Insertion en base
+            foreach (var compte in comptes)
+            {
+                await CompteService.AddAsync(compte);
+            }
+
+            message = $"Import terminé : {comptes.Count} lignes ajoutées.";
+        }
+        catch (Exception ex)
+        {
+            message = $"Erreur : {ex.Message}";
+        }
+    }
+}
