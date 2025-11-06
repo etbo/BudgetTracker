@@ -20,29 +20,23 @@
     {
         var file = e.File;
 
-        Console.WriteLine($"Taille fichier: {file.Size} octets");
-
         message = "En cours...";
-        Console.WriteLine("\n-_-_-_-_-_-azerty-_-_-_-_-_");
 
         try
         {
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
 
-            Console.WriteLine("Lecture du fichier...");
+            Console.WriteLine("Lecture du fichier");
             var content = await reader.ReadToEndAsync();
 
-            Console.WriteLine("Contenu lu !");
             message = $"Longueur du contenu: {content.Length}";
 
             // Déterminer banque → choisir bon parser
             var parser = BanqueCsvParserFactory.GetParser(content);
 
-            Console.WriteLine("-_-_-_-_-_-_parser_-_-_-_-_-_");
             message = parser.ToString();
 
-            Console.WriteLine(parser);
             // Parser et transformer données
             var Operations = parser.ParseCsv(new MemoryStream(Encoding.UTF8.GetBytes(content)));
 
@@ -51,6 +45,8 @@
             {
                 await CompteService.AddAsync(Operation);
             }
+
+            message = $"Import terminé ({Operations.Count} opérations)";
         }
         catch(Exception ex)
         {

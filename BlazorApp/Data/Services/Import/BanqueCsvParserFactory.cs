@@ -2,12 +2,11 @@ public static class BanqueCsvParserFactory
 {
     public static IBanqueCsvParser GetParser(string fileContent)
     {
-        Console.WriteLine("test");
 
-        if (fileContent.Contains("Description1")) // ou analyser colonnes
+        if (fileContent.Contains("Date op�ration;Date valeur;libell�;D�bit;Cr�dit;")) // ou analyser colonnes
         {
-            Console.WriteLine("Description1");
-            return new Banque1CsvParser();
+            Console.WriteLine("Correspondance trouvée : Fortuneo");
+            return new FortuneoCsvParser();
         }
 
         if (fileContent.Contains("Description2"))
@@ -18,6 +17,6 @@ public static class BanqueCsvParserFactory
 
         Console.WriteLine("Aucun...");
 
-        throw new Exception("Format de fichier non reconnu");
+        throw new Exception("Aucune correspondance avec un fichier de banque connu");
     }
 }
