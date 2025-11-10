@@ -29,16 +29,16 @@
 
             Console.WriteLine("Lecture du fichier");
             var content = await reader.ReadToEndAsync();
-
+            
             message = $"Longueur du contenu: {content.Length}";
 
             // Déterminer banque → choisir bon parser
             var parser = BanqueCsvParserFactory.GetParser(content);
 
-            message = parser.ToString();
+            message = parser?.ToString();
 
             // Parser et transformer données
-            var Operations = parser.ParseCsv(new MemoryStream(Encoding.UTF8.GetBytes(content)));
+            List<Data.OperationCC>? Operations = parser?.ParseCsv(new MemoryStream(Encoding.UTF8.GetBytes(content)));
 
             // Import en base
             foreach (var Operation in Operations)
