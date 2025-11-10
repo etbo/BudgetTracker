@@ -1,6 +1,8 @@
 @page "/importfiles"
 @using System.Text
 @inject BlazorApp.Data.Services.CompteCourantService CompteService
+@inject BlazorApp.Data.AppDbContext dbContext
+
 @rendermode InteractiveServer
 
 
@@ -35,18 +37,49 @@
             // Déterminer banque → choisir bon parser
             var parser = BanqueCsvParserFactory.GetParser(content);
 
-            message = parser?.ToString();
-
-            // Parser et transformer données
-            List<Data.OperationCC>? Operations = parser?.ParseCsv(new MemoryStream(Encoding.UTF8.GetBytes(content)));
-
-            // Import en base
-            foreach (var Operation in Operations)
+            if (parser == null)
             {
-                await CompteService.AddAsync(Operation);
+                message = "Parser non initialisé";
+                return;
+            }
+                
+            // Parser et transformer données
+            List<Data.OperationCC>? Operations = parser.ParseCsv(new MemoryStream(Encoding.UTF8.GetBytes(content)));
+
+            if (Operations == null)
+            {
+                message = "Pas d'opérations trouvées (null)";
+                return;
             }
 
-            message = $"Import terminé ({Operations.Count} opérations)";
+            Console.WriteLine($"Operations.Count = {Operations.Count}");
+
+            if (!Operations.Any())
+            {
+                message = "Pas d'opérations trouvées (not Any())";
+                return;
+            }
+
+            // 1️⃣ Charger tous les hash existants dans la base
+            var existingHashes = dbContext.Operations
+                .Select(o => o.Hash)
+                .ToHashSet();
+
+            Console.WriteLine($"Hashes : {existingHashes.Count}");
+
+            // 2️⃣ Filtrer les nouvelles opérations
+            var filteredOps = Operations
+                .Where(op => !existingHashes.Contains(op.Hash))
+                .ToList();
+
+            Console.WriteLine($"filteredOps.Count : {filteredOps.Count}");
+
+            // 3️⃣ Ajouter les opérations filtrées dans la base
+            dbContext.Operations.AddRange(filteredOps);
+            dbContext.SaveChanges();
+
+            message = $"{filteredOps.Count} opérations ajoutées (sur {Operations.Count} lues)";
+            
         }
         catch(Exception ex)
         {

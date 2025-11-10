@@ -9,7 +9,7 @@ namespace BlazorApp.Data
             {
             }
 
-            public DbSet<OperationCC> ComptesCourants => Set<OperationCC>();
+            public DbSet<OperationCC> Operations => Set<OperationCC>();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -44,6 +44,12 @@ namespace BlazorApp.Data
 
                         entity.Property(e => e.Banque)
                         .HasColumnName("Banque");
+
+                        entity.Property(e => e.DateImport)
+                        .HasColumnName("DateImport");
+                        
+                        entity.Property(e => e.Hash)
+                        .HasColumnName("Hash");
                   });
             }
       }

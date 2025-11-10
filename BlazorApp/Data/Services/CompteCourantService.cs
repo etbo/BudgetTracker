@@ -13,35 +13,35 @@ namespace BlazorApp.Data.Services
 
         public async Task<List<OperationCC>> GetAllAsync()
         {
-            return await _context.ComptesCourants
+            return await _context.Operations
                 .OrderByDescending(c => c.Date)
                 .ToListAsync();
         }
 
         public async Task<OperationCC?> GetByIdAsync(int id)
         {
-            return await _context.ComptesCourants.FindAsync(id);
+            return await _context.Operations.FindAsync(id);
         }
 
         public async Task AddAsync(OperationCC item)
         {
-            _context.ComptesCourants.Add(item);
+            _context.Operations.Add(item);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(OperationCC item)
         {
-            _context.ComptesCourants.Update(item);
+            _context.Operations.Update(item);
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var item = await _context.ComptesCourants.FindAsync(id);
+            var item = await _context.Operations.FindAsync(id);
 
             if (item != null)
             {
-                _context.ComptesCourants.Remove(item);
+                _context.Operations.Remove(item);
                 await _context.SaveChangesAsync();
             }
         }
