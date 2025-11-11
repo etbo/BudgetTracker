@@ -1,6 +1,6 @@
 using System;
 
-namespace BlazorApp.Data.Services.Import
+namespace BlazorApp.Data.Helpers
 {
     public static class OperationExtensions
     {
