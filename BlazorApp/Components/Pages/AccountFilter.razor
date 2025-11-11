@@ -1,0 +1,14 @@
+@using BlazorApp.Data.Services
+@inject FiltersState Filters
+
+<select @onchange="ChangeAccount">
+    <option value="">Tous les comptes</option>
+    <option value="Courant">Compte Courant</option>
+    <option value="Epargne">Épargne</option>
+    <option value="Bourse">Bourse</option>
+</select>
+
+@code {
+    void ChangeAccount(ChangeEventArgs e)
+        => Filters.SetAccount(e.Value?.ToString());
+}

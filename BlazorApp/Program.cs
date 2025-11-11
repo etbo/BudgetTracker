@@ -18,8 +18,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add of custom CompteCourant service, defined in Data/Services
 builder.Services.AddScoped<CompteCourantService>();
 
+// Service pour les filtres lors des requêtes :
+builder.Services.AddSingleton<FiltersState>();
+
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

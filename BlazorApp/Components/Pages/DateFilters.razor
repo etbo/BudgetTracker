@@ -1,0 +1,30 @@
+@using BlazorApp.Data.Services
+@inject FiltersState Filters
+
+<div class="row g-2">
+    <div class="col">
+        <label>Du :</label>
+        <input type="date" @bind="start" />
+    </div>
+
+    <div class="col">
+        <label>Au :</label>
+        <input type="date" @bind="end" />
+    </div>
+</div>
+
+@code {
+
+    private DateTime start
+    {
+        get => Filters.StartDate;
+        set => Filters.SetStartDate(value);
+    }
+
+    private DateTime end
+    {
+        get => Filters.EndDate;
+        set => Filters.SetEndDate(value);
+    }
+
+}

@@ -1,15 +1,77 @@
 ﻿@page "/comptecourant"
+@rendermode InteractiveServer
 
-<h2>CompteCourant</h2>
+@using BlazorApp.Data
+@using BlazorApp.Data.Services
+@using Microsoft.EntityFrameworkCore;
+@inject FiltersState Filters
+@inject AppDbContext Db
 
-<h3>Sélection de la période</h3>
+<DateFilters />
+<AccountFilter />
+<button class="btn btn-primary" @onclick="GetOperations">Click me</button>
 
-<p>...</p>
+<p>Message : @message</p>
 
-<h3>Liste des opérations</h3>
-
-<OperationList />
+@if (operations == null)
+{
+    
+}
+else
+{
+    <table class="table">
+        @foreach (var op in operations)
+        {
+            <tr>
+                <td>@op.Date</td>
+                <td>@op.Description</td>
+                <td>@op.Montant</td>
+                <td>@op.Banque</td>
+                <td>@op.Type</td>
+            </tr>
+        }
+    </table>
+}
 
 @code {
+    List<OperationCC>? operations;
 
+    private string message ="";
+
+    protected override void OnInitialized()
+    {
+        @* Filters.OnChange += LoadData;
+        LoadData(); *@
+    }
+
+    private void GetOperations(MouseEventArgs e)
+    {
+        Console.WriteLine("Click");
+        message = $"Filtre = du {Filters.StartDate} au {Filters.EndDate} pour {Filters.Account}";
+        LoadData();
+    }
+
+    async void LoadData()
+    {
+        var start = Filters.StartDate;
+        var end = Filters.EndDate;
+        var account = Filters.Account;
+        var type = Filters.OperationType;
+
+        Console.WriteLine($"start = {start}");
+        Console.WriteLine($"end = {end}");
+        Console.WriteLine($"account = {account}");
+
+        operations = await Db.Operations
+            .Where(o =>
+               DateTime.Parse(o.Date) >= start &&
+               DateTime.Parse(o.Date) <= end &&
+               // (account == null || o.Banque == account) &&
+               (type == null || o.Type == type)
+            )
+            .OrderBy(o => o.Date)
+            .ToListAsync();
+
+        StateHasChanged();
+    }
 }

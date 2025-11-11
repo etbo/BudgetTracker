@@ -1,6 +1,5 @@
 using BlazorApp.Data;
 using BlazorApp.Data.Services.Import;
-
 public class FortuneoCsvParser : IBanqueCsvParser
 {
     public List<OperationCC> ParseCsv(Stream csvStream)
@@ -24,11 +23,11 @@ public class FortuneoCsvParser : IBanqueCsvParser
 
             var operation = new OperationCC
             {
-                Date = values[0],
+                Date = DateTimeHelper.ToIsoString(values[0]),
                 Description = values[2],
                 Montant = double.Parse(string.IsNullOrWhiteSpace(values[3]) ? "0" : values[3]) + double.Parse(string.IsNullOrWhiteSpace(values[4]) ? "0" : values[4]),
                 Banque = "Fortuneo",
-                Commentaire = "Hash",
+                Commentaire = "",
                 DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
             };
 

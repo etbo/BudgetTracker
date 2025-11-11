@@ -1,8 +1,10 @@
 @inject BlazorApp.Data.Services.CompteCourantService CompteService
 
+<button class="btn btn-primary" @onclick="LoadOperations">Click me</button>
+
 @if (listeOperations == null)
 {
-    <p>Chargement...</p>
+    <p>Chargement...@message...</p>
 }
 else
 {
@@ -36,9 +38,12 @@ else
 @code {
     private List<BlazorApp.Data.OperationCC>? listeOperations;
 
-    protected override async Task OnInitializedAsync()
+    private string message = "";
+
+    private void LoadOperations(MouseEventArgs e)
     {
+        message = $"text";
         // Lecture de la première ligne dans la table
-        listeOperations = await CompteService.GetAllAsync();
+        // listeOperations = CompteService.GetAllAsync();
     }
 }
