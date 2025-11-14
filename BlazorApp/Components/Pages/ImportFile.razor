@@ -9,13 +9,44 @@
 
 <InputFile OnChange="HandleFileSelected" />
 
-<p>@message</p>
-
-@* <button class="btn btn-primary" @onclick="ImportData">Importer</button> *@
-
+<table class="table">
+    <tbody>
+        <tr>
+            <td>Status :</td>
+            <td>@message</td>
+        </tr>
+        <tr>
+            <td>Fichier :</td>
+            <td>@messageFichier</td>
+        </tr>
+        <tr>
+            <td>Parser :</td>
+            <td>@messageParser</td>
+        </tr>
+        <tr>
+            <td>Nombre opérations lues :</td>
+            <td>@messageNbOperationsLues</td>
+        </tr>
+        <tr>
+            <td>Nombre opérations ajoutées :</td>
+            <td>@messageNbOperationsAjoutees</td>
+        </tr>
+        <tr>
+            <td>Durée du traitement :</td>
+            <td>@messageTempsEcoule</td>
+        </tr>
+    </tbody>
+</table>
 
 @code {
     private string message = "";
+    private string messageFichier = "";
+    private string messageParser = "";
+    private string messageNbOperationsLues = "";
+    private string messageNbOperationsAjoutees = "";
+    private string messageTempsEcoule = "";
+
+    private DateTime DateTimeDebut;
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
@@ -23,8 +54,15 @@
 
         message = "En cours...";
 
+        messageTempsEcoule = "";
+
+        DateTimeDebut = DateTime.UtcNow;
+
+        messageFichier = file.Name.ToString();
+
         try
         {
+            Console.WriteLine("Ouverture du fichier");
             using var stream = file.OpenReadStream();
             using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
 
@@ -34,7 +72,10 @@
             message = $"Longueur du contenu: {content.Length}";
 
             // Déterminer banque → choisir bon parser
+            Console.WriteLine("Détection du parser du fichier");
             var parser = BanqueCsvParserFactory.GetParser(content);
+
+            messageParser = parser.BankName;
 
             if (parser == null)
             {
@@ -43,7 +84,10 @@
             }
                 
             // Parser et transformer données
-            List<Data.OperationCC>? Operations = parser.ParseCsv(new MemoryStream(Encoding.UTF8.GetBytes(content)));
+            Console.WriteLine("Parsing du fichier");
+            // création du TextReader à partir de la chaîne
+            using var stringReader = new StringReader(content);
+            List<Data.OperationCC>? Operations = parser.ParseCsv(stringReader);
 
             if (Operations == null)
             {
@@ -51,13 +95,13 @@
                 return;
             }
 
-            Console.WriteLine($"Operations.Count = {Operations.Count}");
-
             if (!Operations.Any())
             {
-                message = "Pas d'opérations trouvées (not Any())";
+                messageNbOperationsLues = "0";
                 return;
             }
+            else
+                messageNbOperationsLues = $"{Operations.Count.ToString()}";
 
             // 1️⃣ Charger tous les hash existants dans la base
             var existingHashes = dbContext.Operations
@@ -77,7 +121,9 @@
             dbContext.Operations.AddRange(filteredOps);
             dbContext.SaveChanges();
 
-            message = $"{filteredOps.Count} opérations ajoutées (sur {Operations.Count} lues)";
+            message = $"Import terminé";
+            Console.WriteLine($"message : {message}");
+            messageNbOperationsAjoutees = $"{filteredOps.Count}";
             
         }
         catch(Exception ex)
@@ -85,6 +131,9 @@
             Console.WriteLine($"ERREUR CSV: {ex.Message}");
             message = $"Erreur: {ex.Message}";
         }
+
+        Console.WriteLine("Fin");
+        messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
 
         
     }

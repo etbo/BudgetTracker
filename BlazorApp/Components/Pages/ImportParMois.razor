@@ -1,0 +1,101 @@
+@using BlazorApp.Data
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext Db
+
+@rendermode InteractiveServer
+
+<h2>Bilan du nombre d'opérations par mois</h2>
+
+@if (Stats == null)
+{
+    <p>Chargement...</p>
+}
+else if (!Stats.Any())
+{
+    <p>Aucune opération trouvée.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Mois</th>
+                <th>Nombre d’opérations</th>
+                <th>Nombre d’opérations Fortuneo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Stats)
+            {
+                var css = s.Nombre == 0 ? "text-danger" : "";
+
+                <tr>
+                    <td class="@css">@s.MoisNom @s.Annee</td>
+                    <td class="@css">@s.Nombre</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    // Lecture de la BDD :
+    
+    
+    public List<OpsParMois> Stats { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Bornes pour l'affichage du tableau
+        var dateDebut = DateTime.Today.AddYears(-1);//new DateTime(2020, 1, 1);
+        var dateFin = DateTime.Today.AddMonths(-1);
+
+        // 1. Charger les opérations et parser les dates
+        var operations = Db.Operations
+            .Select(op => new 
+            {
+                Date = DateTime.Parse(op.Date)
+            })
+            .ToList();
+
+        // 2. Générer tous les mois entre dateDebut et aujourd’hui
+        var tousLesMois = new List<(int Annee, int Mois)>();
+        var d = new DateTime(dateDebut.Year, dateDebut.Month, 1);
+
+        while (d <= dateFin)
+        {
+            tousLesMois.Add((d.Year, d.Month));
+            d = d.AddMonths(1);
+        }
+
+        // 3. Compter les opérations par mois
+        var opsParMois = operations
+            .GroupBy(op => new { op.Date.Year, op.Date.Month })
+            .ToDictionary(
+                g => (g.Key.Year, g.Key.Month),
+                g => g.Count()
+            );
+
+        // 4. Fusionner → mois sans opérations = 0
+        Stats = tousLesMois
+            .Select(m => new OpsParMois
+            {
+                Annee = m.Annee,
+                Mois = m.Mois,
+                MoisNom = CultureInfo.GetCultureInfo("fr-FR").DateTimeFormat.GetMonthName(m.Mois),
+                Nombre = opsParMois.TryGetValue((m.Annee, m.Mois), out var count) ? count : 0
+            })
+            .OrderByDescending(x => x.Annee)
+            .ThenByDescending(x => x.Mois)
+            .ToList();
+
+    }
+
+    public class OpsParMois
+    {
+        public int Annee { get; set; }
+        public int Mois { get; set; }
+        public int Nombre { get; set; }
+        public string MoisNom { get; set; }
+    }
+}

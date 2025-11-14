@@ -3,11 +3,12 @@ using BlazorApp.Data.Helpers;
 using BlazorApp.Data.Services.Import;
 public class FortuneoCsvParser : IBanqueCsvParser
 {
-    public List<OperationCC> ParseCsv(Stream csvStream)
+    public string BankName => "Fortuneo";
+
+    public List<OperationCC> ParseCsv(TextReader reader)
     {
         var ListOperations = new List<OperationCC>();
 
-        using var reader = new StreamReader(csvStream);
         string? line;
         bool header = true;
 

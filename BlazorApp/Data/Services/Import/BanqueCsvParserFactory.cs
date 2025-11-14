@@ -3,19 +3,20 @@ public static class BanqueCsvParserFactory
     public static IBanqueCsvParser GetParser(string fileContent)
     {
 
-        if (fileContent.Contains("Date op�ration;Date valeur;libell�;D�bit;Cr�dit;")) // ou analyser colonnes
+        if (fileContent.Contains("Date op�ration;Date valeur;libell�;D�bit;Cr�dit;") || fileContent.Contains("Date opération;Date valeur;libellé;Débit;Crédit;")) // ou analyser colonnes
         {
-            Console.WriteLine("Correspondance trouvée : Fortuneo");
             return new FortuneoCsvParser();
         }
 
-        if (fileContent.Contains("Description2"))
+        if (fileContent.Contains("xxDate;")) // ou analyser colonnes
         {
-            Console.WriteLine("Description2");
-            return new Banque2CsvParser();
+            return new GsheetsCsvParser();
         }
 
-        Console.WriteLine("Aucun...");
+        if (fileContent.Contains("T�l�chargement du ") || fileContent.Contains("Téléchargement du "))
+        {
+            return new CreditAgricoleCsvParser();
+        }
 
         throw new Exception("Aucune correspondance avec un fichier de banque connu");
     }

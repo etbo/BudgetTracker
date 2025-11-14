@@ -2,5 +2,6 @@ using BlazorApp.Data;
 
 public interface IBanqueCsvParser
 {
-    List<OperationCC> ParseCsv(Stream csvStream);
+    string BankName { get; }
+    List<OperationCC> ParseCsv(TextReader reader);
 }
