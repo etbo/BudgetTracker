@@ -20,8 +20,8 @@ else
         <thead>
             <tr>
                 <th>Mois</th>
-                <th>Nombre d’opérations</th>
-                <th>Nombre d’opérations Fortuneo</th>
+                <th>Nombre d'opérations Fortuneo</th>
+                <th>Nombre d'opérations CA</th>
             </tr>
         </thead>
         <tbody>
@@ -31,7 +31,8 @@ else
 
                 <tr>
                     <td class="@css">@s.MoisNom @s.Annee</td>
-                    <td class="@css">@s.Nombre</td>
+                    <td class="@css">@s.NombreFortuneo</td>
+                    <td class="@css">@s.NombreCA</td>
                 </tr>
             }
         </tbody>
@@ -47,14 +48,15 @@ else
     protected override async Task OnInitializedAsync()
     {
         // Bornes pour l'affichage du tableau
-        var dateDebut = DateTime.Today.AddYears(-1);//new DateTime(2020, 1, 1);
+        var dateDebut = DateTime.Today.AddYears(-2);//new DateTime(2020, 1, 1);
         var dateFin = DateTime.Today.AddMonths(-1);
 
         // 1. Charger les opérations et parser les dates
         var operations = Db.Operations
             .Select(op => new 
             {
-                Date = DateTime.Parse(op.Date)
+                Date = DateTime.Parse(op.Date),
+                Banque = op.Banque
             })
             .ToList();
 
@@ -69,8 +71,19 @@ else
         }
 
         // 3. Compter les opérations par mois
-        var opsParMois = operations
-            .GroupBy(op => new { op.Date.Year, op.Date.Month })
+        var opsBanqueFortuneo = operations
+            .Where(op => op.Banque == "Fortuneo")
+            .Select(op => op.Date)
+            .GroupBy(x => new { x.Date.Year, x.Date.Month })
+            .ToDictionary(
+                g => (g.Key.Year, g.Key.Month),
+                g => g.Count()
+            );
+
+        var opsBanqueCA = operations
+            .Where(op => op.Banque == "CA")
+            .Select(op => op.Date)
+            .GroupBy(x => new { x.Date.Year, x.Date.Month })
             .ToDictionary(
                 g => (g.Key.Year, g.Key.Month),
                 g => g.Count()
@@ -82,8 +95,9 @@ else
             {
                 Annee = m.Annee,
                 Mois = m.Mois,
-                MoisNom = CultureInfo.GetCultureInfo("fr-FR").DateTimeFormat.GetMonthName(m.Mois),
-                Nombre = opsParMois.TryGetValue((m.Annee, m.Mois), out var count) ? count : 0
+                NombreFortuneo = opsBanqueFortuneo.TryGetValue((m.Annee, m.Mois), out var c1) ? c1 : 0,
+                NombreCA = opsBanqueCA.TryGetValue((m.Annee, m.Mois), out var c2) ? c2 : 0,
+                MoisNom = CultureInfo.GetCultureInfo("fr-FR").DateTimeFormat.GetMonthName(m.Mois)
             })
             .OrderByDescending(x => x.Annee)
             .ThenByDescending(x => x.Mois)
@@ -96,6 +110,8 @@ else
         public int Annee { get; set; }
         public int Mois { get; set; }
         public int Nombre { get; set; }
+        public int NombreFortuneo { get; set; }
+        public int NombreCA { get; set; }
         public string MoisNom { get; set; }
     }
 }
