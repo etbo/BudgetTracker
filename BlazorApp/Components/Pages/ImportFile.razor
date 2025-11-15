@@ -56,6 +56,9 @@
 
         messageTempsEcoule = "";
 
+        messageNbOperationsLues = "0";
+        messageNbOperationsAjoutees = "0";
+
         DateTimeDebut = DateTime.UtcNow;
 
         messageFichier = file.Name.ToString();
@@ -63,41 +66,67 @@
         try
         {
             Console.WriteLine("Ouverture du fichier");
-            using var stream = file.OpenReadStream();
-            using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+            using var originalStream = file.OpenReadStream();
+            using var memoryStream = new MemoryStream();
+            await originalStream.CopyToAsync(memoryStream);
 
-            Console.WriteLine("Lecture du fichier");
-            var content = await reader.ReadToEndAsync();
+            // Remettre la position au début
+            memoryStream.Position = 0;
+
+            string? textContent = null;
             
-            message = $"Longueur du contenu: {content.Length}";
+            Console.WriteLine("Test extension");
+            if (file.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+            {
+                using var reader = new StreamReader(memoryStream, Encoding.UTF8);
+                textContent = await reader.ReadToEndAsync();
+
+                // remettre le stream au début si tu veux le réutiliser
+                memoryStream.Position = 0;
+            }
+
+            Console.WriteLine("Création ParserInputContext");
+            var ctx = new ParserInputContext
+            {
+                FileStream = memoryStream,
+                TextContent = textContent,
+                FileName = file.Name,
+                ContentType = file.ContentType
+            };
 
             // Déterminer banque → choisir bon parser
             Console.WriteLine("Détection du parser du fichier");
-            var parser = BanqueCsvParserFactory.GetParser(content);
+            var parser = ParserFactory.GetParser(ctx);
 
             messageParser = parser.BankName;
 
             if (parser == null)
             {
                 message = "Parser non initialisé";
+                Console.WriteLine("Fin");
+                messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
                 return;
             }
                 
             // Parser et transformer données
             Console.WriteLine("Parsing du fichier");
             // création du TextReader à partir de la chaîne
-            using var stringReader = new StringReader(content);
-            List<Data.OperationCC>? Operations = parser.ParseCsv(stringReader);
+            List<Data.OperationCC>? Operations = parser.Parse(ctx);
 
             if (Operations == null)
             {
                 message = "Pas d'opérations trouvées (null)";
+                Console.WriteLine("Fin");
+                messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
                 return;
             }
 
             if (!Operations.Any())
             {
+                message = "Pas d'opérations trouvées (null)";
                 messageNbOperationsLues = "0";
+                Console.WriteLine("Fin");
+                messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
                 return;
             }
             else
@@ -130,6 +159,9 @@
         {
             Console.WriteLine($"ERREUR CSV: {ex.Message}");
             message = $"Erreur: {ex.Message}";
+
+            Console.WriteLine("Fin");
+            messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
         }
 
         Console.WriteLine("Fin");

@@ -3,12 +3,14 @@ using BlazorApp.Data.Helpers;
 using BlazorApp.Data.Services.Import;
 using CsvHelper;
 
-public class GsheetsCsvParser : IBanqueCsvParser
+public class GsheetsCsvParser : IBanqueParser
 {
     public string BankName => "Extraction Google Sheets";
     
-    public List<OperationCC> ParseCsv(TextReader reader)
+    public List<OperationCC> Parse(ParserInputContext ctx)
     {
+        var reader = ctx.GetTextReader();
+        
         var ListOperations = new List<OperationCC>();
 
         var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.GetCultureInfo("fr-FR"))

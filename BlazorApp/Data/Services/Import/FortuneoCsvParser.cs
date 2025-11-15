@@ -1,12 +1,15 @@
 using BlazorApp.Data;
 using BlazorApp.Data.Helpers;
 using BlazorApp.Data.Services.Import;
-public class FortuneoCsvParser : IBanqueCsvParser
+public class FortuneoCsvParser : IBanqueParser
 {
     public string BankName => "Fortuneo";
 
-    public List<OperationCC> ParseCsv(TextReader reader)
+    public List<OperationCC> Parse(ParserInputContext ctx)
     {
+        var reader = ctx.GetTextReader();
+
+        
         var ListOperations = new List<OperationCC>();
 
         string? line;
