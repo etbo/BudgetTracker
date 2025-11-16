@@ -1,0 +1,54 @@
+@page "/operationseditor"
+@using BlazorApp.Services
+@rendermode InteractiveServer
+@inject DatabaseSelectorService DbSelector
+
+
+<h1>Edition d'opérations</h1>
+
+<select class="form-select" @onchange="OnOptionChanged">
+    <option value="A">Opérations avec Type manquant</option>
+    <option value="B">Option B</option>
+    <option value="C">Option C</option>
+</select>
+
+<p>Valeur = @SelectedValue</p>
+<p>Base actuelle : @DbSelector.CurrentDatabase</p>
+
+@code {
+    private Dictionary<string, Action> actions;
+    private string SelectedValue = "";
+
+    protected override void OnInitialized()
+    {
+        actions = new Dictionary<string, Action>
+        {
+            { "A", FiltrerTypeManquant },
+            { "B", DoTreatmentB },
+            { "C", DoTreatmentC }
+        };
+    }
+
+    private void OnOptionChanged(ChangeEventArgs e)
+    {
+        if (e.Value is string key && actions.ContainsKey(key))
+            actions[key].Invoke();
+    }
+
+    private void FiltrerTypeManquant()
+    {
+        SelectedValue = "FiltrerTypeManquant";
+    }
+
+    private void DoTreatmentB()
+    {
+        SelectedValue = "B";
+
+    }
+
+    private void DoTreatmentC()
+    {
+        SelectedValue = "C";
+
+    }
+}

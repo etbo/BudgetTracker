@@ -1,0 +1,38 @@
+@using BlazorApp.Services
+@rendermode InteractiveServer
+
+@namespace BlazorApp.Components
+@inject DatabaseSelectorService DbSelector
+
+<select class="form-select w-auto" @onchange="OnDatabaseChanged">
+    <option value="Production" >Production</option>
+    <option value="Test" >Test</option>
+</select>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Abonnement propre
+        DbSelector.OnChange += RefreshUI;
+    }
+
+    private Task RefreshUI()
+    {
+        // IMPORTANT : basculer sur le dispatcher Blazor
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnDatabaseChanged(ChangeEventArgs e)
+    {
+        var selected = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selected))
+        {
+            await DbSelector.SetDatabase(selected);
+        }
+    }
+
+    public void Dispose()
+    {
+        DbSelector.OnChange -= RefreshUI;
+    }
+}

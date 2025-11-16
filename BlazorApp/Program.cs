@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using BlazorApp.Components;
 using BlazorApp.Data;
 using BlazorApp.Data.Services;
+using BlazorApp.Services;
 
 
 
@@ -20,6 +21,12 @@ builder.Services.AddScoped<CompteCourantService>();
 
 // Service pour les filtres lors des requêtes :
 builder.Services.AddSingleton<FiltersState>();
+
+// Service pour gérer le choix de la Database entre production et test
+builder.Services.AddSingleton<DatabaseSelectorService>();
+
+builder.Services.AddSingleton<MyDataService>();
+
 
 
 var app = builder.Build();
