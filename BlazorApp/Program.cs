@@ -13,8 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=Database/BudgetTracker.db"));
+builder.Services.AddDbContextFactory<AppDbContext>();
 
 // Add of custom CompteCourant service, defined in Data/Services
 builder.Services.AddScoped<CompteCourantService>();

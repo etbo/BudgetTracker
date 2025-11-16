@@ -1,11 +1,16 @@
 @using BlazorApp.Data
+@using BlazorApp.Services
 @using Microsoft.EntityFrameworkCore
-@inject AppDbContext Db
+@inject DatabaseSelectorService DbSelector
+@inject IDbContextFactory<AppDbContext> DbFactory
 
 @rendermode InteractiveServer
 
-<h2>Bilan du nombre d'opérations par mois</h2>
+@implements IDisposable
 
+
+<h2>Bilan du nombre d'opérations par mois</h2>
+<p></p>
 @if (Stats == null)
 {
     <p>Chargement...</p>
@@ -41,24 +46,49 @@ else
 
 @code {
     // Lecture de la BDD :
-    
-    
+
+    private Guid _instanceId = Guid.NewGuid();
     public List<OpsParMois> Stats { get; set; }
 
-    protected override async Task OnInitializedAsync()
+
+    private bool _hasSubscribed = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            Console.WriteLine($"OnAfterRenderAsync → Instance = {_instanceId}");
+
+            DbSelector.OnChange -= RefreshOnChange;
+            DbSelector.OnChange += RefreshOnChange;
+
+            await CalculateStat();
+            StateHasChanged();
+
+            _hasSubscribed = true;
+        }
+    }
+
+    private async Task CalculateStat()
+    {
+        Console.WriteLine($"Calcul des stats");
+        Console.WriteLine($"OnInitializedAsync → Instance = {_instanceId}");
+        // Récupération de la DB :
+        using var db = DbFactory.CreateDbContext();
+        Console.WriteLine($"db = {db.Database.GetDbConnection().DataSource} ({DateTime.Now})");
+
         // Bornes pour l'affichage du tableau
         var dateDebut = DateTime.Today.AddYears(-2);//new DateTime(2020, 1, 1);
         var dateFin = DateTime.Today.AddMonths(-1);
 
         // 1. Charger les opérations et parser les dates
-        var operations = Db.Operations
-            .Select(op => new 
-            {
-                Date = DateTime.Parse(op.Date),
-                Banque = op.Banque
-            })
-            .ToList();
+        var operations = db.Operations
+        .Select(op => new
+        {
+            Date = DateTime.Parse(op.Date),
+            Banque = op.Banque
+        })
+        .ToList();
 
         // 2. Générer tous les mois entre dateDebut et aujourd’hui
         var tousLesMois = new List<(int Annee, int Mois)>();
@@ -72,37 +102,36 @@ else
 
         // 3. Compter les opérations par mois
         var opsBanqueFortuneo = operations
-            .Where(op => op.Banque == "Fortuneo")
-            .Select(op => op.Date)
-            .GroupBy(x => new { x.Date.Year, x.Date.Month })
-            .ToDictionary(
-                g => (g.Key.Year, g.Key.Month),
-                g => g.Count()
-            );
+        .Where(op => op.Banque == "Fortuneo")
+        .Select(op => op.Date)
+        .GroupBy(x => new { x.Date.Year, x.Date.Month })
+        .ToDictionary(
+        g => (g.Key.Year, g.Key.Month),
+        g => g.Count()
+        );
 
         var opsBanqueCA = operations
-            .Where(op => op.Banque == "CA")
-            .Select(op => op.Date)
-            .GroupBy(x => new { x.Date.Year, x.Date.Month })
-            .ToDictionary(
-                g => (g.Key.Year, g.Key.Month),
-                g => g.Count()
-            );
+        .Where(op => op.Banque == "CA")
+        .Select(op => op.Date)
+        .GroupBy(x => new { x.Date.Year, x.Date.Month })
+        .ToDictionary(
+        g => (g.Key.Year, g.Key.Month),
+        g => g.Count()
+        );
 
         // 4. Fusionner → mois sans opérations = 0
         Stats = tousLesMois
-            .Select(m => new OpsParMois
-            {
-                Annee = m.Annee,
-                Mois = m.Mois,
-                NombreFortuneo = opsBanqueFortuneo.TryGetValue((m.Annee, m.Mois), out var c1) ? c1 : 0,
-                NombreCA = opsBanqueCA.TryGetValue((m.Annee, m.Mois), out var c2) ? c2 : 0,
-                MoisNom = CultureInfo.GetCultureInfo("fr-FR").DateTimeFormat.GetMonthName(m.Mois)
-            })
-            .OrderByDescending(x => x.Annee)
-            .ThenByDescending(x => x.Mois)
-            .ToList();
-
+        .Select(m => new OpsParMois
+        {
+            Annee = m.Annee,
+            Mois = m.Mois,
+            NombreFortuneo = opsBanqueFortuneo.TryGetValue((m.Annee, m.Mois), out var c1) ? c1 : 0,
+            NombreCA = opsBanqueCA.TryGetValue((m.Annee, m.Mois), out var c2) ? c2 : 0,
+            MoisNom = CultureInfo.GetCultureInfo("fr-FR").DateTimeFormat.GetMonthName(m.Mois)
+        })
+        .OrderByDescending(x => x.Annee)
+        .ThenByDescending(x => x.Mois)
+        .ToList();
     }
 
     public class OpsParMois
@@ -113,5 +142,19 @@ else
         public int NombreFortuneo { get; set; }
         public int NombreCA { get; set; }
         public string MoisNom { get; set; }
+    }
+
+    private async Task RefreshOnChange()
+    {
+        await CalculateStat();
+
+        // 🔥 Important : on repasse sur le thread UI
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        // 🔥 Toujours se désabonner pour éviter les fuites mémoire
+        DbSelector.OnChange -= RefreshOnChange;
     }
 }

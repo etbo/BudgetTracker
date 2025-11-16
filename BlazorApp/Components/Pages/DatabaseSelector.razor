@@ -5,8 +5,8 @@
 @inject DatabaseSelectorService DbSelector
 
 <select class="form-select w-auto" @onchange="OnDatabaseChanged">
-    <option value="Production" >Production</option>
-    <option value="Test" >Test</option>
+    <option value="Production" selected="@IsSelected("Production")">Production</option>
+    <option value="Test" selected="@IsSelected("Test")">Test</option>
 </select>
 
 @code {
@@ -35,4 +35,6 @@
     {
         DbSelector.OnChange -= RefreshUI;
     }
+
+    private bool IsSelected(string db) => DbSelector.CurrentDatabase == db;
 }

@@ -1,12 +1,27 @@
+using BlazorApp.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlazorApp.Data
 {
       public class AppDbContext : DbContext
       {
-            public AppDbContext(DbContextOptions<AppDbContext> options)
-                : base(options)
+            private readonly string _connectionString;
+
+            public AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration config, DatabaseSelectorService dbSelector)
+        : base(options)
             {
+                  // Le service donne la BDD choisie
+                  _connectionString = dbSelector.CurrentDatabase switch
+                  {
+                        "Test" => "Data Source=Database/BudgetTrackerTest.db",
+                        _ => "Data Source=Database/BudgetTracker.db"
+                  };
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                  if (!optionsBuilder.IsConfigured)
+                        optionsBuilder.UseSqlite(_connectionString);
             }
 
             public DbSet<OperationCC> Operations => Set<OperationCC>();
@@ -47,7 +62,7 @@ namespace BlazorApp.Data
 
                         entity.Property(e => e.DateImport)
                         .HasColumnName("DateImport");
-                        
+
                         entity.Property(e => e.Hash)
                         .HasColumnName("Hash");
                   });

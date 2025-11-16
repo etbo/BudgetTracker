@@ -1,6 +1,11 @@
 @using System.Text
+@using BlazorApp.Data
+@using BlazorApp.Services
+@using Microsoft.EntityFrameworkCore
 @inject BlazorApp.Data.Services.CompteCourantService CompteService
-@inject BlazorApp.Data.AppDbContext dbContext
+@inject IDbContextFactory<AppDbContext> DbFactory
+
+@inject DatabaseSelectorService DbSelector
 
 @rendermode InteractiveServer
 
@@ -35,6 +40,10 @@
             <td>Durée du traitement :</td>
             <td>@messageTempsEcoule</td>
         </tr>
+        <tr>
+            <td>Base de données :</td>
+            <td>@messageDatabase</td>
+        </tr>
     </tbody>
 </table>
 
@@ -45,6 +54,7 @@
     private string messageNbOperationsLues = "";
     private string messageNbOperationsAjoutees = "";
     private string messageTempsEcoule = "";
+    private string messageDatabase = "";
 
     private DateTime DateTimeDebut;
 
@@ -58,13 +68,14 @@
 
         messageNbOperationsLues = "0";
         messageNbOperationsAjoutees = "0";
+        messageDatabase = "";
 
         DateTimeDebut = DateTime.UtcNow;
 
         messageFichier = file.Name.ToString();
 
         try
-        {
+        {          
             Console.WriteLine("Ouverture du fichier");
             using var originalStream = file.OpenReadStream();
             using var memoryStream = new MemoryStream();
@@ -132,8 +143,13 @@
             else
                 messageNbOperationsLues = $"{Operations.Count.ToString()}";
 
+            
+            using var db = DbFactory.CreateDbContext();
+
+            messageDatabase = db.Database.GetDbConnection().DataSource;
+
             // 1️⃣ Charger tous les hash existants dans la base
-            var existingHashes = dbContext.Operations
+            var existingHashes = db.Operations
                 .Select(o => o.Hash)
                 .ToHashSet();
 
@@ -147,8 +163,8 @@
             Console.WriteLine($"filteredOps.Count : {filteredOps.Count}");
 
             // 3️⃣ Ajouter les opérations filtrées dans la base
-            dbContext.Operations.AddRange(filteredOps);
-            dbContext.SaveChanges();
+            db.Operations.AddRange(filteredOps);
+            db.SaveChanges();
 
             message = $"Import terminé";
             Console.WriteLine($"message : {message}");
@@ -157,7 +173,7 @@
         }
         catch(Exception ex)
         {
-            Console.WriteLine($"ERREUR CSV: {ex.Message}");
+            Console.WriteLine($"Erreur: {ex.Message}");
             message = $"Erreur: {ex.Message}";
 
             Console.WriteLine("Fin");

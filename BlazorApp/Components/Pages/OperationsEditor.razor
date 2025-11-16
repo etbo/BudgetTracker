@@ -27,6 +27,9 @@
             { "B", DoTreatmentB },
             { "C", DoTreatmentC }
         };
+
+        // 🔥 On s’abonne pour être notifié du changement
+        DbSelector.OnChange += RefreshOnChange;
     }
 
     private void OnOptionChanged(ChangeEventArgs e)
@@ -37,7 +40,7 @@
 
     private void FiltrerTypeManquant()
     {
-        SelectedValue = "FiltrerTypeManquant";
+        SelectedValue = $"FiltrerTypeManquant (BDD {DbSelector.CurrentDatabase})";
     }
 
     private void DoTreatmentB()
@@ -50,5 +53,17 @@
     {
         SelectedValue = "C";
 
+    }
+
+    private Task RefreshOnChange()
+    {
+        // 🔥 Important : on repasse sur le thread UI
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        // 🔥 Toujours se désabonner pour éviter les fuites mémoire
+        DbSelector.OnChange -= RefreshOnChange;
     }
 }
