@@ -1,7 +1,11 @@
 @page "/operationseditor"
+@using BlazorApp.Data
 @using BlazorApp.Services
+@using Microsoft.EntityFrameworkCore
 @rendermode InteractiveServer
 @inject DatabaseSelectorService DbSelector
+
+@inject IDbContextFactory<AppDbContext> DbFactory
 
 
 <h1>Edition d'opérations</h1>
@@ -15,18 +19,62 @@
 <p>Valeur = @SelectedValue</p>
 <p>Base actuelle : @DbSelector.CurrentDatabase</p>
 
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Montant</th>
+            <th>Type</th>
+            <th>Commentaire</th>
+            <th>Banque</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var op in resultatOperations)
+        {
+            <tr>
+                <td>@op.Date</td>
+                <td>@op.Description</td>
+                <td>@op.Montant</td>
+                <td>
+                    <select @bind="op.Type" class="form-select">
+                        <option value="">-- Non défini --</option>
+                        <option value="Alimentation">Alimentation</option>
+                        <option value="Logement">Logement</option>
+                        <option value="Loisirs">Loisirs</option>
+                        <option value="Salaire">Salaire</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </td>
+                <td>@op.Commentaire</td>
+                <td>@op.Banque</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" @onclick="() => SaveType(op)">
+                        Enregistrer
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
 @code {
     private Dictionary<string, Action> actions;
     private string SelectedValue = "";
 
+    public List<OperationCC> resultatOperations { get; set; }
+
     protected override void OnInitialized()
     {
         actions = new Dictionary<string, Action>
-        {
-            { "A", FiltrerTypeManquant },
-            { "B", DoTreatmentB },
-            { "C", DoTreatmentC }
-        };
+{
+{ "A", FiltrerTypeManquant },
+{ "B", DoTreatmentB },
+{ "C", DoTreatmentC }
+};
+
+        FiltrerTypeManquant();
 
         // 🔥 On s’abonne pour être notifié du changement
         DbSelector.OnChange += RefreshOnChange;
@@ -41,6 +89,20 @@
     private void FiltrerTypeManquant()
     {
         SelectedValue = $"FiltrerTypeManquant (BDD {DbSelector.CurrentDatabase})";
+
+        using var db = DbFactory.CreateDbContext();
+
+        var operations = db.Operations
+        .Where(op => string.IsNullOrEmpty(op.Type))
+        @* .Select(op => new
+        {
+            Date = DateTime.Parse(op.Date),
+            Banque = op.Banque
+        }) *@
+        .ToList();
+
+        resultatOperations = operations;
+
     }
 
     private void DoTreatmentB()
@@ -53,6 +115,17 @@
     {
         SelectedValue = "C";
 
+    }
+
+    private async Task SaveType(OperationCC op)
+    {
+        using var db = DbFactory.CreateDbContext();
+
+        var entity = await db.Operations.FirstAsync(x => x.Id == op.Id);
+
+        entity.Type = op.Type;
+
+        await db.SaveChangesAsync();
     }
 
     private Task RefreshOnChange()
