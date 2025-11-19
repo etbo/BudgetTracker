@@ -65,6 +65,8 @@ namespace BlazorApp.Data
 
                         entity.Property(e => e.Hash)
                         .HasColumnName("Hash");
+
+                        entity.Ignore(e => e.IsModified);
                   });
             }
       }
