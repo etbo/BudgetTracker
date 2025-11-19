@@ -32,6 +32,7 @@ else
                 <th>Montant</th>
                 <th>Type</th>
                 <th>Commentaire</th>
+                <th></th>
                 <th>Banque</th>
             </tr>
         </thead>
@@ -65,8 +66,8 @@ else
                             <option value="Neutre">Neutre</option>
                         </select>
                     </td>
-                    <td>@op.Commentaire</td>
-                    <td>@op.Banque</td>
+                    <td>
+                        <input value="@op.Commentaire" /></td>
                     <td>
                         @if (op.IsModified)
                         {
@@ -75,6 +76,7 @@ else
                             </button>
                         }
                     </td>
+                    <td>@op.Banque</td>
                 </tr>
             }
         </tbody>
@@ -139,16 +141,7 @@ else
             }) *@
             .ToList();
 
-            resultatOperations = operations.Select(op =>
-                {
-                    if (string.IsNullOrEmpty(op.Type))  // Seulement si non défini
-                        op.Type = GetAutoCategory(op);
-
-                        if (!string.IsNullOrEmpty(op.Type))
-                            op.IsModified = true;
-                    return op;
-                }).ToList();
-
+            resultatOperations = operations.Select(TraiterOperation).ToList();
         });
         
         TextResult = $"{resultatOperations.Count} opérations sans Type trouvées dans la BDD {DbSelector.CurrentDatabase}";
@@ -219,7 +212,7 @@ else
                 string.IsNullOrEmpty(op.Type))
             .ToList();
 
-            resultatOperations = operations;
+            resultatOperations = operations.Select(TraiterOperation).ToList();
         });
 
         TextResult = $"{resultatOperations.Count} Cheques sans Type trouvés dans la BDD {DbSelector.CurrentDatabase}";
@@ -247,21 +240,28 @@ else
                 op.DateImport == lastDateImport)
             .ToList();
 
-            resultatOperations = operations.Select(op =>
-                {
-                    if (string.IsNullOrEmpty(op.Type))  // Seulement si non défini
-                        op.Type = GetAutoCategory(op);
-
-                        if (!string.IsNullOrEmpty(op.Type))
-                            op.IsModified = true;
-                    return op;
-                }).ToList();
+            resultatOperations = operations.Select(TraiterOperation).ToList();
         });
 
         TextResult = $"{resultatOperations.Count} opérations dans l'import le plus récent du {lastDateImport} dans la BDD {DbSelector.CurrentDatabase}";
         IsLoading = false;
         await InvokeAsync(StateHasChanged);
 
+    }
+
+    private OperationCC TraiterOperation(OperationCC op)
+    {
+        if (string.IsNullOrEmpty(op.Type))
+        {
+            op.Type = GetAutoCategory(op);
+
+            if (!string.IsNullOrEmpty(op.Type))
+            {
+                op.IsModified = true;
+            }
+        }
+
+        return op;
     }
 
     private async Task SaveType(OperationCC op)
@@ -280,6 +280,10 @@ else
 
     private Task RefreshOnChange()
     {
+        if (actions.TryGetValue(SelectedValue, out var action))
+        {
+            action.Invoke();
+        }
 
         // 🔥 Important : on repasse sur le thread UI
         return InvokeAsync(StateHasChanged);
