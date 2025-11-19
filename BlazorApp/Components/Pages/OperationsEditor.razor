@@ -12,12 +12,11 @@
 
 <select class="form-select" @onchange="OnOptionChanged">
     <option value="A">Opérations avec Type manquant</option>
-    <option value="B">Option B</option>
+    <option value="B">Chèques uniquement</option>
     <option value="C">Option C</option>
 </select>
 
-<p>Valeur = @SelectedValue</p>
-<p>Base actuelle : @DbSelector.CurrentDatabase</p>
+<p>@SelectedValue</p>
 
 <table class="table table-striped">
     <thead>
@@ -38,21 +37,37 @@
                 <td>@op.Description</td>
                 <td>@op.Montant</td>
                 <td>
-                    <select @bind="op.Type" class="form-select">
-                        <option value="">-- Non défini --</option>
-                        <option value="Alimentation">Alimentation</option>
-                        <option value="Logement">Logement</option>
-                        <option value="Loisirs">Loisirs</option>
-                        <option value="Salaire">Salaire</option>
-                        <option value="Autre">Autre</option>
+                    <select value="@op.Type"
+                                    @onchange="(e) => OnTypeChanged(e, op)"
+                                    class="form-select">
+                        <option value=""></option>
+                        <option value="Revenu">Revenu</option>
+                        <option value="Cadeaux reçus">Cadeaux reçus</option>
+                        <option value="Investissement">Investissement</option>
+                        <option value="Prêt">Prêt</option>
+                        <option value="Courses">Courses</option>
+                        <option value="Travaux">Travaux</option>
+                        <option value="Loisir">Loisir</option>
+                        <option value="Vacances">Vacances</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Factures">Factures</option>
+                        <option value="Vêtements">Vêtements</option>
+                        <option value="Cadeaux">Cadeaux</option>
+                        <option value="Santé">Santé</option>
+                        <option value="Autres">Autres</option>
+                        <option value="Maison/Equip">Maison/Equip.</option>
+                        <option value="Neutre">Neutre</option>
                     </select>
                 </td>
                 <td>@op.Commentaire</td>
                 <td>@op.Banque</td>
                 <td>
-                    <button class="btn btn-primary btn-sm" @onclick="() => SaveType(op)">
-                        Enregistrer
-                    </button>
+                    @if (op.IsModified)
+                    {
+                        <button class="btn btn-primary btn-sm" @onclick="() => SaveType(op)">
+                            Enregistrer
+                        </button>
+                    }
                 </td>
             </tr>
         }
@@ -68,11 +83,11 @@
     protected override void OnInitialized()
     {
         actions = new Dictionary<string, Action>
-{
-{ "A", FiltrerTypeManquant },
-{ "B", DoTreatmentB },
-{ "C", DoTreatmentC }
-};
+        {
+            { "A", FiltrerTypeManquant },
+            { "B", FiltrerCheques },
+            { "C", DoTreatmentC }
+        };
 
         FiltrerTypeManquant();
 
@@ -101,14 +116,78 @@
         }) *@
         .ToList();
 
-        resultatOperations = operations;
+        resultatOperations = operations.Select(op =>
+            {
+                if (string.IsNullOrEmpty(op.Type))  // Seulement si non défini
+                    op.Type = GetAutoCategory(op);
+
+                    if (!string.IsNullOrEmpty(op.Type))
+                        op.IsModified = true;
+                return op;
+            }).ToList();
+
+        SelectedValue = $"{resultatOperations.Count} opérations sans Type trouvées dans la BDD {DbSelector.CurrentDatabase}";
 
     }
 
-    private void DoTreatmentB()
+    private string GetAutoCategory(OperationCC op)
     {
-        SelectedValue = "B";
+        if (op.Description.Contains("PRLV ECOLE SAINT PAVIN", StringComparison.OrdinalIgnoreCase))
+            return "Factures";
 
+        if (op.Description.Contains("GOOGLE", StringComparison.OrdinalIgnoreCase)
+            || op.Description.Contains("Deezer"))
+            return "Loisir";
+
+        if (op.Description.Contains("VIR Appro remboursement Pret", StringComparison.OrdinalIgnoreCase))
+            return "Prêt";
+
+        if (op.Description.Contains("PRLV YOUPRICE-YOU PRICE", StringComparison.OrdinalIgnoreCase))
+            return "Factures";
+
+        if (op.Description.Contains("PRLV TotalEnergies Electricite e", StringComparison.OrdinalIgnoreCase))
+            return "Factures";
+
+        if (op.Description.Contains("PRLV GAN ASS ENC PREL CLIENT", StringComparison.OrdinalIgnoreCase))
+            return "Factures";
+
+        if (op.Description.Contains("HELLOASSO* ADHES 33130 BEGLES", StringComparison.OrdinalIgnoreCase))
+            return "Loisir";
+
+        if (op.Description.Contains("VIR MR OU MME GUY BOULESTEIX", StringComparison.OrdinalIgnoreCase) && (op.Montant == 150))
+            return "Revenu";
+
+        if (op.Description.Contains("PRLV SFR", StringComparison.OrdinalIgnoreCase) && (op.Montant == -21.98))
+            return "Factures";
+        
+        if (op.Description.Contains("FAMILEO.COM Paris", StringComparison.OrdinalIgnoreCase))
+            return "Cadeaux";
+        
+        return "";
+    }
+
+    private void OnTypeChanged(ChangeEventArgs e, OperationCC op)
+    {
+        Console.WriteLine($"Changement Type");
+        op.Type = e.Value?.ToString();
+        op.IsModified = true;
+    }
+
+    private void FiltrerCheques()
+    {
+
+        using var db = DbFactory.CreateDbContext();
+
+        var operations = db.Operations
+        .Where(op =>
+            op.Description != null &&
+            (op.Description.ToUpper().Contains("CHEQUE EMIS") || op.Description.ToUpper().Contains("CHQ ")) &&
+            string.IsNullOrEmpty(op.Type))
+        .ToList();
+
+        resultatOperations = operations;
+
+        SelectedValue = $"{resultatOperations.Count} Cheques sans Type trouvés dans la BDD {DbSelector.CurrentDatabase}";
     }
 
     private void DoTreatmentC()
@@ -126,6 +205,9 @@
         entity.Type = op.Type;
 
         await db.SaveChangesAsync();
+
+        // En UI : plus considéré comme modifié
+        op.IsModified = false;
     }
 
     private Task RefreshOnChange()

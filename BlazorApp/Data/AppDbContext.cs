@@ -80,5 +80,6 @@ namespace BlazorApp.Data
             public string? Banque { get; set; }
             public string? DateImport { get; set; }
             public string? Hash { get; set; }
+            public bool IsModified { get; set; } = false;
       }
 }
