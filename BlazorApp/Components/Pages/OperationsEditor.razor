@@ -10,124 +10,150 @@
 
 <h1>Edition d'opérations</h1>
 
-<select class="form-select" @onchange="OnOptionChanged">
+<select class="form-select" @bind="SelectedValue" @bind:after="OnOptionChanged" >
     <option value="A">Opérations avec Type manquant</option>
     <option value="B">Chèques uniquement</option>
-    <option value="C">Option C</option>
+    <option value="C">Dernier import</option>
 </select>
 
-<p>@SelectedValue</p>
+<p>@TextResult</p>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Montant</th>
-            <th>Type</th>
-            <th>Commentaire</th>
-            <th>Banque</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var op in resultatOperations)
-        {
+@if (IsLoading)
+{
+    <div class="alert alert-info">Chargement des opérations...</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td>@op.Date</td>
-                <td>@op.Description</td>
-                <td>@op.Montant</td>
-                <td>
-                    <select value="@op.Type"
-                                    @onchange="(e) => OnTypeChanged(e, op)"
-                                    class="form-select">
-                        <option value=""></option>
-                        <option value="Revenu">Revenu</option>
-                        <option value="Cadeaux reçus">Cadeaux reçus</option>
-                        <option value="Investissement">Investissement</option>
-                        <option value="Prêt">Prêt</option>
-                        <option value="Courses">Courses</option>
-                        <option value="Travaux">Travaux</option>
-                        <option value="Loisir">Loisir</option>
-                        <option value="Vacances">Vacances</option>
-                        <option value="Transport">Transport</option>
-                        <option value="Factures">Factures</option>
-                        <option value="Vêtements">Vêtements</option>
-                        <option value="Cadeaux">Cadeaux</option>
-                        <option value="Santé">Santé</option>
-                        <option value="Autres">Autres</option>
-                        <option value="Maison/Equip">Maison/Equip.</option>
-                        <option value="Neutre">Neutre</option>
-                    </select>
-                </td>
-                <td>@op.Commentaire</td>
-                <td>@op.Banque</td>
-                <td>
-                    @if (op.IsModified)
-                    {
-                        <button class="btn btn-primary btn-sm" @onclick="() => SaveType(op)">
-                            Enregistrer
-                        </button>
-                    }
-                </td>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Montant</th>
+                <th>Type</th>
+                <th>Commentaire</th>
+                <th>Banque</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var op in resultatOperations)
+            {
+                <tr>
+                    <td>@op.Date</td>
+                    <td>@op.Description</td>
+                    <td>@op.Montant</td>
+                    <td>
+                        <select value="@op.Type"
+                                        @onchange="(e) => OnTypeChanged(e, op)"
+                                        class="form-select">
+                            <option value=""></option>
+                            <option value="Revenu">Revenu</option>
+                            <option value="Cadeaux reçus">Cadeaux reçus</option>
+                            <option value="Investissement">Investissement</option>
+                            <option value="Prêt">Prêt</option>
+                            <option value="Courses">Courses</option>
+                            <option value="Travaux">Travaux</option>
+                            <option value="Loisir">Loisir</option>
+                            <option value="Vacances">Vacances</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Factures">Factures</option>
+                            <option value="Vêtements">Vêtements</option>
+                            <option value="Cadeaux">Cadeaux</option>
+                            <option value="Santé">Santé</option>
+                            <option value="Autres">Autres</option>
+                            <option value="Maison/Equip">Maison/Equip.</option>
+                            <option value="Neutre">Neutre</option>
+                        </select>
+                    </td>
+                    <td>@op.Commentaire</td>
+                    <td>@op.Banque</td>
+                    <td>
+                        @if (op.IsModified)
+                        {
+                            <button class="btn btn-primary btn-sm" @onclick="() => SaveType(op)">
+                                Enregistrer
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
 
 @code {
-    private Dictionary<string, Action> actions;
-    private string SelectedValue = "";
 
-    public List<OperationCC> resultatOperations { get; set; }
+    private string SelectedValue { get; set; } = "";
+
+    // Indicate to UI that operations are loading
+    private bool IsLoading { get; set; } = false;
+
+
+    private Dictionary<string, Func<Task>> actions = new();
+    private string TextResult = "";
+
+    public List<OperationCC> resultatOperations { get; set; } = new();
 
     protected override void OnInitialized()
     {
-        actions = new Dictionary<string, Action>
+        actions = new Dictionary<string, Func<Task>>
         {
             { "A", FiltrerTypeManquant },
             { "B", FiltrerCheques },
-            { "C", DoTreatmentC }
+            { "C", FiltrerDernierImport }
         };
-
-        FiltrerTypeManquant();
 
         // 🔥 On s’abonne pour être notifié du changement
         DbSelector.OnChange += RefreshOnChange;
     }
 
-    private void OnOptionChanged(ChangeEventArgs e)
+    private void OnOptionChanged()
     {
-        if (e.Value is string key && actions.ContainsKey(key))
-            actions[key].Invoke();
+        Console.WriteLine($"SelectedValue (après bind) = {SelectedValue}");
+        
+        if (actions.TryGetValue(SelectedValue, out var action))
+        {
+            action.Invoke();
+        }
     }
 
-    private void FiltrerTypeManquant()
+    private async Task FiltrerTypeManquant()
     {
-        SelectedValue = $"FiltrerTypeManquant (BDD {DbSelector.CurrentDatabase})";
+        IsLoading = true;
+        resultatOperations = new List<OperationCC>();
+        StateHasChanged(); // rafraîchi l’UI immédiatement
 
-        using var db = DbFactory.CreateDbContext();
-
-        var operations = db.Operations
-        .Where(op => string.IsNullOrEmpty(op.Type))
-        @* .Select(op => new
+        await Task.Run(() =>
         {
-            Date = DateTime.Parse(op.Date),
-            Banque = op.Banque
-        }) *@
-        .ToList();
 
-        resultatOperations = operations.Select(op =>
+            using var db = DbFactory.CreateDbContext();
+
+            var operations = db.Operations
+            .Where(op => string.IsNullOrEmpty(op.Type))
+            @* .Select(op => new
             {
-                if (string.IsNullOrEmpty(op.Type))  // Seulement si non défini
-                    op.Type = GetAutoCategory(op);
+                Date = DateTime.Parse(op.Date),
+                Banque = op.Banque
+            }) *@
+            .ToList();
 
-                    if (!string.IsNullOrEmpty(op.Type))
-                        op.IsModified = true;
-                return op;
-            }).ToList();
+            resultatOperations = operations.Select(op =>
+                {
+                    if (string.IsNullOrEmpty(op.Type))  // Seulement si non défini
+                        op.Type = GetAutoCategory(op);
 
-        SelectedValue = $"{resultatOperations.Count} opérations sans Type trouvées dans la BDD {DbSelector.CurrentDatabase}";
+                        if (!string.IsNullOrEmpty(op.Type))
+                            op.IsModified = true;
+                    return op;
+                }).ToList();
 
+        });
+        
+        TextResult = $"{resultatOperations.Count} opérations sans Type trouvées dans la BDD {DbSelector.CurrentDatabase}";
+        IsLoading = false;
+        await InvokeAsync(StateHasChanged);
     }
 
     private string GetAutoCategory(OperationCC op)
@@ -139,9 +165,12 @@
             || op.Description.Contains("Deezer"))
             return "Loisir";
 
-        if (op.Description.Contains("VIR Appro remboursement Pret", StringComparison.OrdinalIgnoreCase))
+        if (op.Description.Contains("Appro remboursement Pret", StringComparison.OrdinalIgnoreCase))
             return "Prêt";
 
+        if (op.Description.Contains("REMBOURSEMENT DE PRET", StringComparison.OrdinalIgnoreCase))
+            return "Prêt";
+        
         if (op.Description.Contains("PRLV YOUPRICE-YOU PRICE", StringComparison.OrdinalIgnoreCase))
             return "Factures";
 
@@ -173,26 +202,65 @@
         op.IsModified = true;
     }
 
-    private void FiltrerCheques()
+    private async Task FiltrerCheques()
     {
+        IsLoading = true;
+        resultatOperations = new List<OperationCC>();
+        StateHasChanged(); // rafraîchi l’UI immédiatement
 
-        using var db = DbFactory.CreateDbContext();
+        await Task.Run(() =>
+        {
+            using var db = DbFactory.CreateDbContext();
 
-        var operations = db.Operations
-        .Where(op =>
-            op.Description != null &&
-            (op.Description.ToUpper().Contains("CHEQUE EMIS") || op.Description.ToUpper().Contains("CHQ ")) &&
-            string.IsNullOrEmpty(op.Type))
-        .ToList();
+            var operations = db.Operations
+            .Where(op =>
+                op.Description != null &&
+                (op.Description.ToUpper().Contains("CHEQUE EMIS") || op.Description.ToUpper().Contains("CHQ ")) &&
+                string.IsNullOrEmpty(op.Type))
+            .ToList();
 
-        resultatOperations = operations;
+            resultatOperations = operations;
+        });
 
-        SelectedValue = $"{resultatOperations.Count} Cheques sans Type trouvés dans la BDD {DbSelector.CurrentDatabase}";
+        TextResult = $"{resultatOperations.Count} Cheques sans Type trouvés dans la BDD {DbSelector.CurrentDatabase}";
+        IsLoading = false;
+        await InvokeAsync(StateHasChanged);
     }
 
-    private void DoTreatmentC()
+    private async Task FiltrerDernierImport()
     {
-        SelectedValue = "C";
+        IsLoading = true;
+        resultatOperations = new List<OperationCC>();
+        StateHasChanged(); // rafraîchi l’UI immédiatement
+        
+        string lastDateImport="";
+
+        await Task.Run(() =>
+        {
+            using var db = DbFactory.CreateDbContext();
+            
+            // Get the latest import date
+            var lastDateImport = db.Operations.Max(op => op.DateImport);
+
+            var operations = db.Operations
+            .Where(op =>
+                op.DateImport == lastDateImport)
+            .ToList();
+
+            resultatOperations = operations.Select(op =>
+                {
+                    if (string.IsNullOrEmpty(op.Type))  // Seulement si non défini
+                        op.Type = GetAutoCategory(op);
+
+                        if (!string.IsNullOrEmpty(op.Type))
+                            op.IsModified = true;
+                    return op;
+                }).ToList();
+        });
+
+        TextResult = $"{resultatOperations.Count} opérations dans l'import le plus récent du {lastDateImport} dans la BDD {DbSelector.CurrentDatabase}";
+        IsLoading = false;
+        await InvokeAsync(StateHasChanged);
 
     }
 
@@ -212,6 +280,7 @@
 
     private Task RefreshOnChange()
     {
+
         // 🔥 Important : on repasse sur le thread UI
         return InvokeAsync(StateHasChanged);
     }
