@@ -155,6 +155,9 @@ else
 
     private string GetAutoCategory(OperationCC op)
     {
+        if (op.Description == null)
+            throw new ArgumentNullException(nameof(op));
+
         if (op.Description.Contains("PRLV ECOLE SAINT PAVIN", StringComparison.OrdinalIgnoreCase))
             return "Factures";
 

@@ -48,10 +48,7 @@ else
     // Lecture de la BDD :
 
     private Guid _instanceId = Guid.NewGuid();
-    public List<OpsParMois> Stats { get; set; }
-
-
-    private bool _hasSubscribed = false;
+    public required List<OpsParMois> Stats { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -64,8 +61,6 @@ else
 
             await CalculateStat();
             StateHasChanged();
-
-            _hasSubscribed = true;
         }
     }
 
@@ -82,13 +77,13 @@ else
         var dateFin = DateTime.Today.AddMonths(-1);
 
         // 1. Charger les opérations et parser les dates
-        var operations = db.Operations
+        var operations = await db.Operations
         .Select(op => new
         {
             Date = DateTime.Parse(op.Date),
             Banque = op.Banque
         })
-        .ToList();
+        .ToListAsync();
 
         // 2. Générer tous les mois entre dateDebut et aujourd’hui
         var tousLesMois = new List<(int Annee, int Mois)>();
@@ -141,7 +136,7 @@ else
         public int Nombre { get; set; }
         public int NombreFortuneo { get; set; }
         public int NombreCA { get; set; }
-        public string MoisNom { get; set; }
+        public required string MoisNom { get; set; }
     }
 
     private async Task RefreshOnChange()

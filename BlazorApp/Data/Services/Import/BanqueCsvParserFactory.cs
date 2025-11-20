@@ -8,7 +8,7 @@ public static class BanqueCsvParserFactory
             return new FortuneoCsvParser();
         }
 
-        if (fileContent.Contains("xxDate;")) // ou analyser colonnes
+        if (fileContent.Contains("Date;")) // ou analyser colonnes
         {
             return new GsheetsCsvParser();
         }

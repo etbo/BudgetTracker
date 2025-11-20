@@ -7,10 +7,11 @@ public class FortuneoCsvParser : IBanqueParser
 
     public List<OperationCC> Parse(ParserInputContext ctx)
     {
+        var ListOperations = new List<OperationCC>();
         var reader = ctx.GetTextReader();
 
-        
-        var ListOperations = new List<OperationCC>();
+        if (reader is null)
+            return ListOperations;
 
         string? line;
         bool header = true;
@@ -26,9 +27,15 @@ public class FortuneoCsvParser : IBanqueParser
 
             var values = line.Split(';');
 
+            // Verfication that the parsing is not null to provide the right value to Date
+            var DateIso = DateTimeHelper.ToIsoString(values[0]);
+
+            if (string.IsNullOrWhiteSpace(DateIso))
+                throw new FormatException("La colonne Date est vide dans le CSV.");
+
             var operation = new OperationCC
             {
-                Date = DateTimeHelper.ToIsoString(values[0]),
+                Date = DateIso, // Sur que ce n'est pas null
                 Description = values[2],
                 Montant = double.Parse(string.IsNullOrWhiteSpace(values[3]) ? "0" : values[3]) + double.Parse(string.IsNullOrWhiteSpace(values[4]) ? "0" : values[4]),
                 Banque = "Fortuneo",

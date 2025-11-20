@@ -9,9 +9,11 @@ public class GsheetsCsvParser : IBanqueParser
     
     public List<OperationCC> Parse(ParserInputContext ctx)
     {
+        var ListOperations = new List<OperationCC>();
         var reader = ctx.GetTextReader();
         
-        var ListOperations = new List<OperationCC>();
+        if (reader is null)
+            return ListOperations;
 
         var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.GetCultureInfo("fr-FR"))
         {
@@ -30,11 +32,18 @@ public class GsheetsCsvParser : IBanqueParser
         // Instancie le hashContext qui mémorisera les Hash de cet import en particulier
         var hashContext = new ImportHashContext();
 
+
         foreach (var row in rows)
         {
+            // Verfication that the parsing is not null to provide the right value to Date
+            var DateIso = DateTimeHelper.ToIsoString(row.Date);
+
+            if (string.IsNullOrWhiteSpace(DateIso))
+                throw new FormatException("La colonne Date est vide dans le CSV.");
+
             var operation = new OperationCC
             {
-                Date = DateTimeHelper.ToIsoString(row.xxDate),
+                Date = DateIso,
                 Description = row.Description,
                 Montant = (double)row.Montant,
                 Type = row.Type,

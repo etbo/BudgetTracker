@@ -52,10 +52,15 @@ public class CreditAgricoleExcelParser : IBanqueParser
                 break;
             else
             {
+                // Verfication that the parsing is not null to provide the right value to Date
+                var DateIso = DateTimeHelper.ToIsoString(sheet.Cells[i, 1].Text);
+
+                if (string.IsNullOrWhiteSpace(DateIso))
+                    throw new FormatException("La colonne Date est vide dans le CSV.");
 
                 var operation = new OperationCC
                 {
-                    Date = DateTimeHelper.ToIsoString(sheet.Cells[i, 1].Text),
+                    Date = DateIso,
                     Description = sheet.Cells[i, 2].Text,
                     Montant = double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 4].Text) ? "0" : sheet.Cells[i, 4].Text) - double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 3].Text) ? "0" : sheet.Cells[i, 3].Text),
                     Banque = "CA",
