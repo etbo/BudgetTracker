@@ -1,0 +1,19 @@
+@page "/statsdb"
+@rendermode InteractiveServer
+
+@using BlazorApp.Data
+@using BlazorApp.Data.Services
+@using Microsoft.EntityFrameworkCore;
+
+@using BlazorApp.Components.Shared
+@using BlazorApp.Components.Features.ComptesCourant
+@inject FiltersState Filters
+@inject AppDbContext Db
+
+<h1>Stats</h1>
+
+<ImportParMois />
+
+@code {
+    
+}
