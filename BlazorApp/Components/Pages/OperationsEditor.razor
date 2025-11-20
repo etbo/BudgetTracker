@@ -14,7 +14,9 @@
     <option value="A">Opérations avec Type manquant</option>
     <option value="B">Chèques uniquement</option>
     <option value="C">Dernier import</option>
-</select>
+</select> 
+
+<button class="btn btn-primary btn-sm" @onclick="() => Refresh()"> Refresh </button>
 
 <p>@TextResult</p>
 
@@ -29,7 +31,7 @@ else
             <tr>
                 <th>Date</th>
                 <th>Description</th>
-                <th>Montant</th>
+                <th class="text-end">Montant</th>
                 <th>Type</th>
                 <th>Commentaire</th>
                 <th></th>
@@ -42,7 +44,9 @@ else
                 <tr>
                     <td>@op.Date</td>
                     <td>@op.Description</td>
-                    <td>@op.Montant</td>
+                    <td class="text-end @(op.Montant < 0 ? "text-danger" : "text-success")">
+                        @op.Montant.ToString("N2")
+                    </td>
                     <td>
                         <select value="@op.Type"
                                         @onchange="(e) => OnTypeChanged(e, op)"
@@ -262,6 +266,14 @@ else
         }
 
         return op;
+    }
+
+    private void Refresh()
+    {
+        if (actions.TryGetValue(SelectedValue, out var action))
+        {
+            action.Invoke();
+        }
     }
 
     private async Task SaveType(OperationCC op)
