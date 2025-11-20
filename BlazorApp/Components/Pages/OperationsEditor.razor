@@ -33,8 +33,8 @@ else
                 <th>Description</th>
                 <th class="text-end">Montant</th>
                 <th>Type</th>
-                <th>Commentaire</th>
                 <th></th>
+                <th>Commentaire</th>
                 <th>Banque</th>
             </tr>
         </thead>
@@ -71,8 +71,6 @@ else
                         </select>
                     </td>
                     <td>
-                        <input value="@op.Commentaire" /></td>
-                    <td>
                         @if (op.IsModified)
                         {
                             <button class="btn btn-primary btn-sm" @onclick="() => SaveType(op)">
@@ -80,6 +78,8 @@ else
                             </button>
                         }
                     </td>
+                    <td>
+                        <input value="@op.Commentaire" @onchange="(e) => SaveComment(e, op)"/></td>
                     <td>@op.Banque</td>
                 </tr>
             }
@@ -199,6 +199,7 @@ else
         op.IsModified = true;
     }
 
+
     private async Task FiltrerCheques()
     {
         IsLoading = true;
@@ -288,6 +289,21 @@ else
 
         // En UI : plus considéré comme modifié
         op.IsModified = false;
+    }
+
+    private async Task SaveComment(ChangeEventArgs e, OperationCC op)
+    {
+        Console.WriteLine($"Changement Commentaire");
+        op.Commentaire = e.Value?.ToString();
+        
+        using var db = DbFactory.CreateDbContext();
+
+        var entity = await db.Operations.FirstAsync(x => x.Id == op.Id);
+
+        entity.Commentaire = op.Commentaire;
+
+        await db.SaveChangesAsync();
+
     }
 
     private Task RefreshOnChange()
