@@ -1,9 +1,12 @@
-﻿@page "/comptecourant"
+﻿@page "/dashboardcomptecourant"
 @rendermode InteractiveServer
 
 @using BlazorApp.Data
 @using BlazorApp.Data.Services
 @using Microsoft.EntityFrameworkCore;
+
+@using BlazorApp.Components.Shared
+@using BlazorApp.Components.Features.ComptesCourant
 @inject FiltersState Filters
 @inject AppDbContext Db
 
