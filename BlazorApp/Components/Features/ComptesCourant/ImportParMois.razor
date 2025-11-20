@@ -32,12 +32,13 @@ else
         <tbody>
             @foreach (var s in Stats)
             {
-                var css = s.Nombre == 0 ? "text-danger" : "";
+                var cssFortuneo = s.NombreFortuneo == 0 ? "text-danger" : "";
+                var cssCA = s.NombreCA == 0 ? "text-danger" : "";
 
                 <tr>
-                    <td class="@css">@s.MoisNom @s.Annee</td>
-                    <td class="@css">@s.NombreFortuneo</td>
-                    <td class="@css">@s.NombreCA</td>
+                    <td >@s.MoisNom @s.Annee</td>
+                    <td class="@cssFortuneo">@s.NombreFortuneo</td>
+                    <td class="@cssCA">@s.NombreCA</td>
                 </tr>
             }
         </tbody>

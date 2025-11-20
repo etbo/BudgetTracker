@@ -4,7 +4,7 @@ namespace BlazorApp.Services
 {
     public class DatabaseSelectorService
     {
-        public string CurrentDatabase { get; private set; } = "Production";
+        public string CurrentDatabase { get; private set; } = "Test";
 
         public event Func<Task>? OnChange;
 
