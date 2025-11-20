@@ -1,0 +1,26 @@
+@using BlazorApp.Data.Services.Export
+@rendermode InteractiveServer
+@namespace BlazorApp.Components
+@inject DatabaseExportService ExportService
+@inject IJSRuntime JS
+
+<button @onclick="DownloadBackup">Télécharger la base (zip)</button>
+
+@code {
+    private async Task DownloadBackup()
+    {
+        Console.WriteLine($"DownloadBackup");
+
+        var zipBytes = ExportService.ExportDatabaseAsZip();
+        var fileName = $"backup_{DateTime.Now:yyyyMMdd_HHmm}.zip";
+        Console.WriteLine($"filename = {fileName}");
+
+        using var stream = new MemoryStream(zipBytes);
+        var streamRef = new DotNetStreamReference(stream);
+        Console.WriteLine($"streamRef");
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+
+        Console.WriteLine("fin");
+    }
+}

@@ -4,6 +4,7 @@ using BlazorApp.Components;
 using BlazorApp.Data;
 using BlazorApp.Data.Services;
 using BlazorApp.Services;
+using BlazorApp.Data.Services.Export;
 
 
 
@@ -26,6 +27,7 @@ builder.Services.AddSingleton<DatabaseSelectorService>();
 
 builder.Services.AddSingleton<MyDataService>();
 
+builder.Services.AddScoped<DatabaseExportService>();
 
 
 var app = builder.Build();
