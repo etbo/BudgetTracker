@@ -26,6 +26,8 @@ namespace BlazorApp.Data
 
             public DbSet<OperationCC> Operations => Set<OperationCC>();
 
+            public DbSet<AutoCategoryRule> AutoCategoryRules { get; set; }
+
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                   base.OnModelCreating(modelBuilder);
@@ -83,5 +85,16 @@ namespace BlazorApp.Data
             public string? DateImport { get; set; }
             public string? Hash { get; set; }
             public bool IsModified { get; set; } = false;
+      }
+
+      public class AutoCategoryRule
+      {
+            public int Id { get; set; }
+            public string? Pattern { get; set; }
+            public double? MinAmount { get; set; }
+            public double? MaxAmount { get; set; }
+            public DateTime? MinDate { get; set; }
+            public DateTime? MaxDate { get; set; }
+            public string Category { get; set; } = "";
       }
 }

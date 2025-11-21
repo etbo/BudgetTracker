@@ -10,11 +10,11 @@
 
 <h1>Edition d'opérations</h1>
 
-<select class="form-select" @bind="SelectedValue" @bind:after="OnOptionChanged" >
+<select class="form-select" @bind="SelectedValue" @bind:after="OnOptionChanged">
     <option value="A">Opérations avec Type manquant</option>
     <option value="B">Chèques uniquement</option>
     <option value="C">Dernier import</option>
-</select> 
+</select>
 
 <button class="btn btn-primary btn-sm" @onclick="() => Refresh()"> Refresh </button>
 
@@ -48,9 +48,7 @@ else
                         @op.Montant.ToString("N2")
                     </td>
                     <td>
-                        <select value="@op.Type"
-                                        @onchange="(e) => OnTypeChanged(e, op)"
-                                        class="form-select">
+                        <select value="@op.Type" @onchange="(e) => OnTypeChanged(e, op)" class="form-select">
                             <option value=""></option>
                             <option value="Revenu">Revenu</option>
                             <option value="Cadeaux reçus">Cadeaux reçus</option>
@@ -79,7 +77,8 @@ else
                         }
                     </td>
                     <td>
-                        <input value="@op.Commentaire" @onchange="(e) => SaveComment(e, op)"/></td>
+                        <input value="@op.Commentaire" @onchange="(e) => SaveComment(e, op)" />
+                    </td>
                     <td>@op.Banque</td>
                 </tr>
             }
@@ -105,11 +104,11 @@ else
     protected override void OnInitialized()
     {
         actions = new Dictionary<string, Func<Task>>
-        {
-            { "A", FiltrerTypeManquant },
-            { "B", FiltrerCheques },
-            { "C", FiltrerDernierImport }
-        };
+{
+{ "A", FiltrerTypeManquant },
+{ "B", FiltrerCheques },
+{ "C", FiltrerDernierImport }
+};
 
         // 🔥 On s’abonne pour être notifié du changement
         DbSelector.OnChange += RefreshOnChange;
@@ -118,7 +117,7 @@ else
     private void OnOptionChanged()
     {
         Console.WriteLine($"SelectedValue (après bind) = {SelectedValue}");
-        
+
         if (actions.TryGetValue(SelectedValue, out var action))
         {
             action.Invoke();
@@ -137,17 +136,17 @@ else
             using var db = DbFactory.CreateDbContext();
 
             var operations = db.Operations
-            .Where(op => string.IsNullOrEmpty(op.Type))
-            @* .Select(op => new
+    .Where(op => string.IsNullOrEmpty(op.Type))
+    @* .Select(op => new
             {
                 Date = DateTime.Parse(op.Date),
                 Banque = op.Banque
             }) *@
-            .ToList();
+    .ToList();
 
             resultatOperations = operations.Select(TraiterOperation).ToList();
         });
-        
+
         TextResult = $"{resultatOperations.Count} opérations sans Type trouvées dans la BDD {DbSelector.CurrentDatabase}";
         IsLoading = false;
         await InvokeAsync(StateHasChanged);
@@ -155,43 +154,63 @@ else
 
     private string GetAutoCategory(OperationCC op)
     {
-        if (op.Description == null)
-            throw new ArgumentNullException(nameof(op));
+        using var db = DbFactory.CreateDbContext();
 
-        if (op.Description.Contains("PRLV ECOLE SAINT PAVIN", StringComparison.OrdinalIgnoreCase))
-            return "Factures";
+        Console.WriteLine($"DB: {db.Database.GetDbConnection().DataSource}");
 
-        if (op.Description.Contains("GOOGLE", StringComparison.OrdinalIgnoreCase)
-            || op.Description.Contains("Deezer"))
-            return "Loisir";
+        var rules = db.AutoCategoryRules.ToList();
 
-        if (op.Description.Contains("Appro remboursement Pret", StringComparison.OrdinalIgnoreCase))
-            return "Prêt";
-
-        if (op.Description.Contains("REMBOURSEMENT DE PRET", StringComparison.OrdinalIgnoreCase))
-            return "Prêt";
+        Console.WriteLine($"---> op.Decription = {op.Description} <---");
         
-        if (op.Description.Contains("PRLV YOUPRICE-YOU PRICE", StringComparison.OrdinalIgnoreCase))
-            return "Factures";
+        foreach (var r in rules)
+        {
+            Console.WriteLine($"-----\nId de la règle = {r.Id}");
 
-        if (op.Description.Contains("PRLV TotalEnergies Electricite e", StringComparison.OrdinalIgnoreCase))
-            return "Factures";
 
-        if (op.Description.Contains("PRLV GAN ASS ENC PREL CLIENT", StringComparison.OrdinalIgnoreCase))
-            return "Factures";
+            Console.WriteLine($"r.Pattern = \"{r.Pattern}\" -> string.IsNullOrEmpty(r.Pattern) = {string.IsNullOrEmpty(r.Pattern)}");
+            
+            if (!string.IsNullOrEmpty(r.Pattern) && !op.Description.Contains(r.Pattern, StringComparison.OrdinalIgnoreCase))
+                continue;
 
-        if (op.Description.Contains("HELLOASSO* ADHES 33130 BEGLES", StringComparison.OrdinalIgnoreCase))
-            return "Loisir";
+            if (r.MinAmount.HasValue)
+                Console.WriteLine($"{op.Description} {op.Montant} < {r.MinAmount.Value} : {op.Montant < r.MinAmount.Value}");
+            else
+                Console.WriteLine($"r.MinAmount.HasValue = {r.MinAmount.HasValue}");
 
-        if (op.Description.Contains("VIR MR OU MME GUY BOULESTEIX", StringComparison.OrdinalIgnoreCase) && (op.Montant == 150))
-            return "Revenu";
+            if (r.MinAmount.HasValue && op.Montant < r.MinAmount.Value)
+                continue;
 
-        if (op.Description.Contains("PRLV SFR", StringComparison.OrdinalIgnoreCase) && (op.Montant == -21.98))
-            return "Factures";
-        
-        if (op.Description.Contains("FAMILEO.COM Paris", StringComparison.OrdinalIgnoreCase))
-            return "Cadeaux";
-        
+            if (r.MaxAmount.HasValue)
+                Console.WriteLine($"{op.Description} {op.Montant} > {r.MaxAmount.Value} : {op.Montant > r.MaxAmount.Value}");
+            else
+                Console.WriteLine($"r.MaxAmount.HasValue = {r.MaxAmount.HasValue}");
+
+            if (r.MaxAmount.HasValue && op.Montant > r.MaxAmount.Value)
+                continue;
+
+            if (r.MinDate.HasValue)
+                Console.WriteLine($"{op.Description} {op.Date} > {r.MinDate.Value} : {DateTime.Parse(op.Date) >= r.MinDate.Value}");
+            else
+                Console.WriteLine($"r.MinDate.HasValue = {r.MinDate.HasValue}");
+
+            if (r.MinDate.HasValue && DateTime.Parse(op.Date) < r.MinDate.Value)
+                continue;
+
+            if (r.MaxDate.HasValue)
+                Console.WriteLine($"{op.Description} {op.Date} > {r.MaxDate.Value} : {DateTime.Parse(op.Date) >= r.MaxDate.Value}");
+            else
+                Console.WriteLine($"r.MaxDate.HasValue = {r.MaxDate.HasValue}");
+
+            if (r.MaxDate.HasValue && DateTime.Parse(op.Date) > r.MaxDate.Value)
+                continue;
+
+            Console.WriteLine($"Find a match with \"{r.Category}\" (ID #{r.Id})");
+            // ✔ Tous les critères correspondent
+            return r.Category;
+        }
+
+        Console.WriteLine($"No auto category found");
+
         return "";
     }
 
@@ -214,11 +233,11 @@ else
             using var db = DbFactory.CreateDbContext();
 
             var operations = db.Operations
-            .Where(op =>
-                op.Description != null &&
-                (op.Description.ToUpper().Contains("CHEQUE EMIS") || op.Description.ToUpper().Contains("CHQ ")) &&
-                string.IsNullOrEmpty(op.Type))
-            .ToList();
+    .Where(op =>
+    op.Description != null &&
+    (op.Description.ToUpper().Contains("CHEQUE EMIS") || op.Description.ToUpper().Contains("CHQ ")) &&
+    string.IsNullOrEmpty(op.Type))
+    .ToList();
 
             resultatOperations = operations.Select(TraiterOperation).ToList();
         });
@@ -233,20 +252,20 @@ else
         IsLoading = true;
         resultatOperations = new List<OperationCC>();
         StateHasChanged(); // rafraîchi l’UI immédiatement
-        
-        string lastDateImport="";
+
+        string lastDateImport = "";
 
         await Task.Run(() =>
         {
             using var db = DbFactory.CreateDbContext();
-            
+
             // Get the latest import date
             var lastDateImport = db.Operations.Max(op => op.DateImport);
 
             var operations = db.Operations
-            .Where(op =>
-                op.DateImport == lastDateImport)
-            .ToList();
+    .Where(op =>
+    op.DateImport == lastDateImport)
+    .ToList();
 
             resultatOperations = operations.Select(TraiterOperation).ToList();
         });
@@ -298,7 +317,7 @@ else
     {
         Console.WriteLine($"Changement Commentaire");
         op.Commentaire = e.Value?.ToString();
-        
+
         using var db = DbFactory.CreateDbContext();
 
         var entity = await db.Operations.FirstAsync(x => x.Id == op.Id);
