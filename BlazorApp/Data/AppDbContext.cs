@@ -28,6 +28,8 @@ namespace BlazorApp.Data
 
             public DbSet<AutoCategoryRule> AutoCategoryRules { get; set; }
 
+            public DbSet<Category> Categories { get; set; } = null!;
+
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                   base.OnModelCreating(modelBuilder);
@@ -95,6 +97,6 @@ namespace BlazorApp.Data
             public double? MaxAmount { get; set; }
             public DateTime? MinDate { get; set; }
             public DateTime? MaxDate { get; set; }
-            public string Category { get; set; } = "";
+            public string? Category { get; set; } = "";
       }
 }

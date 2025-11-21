@@ -7,9 +7,33 @@
 
 @inject DatabaseSelectorService DbSelector
 @inject IDbContextFactory<AppDbContext> DbFactory
+@inject CategoryService CategoryService
 
 @rendermode InteractiveServer
 
+<h1>Liste des Catégories</h1>
+
+<p>Liste depuis la BDD. Editable (ajout, suppr ?, renommage)</p>
+<p>Si renommage : rechercher remplacer dans les Catégories de la BDD</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Catégorie</th>
+            <th>Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cat in categories)
+            {
+                <tr>
+                    <td>@cat.Name</td>
+                    <td>@cat.Type</td>
+                </tr>
+            }
+        <tr></tr>
+    </tbody>
+</table>
 
 <h1>Liste des règles pour la catégorisation automatique</h1>
 
@@ -34,16 +58,43 @@ else
             @foreach (var rule in resultatRules)
             {
                 <tr>
-                    <td>@rule.Pattern</td>
-                    <td>@rule.MinAmount</td>
-                    <td>@rule.MaxAmount</td>
-                    <td>@rule.MinDate</td>
-                    <td>@rule.MaxDate</td>
-                    <td class="text-primary">@rule.Category</td>
+                    <td>
+                        <input class="form-control" @bind-Value="rule.Pattern" @bind-Value:event="onchange"
+                            @bind-Value:after="async () => await SaveRule(rule)" />
+                    </td>
+                    <td>
+                        <InputNumber TValue="double?" @bind-Value="rule.MinAmount"
+                            @bind-Value:after="async () => await SaveRule(rule)" class="form-control" />
+                    </td>
+                    <td>
+                        <InputNumber TValue="double?" @bind-Value="rule.MaxAmount"
+                            @bind-Value:after="async () => await SaveRule(rule)" class="form-control" />
+                    </td>
+                    <td>
+                        <InputDate TValue="DateTime ?" @bind-Value="rule.MinDate"
+                            @bind-Value:after="async () => await SaveRule(rule)" class="form-control" />
+                    </td>
+                    <td>
+                        <InputDate TValue="DateTime ?" @bind-Value="rule.MaxDate"
+                            @bind-Value:after="async () => await SaveRule(rule)" class="form-control" />
+                    </td>
+                    <td class="text-primary">
+                        <select class="form-select" value="@rule.Category" @onchange="e => OnCategoryChanged(e, rule)">
+                            <option value=""></option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Name">@cat.Name</option>
+                            }
+                        </select>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <button class="btn btn-primary mb-3" @onclick="AddRule">
+        Ajouter une règle
+    </button>
 }
 
 
@@ -53,11 +104,14 @@ else
 
     public List<AutoCategoryRule> resultatRules { get; set; } = new();
 
+    private List<Category> categories = new();
 
     protected override async Task OnInitializedAsync()
     {
+        categories = await CategoryService.GetAllCategoriesAsync();
+
         await GetRules();
-        
+
         // 🔥 On s’abonne pour être notifié du changement
         DbSelector.OnChange += RefreshOnChange;
     }
@@ -73,11 +127,11 @@ else
             using var db = DbFactory.CreateDbContext();
 
             resultatRules = db.AutoCategoryRules
-            .ToList();
+    .ToList();
         });
 
         IsLoading = false;
-        
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -88,6 +142,43 @@ else
         // 🔥 Important : on repasse sur le thread UI
         await InvokeAsync(StateHasChanged);
     }
+
+    private async void AddRule()
+    {
+        using var db = DbFactory.CreateDbContext();
+
+        var newRule = new AutoCategoryRule
+        {
+            Category = "",
+            MinAmount = null,
+            MaxAmount = null,
+            Pattern = ""
+        };
+
+        // INSERT dans la base
+        db.AutoCategoryRules.Add(newRule);
+        await db.SaveChangesAsync();
+
+        // EF met à jour automatiquement newRule.Id 👍
+        resultatRules.Add(newRule);
+    }
+
+    private async Task OnCategoryChanged(ChangeEventArgs e, AutoCategoryRule rule)
+    {
+        rule.Category = e.Value?.ToString();
+        await SaveRule(rule);
+    }
+
+    private async Task SaveRule(AutoCategoryRule rule)
+    {
+        using var db = DbFactory.CreateDbContext();
+
+        db.Attach(rule);
+        db.Entry(rule).State = EntityState.Modified;
+
+        await db.SaveChangesAsync();
+    }
+
 
     public void Dispose()
     {

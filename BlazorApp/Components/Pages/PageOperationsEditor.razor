@@ -2,10 +2,12 @@
 @using BlazorApp.Data
 @using BlazorApp.Services
 @using Microsoft.EntityFrameworkCore
+@using System.Threading.Tasks
 @rendermode InteractiveServer
 @inject DatabaseSelectorService DbSelector
 
 @inject IDbContextFactory<AppDbContext> DbFactory
+@inject CategoryService CategoryService
 
 
 <h1>Edition d'opérations</h1>
@@ -50,22 +52,10 @@ else
                     <td>
                         <select value="@op.Type" @onchange="(e) => OnTypeChanged(e, op)" class="form-select">
                             <option value=""></option>
-                            <option value="Revenu">Revenu</option>
-                            <option value="Cadeaux reçus">Cadeaux reçus</option>
-                            <option value="Investissement">Investissement</option>
-                            <option value="Prêt">Prêt</option>
-                            <option value="Courses">Courses</option>
-                            <option value="Travaux">Travaux</option>
-                            <option value="Loisir">Loisir</option>
-                            <option value="Vacances">Vacances</option>
-                            <option value="Transport">Transport</option>
-                            <option value="Factures">Factures</option>
-                            <option value="Vêtements">Vêtements</option>
-                            <option value="Cadeaux">Cadeaux</option>
-                            <option value="Santé">Santé</option>
-                            <option value="Autres">Autres</option>
-                            <option value="Maison/Equip">Maison/Equip.</option>
-                            <option value="Neutre">Neutre</option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Name">@cat.Name</option>
+                            }
                         </select>
                     </td>
                     <td>
@@ -77,7 +67,7 @@ else
                         }
                     </td>
                     <td>
-                        <input value="@op.Commentaire" @onchange="(e) => SaveComment(e, op)" />
+                        <input class="form-control" value="@op.Commentaire" @onchange="(e) => SaveComment(e, op)" />
                     </td>
                     <td>@op.Banque</td>
                 </tr>
@@ -95,20 +85,27 @@ else
     // Indicate to UI that operations are loading
     private bool IsLoading { get; set; } = false;
 
+    private List<Category> categories = new();
+
 
     private Dictionary<string, Func<Task>> actions = new();
     private string TextResult = "";
 
     public List<OperationCC> resultatOperations { get; set; } = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         actions = new Dictionary<string, Func<Task>>
-{
-{ "A", FiltrerTypeManquant },
-{ "B", FiltrerCheques },
-{ "C", FiltrerDernierImport }
-};
+            {
+                { "A", FiltrerTypeManquant },
+                { "B", FiltrerCheques },
+                { "C", FiltrerDernierImport }
+            };
+
+        categories = await CategoryService.GetAllCategoriesAsync();
+
+        SelectedValue = "C";
+        await FiltrerDernierImport();
 
         // 🔥 On s’abonne pour être notifié du changement
         DbSelector.OnChange += RefreshOnChange;
@@ -167,7 +164,7 @@ else
             Console.WriteLine($"-----\nId de la règle = {r.Id}");
 
             // Check if Description is matching pattern
-            if (!string.IsNullOrEmpty(r.Pattern) && string.IsNullOrEmpty(op.Description) && !op.Description.Contains(r.Pattern, StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(r.Pattern) && !string.IsNullOrEmpty(op.Description) && !op.Description.Contains(r.Pattern, StringComparison.OrdinalIgnoreCase))
                 continue;
 
             // Check if amount is below minimum

@@ -27,6 +27,8 @@ builder.Services.AddSingleton<DatabaseSelectorService>();
 
 builder.Services.AddSingleton<MyDataService>();
 
+builder.Services.AddScoped<CategoryService>();
+
 builder.Services.AddScoped<DatabaseExportService>();
 
 
