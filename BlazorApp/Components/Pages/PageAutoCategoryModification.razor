@@ -1,0 +1,97 @@
+@page "/autocategory"
+@using BlazorApp.Data
+@using BlazorApp.Services
+@using System.Data
+@using Microsoft.EntityFrameworkCore
+@using System.Threading.Tasks
+
+@inject DatabaseSelectorService DbSelector
+@inject IDbContextFactory<AppDbContext> DbFactory
+
+@rendermode InteractiveServer
+
+
+<h1>Liste des règles pour la catégorisation automatique</h1>
+
+@if (IsLoading)
+{
+    <div class="alert alert-info">Chargement des opérations...</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Contient...</th>
+                <th>Montant minimum</th>
+                <th>Montant maximum</th>
+                <th>Date début</th>
+                <th>Date fin</th>
+                <th>Catégorie associée</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rule in resultatRules)
+            {
+                <tr>
+                    <td>@rule.Pattern</td>
+                    <td>@rule.MinAmount</td>
+                    <td>@rule.MaxAmount</td>
+                    <td>@rule.MinDate</td>
+                    <td>@rule.MaxDate</td>
+                    <td class="text-primary">@rule.Category</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code
+{
+    private bool IsLoading { get; set; } = false;
+
+    public List<AutoCategoryRule> resultatRules { get; set; } = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetRules();
+        
+        // 🔥 On s’abonne pour être notifié du changement
+        DbSelector.OnChange += RefreshOnChange;
+    }
+
+    private async Task GetRules()
+    {
+        IsLoading = true;
+        resultatRules = new List<AutoCategoryRule>();
+        StateHasChanged(); // rafraîchi l’UI immédiatement
+
+        await Task.Run(() =>
+        {
+            using var db = DbFactory.CreateDbContext();
+
+            resultatRules = db.AutoCategoryRules
+            .ToList();
+        });
+
+        IsLoading = false;
+        
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RefreshOnChange()
+    {
+        await GetRules();
+
+        // 🔥 Important : on repasse sur le thread UI
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        // 🔥 Toujours se désabonner pour éviter les fuites mémoire
+        DbSelector.OnChange -= RefreshOnChange;
+    }
+}

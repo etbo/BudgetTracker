@@ -166,12 +166,11 @@ else
         {
             Console.WriteLine($"-----\nId de la règle = {r.Id}");
 
-
-            Console.WriteLine($"r.Pattern = \"{r.Pattern}\" -> string.IsNullOrEmpty(r.Pattern) = {string.IsNullOrEmpty(r.Pattern)}");
-            
-            if (!string.IsNullOrEmpty(r.Pattern) && !op.Description.Contains(r.Pattern, StringComparison.OrdinalIgnoreCase))
+            // Check if Description is matching pattern
+            if (!string.IsNullOrEmpty(r.Pattern) && string.IsNullOrEmpty(op.Description) && !op.Description.Contains(r.Pattern, StringComparison.OrdinalIgnoreCase))
                 continue;
 
+            // Check if amount is below minimum
             if (r.MinAmount.HasValue)
                 Console.WriteLine($"{op.Description} {op.Montant} < {r.MinAmount.Value} : {op.Montant < r.MinAmount.Value}");
             else
@@ -180,6 +179,7 @@ else
             if (r.MinAmount.HasValue && op.Montant < r.MinAmount.Value)
                 continue;
 
+            // Check if amount is above maximum
             if (r.MaxAmount.HasValue)
                 Console.WriteLine($"{op.Description} {op.Montant} > {r.MaxAmount.Value} : {op.Montant > r.MaxAmount.Value}");
             else
@@ -188,6 +188,7 @@ else
             if (r.MaxAmount.HasValue && op.Montant > r.MaxAmount.Value)
                 continue;
 
+            // Check if date is before minimum
             if (r.MinDate.HasValue)
                 Console.WriteLine($"{op.Description} {op.Date} > {r.MinDate.Value} : {DateTime.Parse(op.Date) >= r.MinDate.Value}");
             else
@@ -196,6 +197,7 @@ else
             if (r.MinDate.HasValue && DateTime.Parse(op.Date) < r.MinDate.Value)
                 continue;
 
+            // Check if date is after maximum
             if (r.MaxDate.HasValue)
                 Console.WriteLine($"{op.Description} {op.Date} > {r.MaxDate.Value} : {DateTime.Parse(op.Date) >= r.MaxDate.Value}");
             else
@@ -204,8 +206,9 @@ else
             if (r.MaxDate.HasValue && DateTime.Parse(op.Date) > r.MaxDate.Value)
                 continue;
 
+            // Every thing is matching
             Console.WriteLine($"Find a match with \"{r.Category}\" (ID #{r.Id})");
-            // ✔ Tous les critères correspondent
+
             return r.Category;
         }
 
@@ -328,15 +331,15 @@ else
 
     }
 
-    private Task RefreshOnChange()
+    private async Task RefreshOnChange()
     {
         if (actions.TryGetValue(SelectedValue, out var action))
         {
-            action.Invoke();
+            await action.Invoke();
         }
 
         // 🔥 Important : on repasse sur le thread UI
-        return InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
