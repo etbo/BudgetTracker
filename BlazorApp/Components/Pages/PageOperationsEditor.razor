@@ -16,6 +16,7 @@
     <option value="A">Opérations avec Type manquant</option>
     <option value="B">Chèques uniquement</option>
     <option value="C">Dernier import</option>
+    <option value="D">Erreur categorie</option>
 </select>
 
 <button class="btn btn-primary btn-sm" @onclick="() => Refresh()"> Refresh </button>
@@ -99,7 +100,8 @@ else
             {
                 { "A", FiltrerTypeManquant },
                 { "B", FiltrerCheques },
-                { "C", FiltrerDernierImport }
+                { "C", FiltrerDernierImport },
+                { "D", FiltrerErreurCat }
             };
 
         categories = await CategoryService.GetAllCategoriesAsync();
@@ -273,6 +275,41 @@ else
         });
 
         TextResult = $"{resultatOperations.Count} opérations dans l'import le plus récent du {lastDateImport} dans la BDD {DbSelector.CurrentDatabase}";
+        IsLoading = false;
+        await InvokeAsync(StateHasChanged);
+
+    }
+
+
+    private async Task FiltrerErreurCat()
+    {
+        IsLoading = true;
+        resultatOperations = new List<OperationCC>();
+        StateHasChanged(); // rafraîchi l’UI immédiatement
+
+
+        await Task.Run(() =>
+        {
+            using var db = DbFactory.CreateDbContext();
+
+            var validCategories = db.Categories.Select(c => c.Name).ToHashSet();
+
+            Console.WriteLine($"validCategories.length = {validCategories.Count}");
+            
+            foreach(var cat in validCategories)
+            {
+                Console.WriteLine($"validCategories = {cat}");
+            }
+
+            var operations = db.Operations
+                .Where(o => !string.IsNullOrEmpty(o.Categorie) && !validCategories.Contains(o.Categorie))
+                .ToList();
+
+            Console.WriteLine($"operations.length = {operations.Count}");
+            resultatOperations = operations.ToList();
+        });
+
+        TextResult = $"{resultatOperations.Count} opération(s) avec une catégorie incohérente dans la BDD {DbSelector.CurrentDatabase}";
         IsLoading = false;
         await InvokeAsync(StateHasChanged);
 
