@@ -25,12 +25,18 @@
     </thead>
     <tbody>
         @foreach (var cat in categories)
-            {
-                <tr>
-                    <td>@cat.Name</td>
-                    <td>@cat.Type</td>
-                </tr>
-            }
+        {
+            <tr>
+                <td>
+                    <input class="form-control" @bind-Value="cat.Name" @bind-Value:event="onchange"
+                        @bind-Value:after="async () => await SaveCategory(cat)" />
+                </td>
+                <td>
+                    <input class="form-control" @bind-Value="cat.Type" @bind-Value:event="onchange"
+                        @bind-Value:after="async () => await SaveCategory(cat)" />
+                </td>
+            </tr>
+        }
         <tr></tr>
     </tbody>
 </table>
@@ -52,6 +58,7 @@ else
                 <th>Date début</th>
                 <th>Date fin</th>
                 <th>Catégorie associée</th>
+                <th>Commentaire</th>
             </tr>
         </thead>
         <tbody>
@@ -86,6 +93,10 @@ else
                                 <option value="@cat.Name">@cat.Name</option>
                             }
                         </select>
+                    </td>
+                    <td>
+                        <input class="form-control" @bind-Value="rule.Commentaire" @bind-Value:event="onchange"
+                            @bind-Value:after="async () => await SaveRule(rule)" />
                     </td>
                 </tr>
             }
@@ -175,6 +186,17 @@ else
 
         db.Attach(rule);
         db.Entry(rule).State = EntityState.Modified;
+
+        await db.SaveChangesAsync();
+    }
+
+
+    private async Task SaveCategory(Category cat)
+    {
+        using var db = DbFactory.CreateDbContext();
+
+        db.Attach(cat);
+        db.Entry(cat).State = EntityState.Modified;
 
         await db.SaveChangesAsync();
     }

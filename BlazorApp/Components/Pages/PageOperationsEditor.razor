@@ -162,6 +162,8 @@ else
         foreach (var r in rules)
         {
             Console.WriteLine($"-----\nId de la règle = {r.Id}");
+            if (string.IsNullOrEmpty(r.Category))
+                continue; // If no category set, ignore this rule
 
             // Check if Description is matching pattern
             if (!string.IsNullOrEmpty(r.Pattern) && !string.IsNullOrEmpty(op.Description) && !op.Description.Contains(r.Pattern, StringComparison.OrdinalIgnoreCase))

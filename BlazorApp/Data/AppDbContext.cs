@@ -98,5 +98,6 @@ namespace BlazorApp.Data
             public DateTime? MinDate { get; set; }
             public DateTime? MaxDate { get; set; }
             public string? Category { get; set; } = "";
+            public string? Commentaire { get; set; } = "";
       }
 }
