@@ -37,6 +37,14 @@
             <td>@messageNbOperationsAjoutees</td>
         </tr>
         <tr>
+            <td>Date opération la plus ancienne :</td>
+            <td>@messageDatePlusAncienne</td>
+        </tr>
+        <tr>
+            <td>Date opération la plus récente :</td>
+            <td>@messageDatePlusRecente</td>
+        </tr>
+        <tr>
             <td>Durée du traitement :</td>
             <td>@messageTempsEcoule</td>
         </tr>
@@ -53,6 +61,8 @@
     private string messageParser = "";
     private string messageNbOperationsLues = "";
     private string messageNbOperationsAjoutees = "";
+    private string messageDatePlusAncienne = "";
+    private string messageDatePlusRecente = "";
     private string messageTempsEcoule = "";
     private string messageDatabase = "";
 
@@ -69,6 +79,8 @@
         messageNbOperationsLues = "0";
         messageNbOperationsAjoutees = "0";
         messageDatabase = "";
+        messageDatePlusRecente = "";
+        messageDatePlusAncienne = "";
 
         DateTimeDebut = DateTime.UtcNow;
 
@@ -169,6 +181,9 @@
             message = $"Import terminé";
             Console.WriteLine($"message : {message}");
             messageNbOperationsAjoutees = $"{filteredOps.Count}";
+
+            messageDatePlusAncienne = filteredOps.Min(o => o.Date) ?? "N/A";
+            messageDatePlusRecente = filteredOps.Max(o => o.Date) ?? "N/A";
             
         }
         catch(Exception ex)
