@@ -50,7 +50,7 @@ else
                         @op.Montant.ToString("N2")
                     </td>
                     <td>
-                        <select value="@op.Type" @onchange="(e) => OnTypeChanged(e, op)" class="form-select">
+                        <select value="@op.Categorie" @onchange="(e) => OnTypeChanged(e, op)" class="form-select">
                             <option value=""></option>
                             @foreach (var cat in categories)
                             {
@@ -133,7 +133,7 @@ else
             using var db = DbFactory.CreateDbContext();
 
             var operations = db.Operations
-    .Where(op => string.IsNullOrEmpty(op.Type))
+    .Where(op => string.IsNullOrEmpty(op.Categorie))
     @* .Select(op => new
             {
                 Date = DateTime.Parse(op.Date),
@@ -219,7 +219,7 @@ else
     private void OnTypeChanged(ChangeEventArgs e, OperationCC op)
     {
         Console.WriteLine($"Changement Type");
-        op.Type = e.Value?.ToString();
+        op.Categorie = e.Value?.ToString();
         op.IsModified = true;
     }
 
@@ -238,7 +238,7 @@ else
     .Where(op =>
     op.Description != null &&
     (op.Description.ToUpper().Contains("CHEQUE EMIS") || op.Description.ToUpper().Contains("CHQ ")) &&
-    string.IsNullOrEmpty(op.Type))
+    string.IsNullOrEmpty(op.Categorie))
     .ToList();
 
             resultatOperations = operations.Select(TraiterOperation).ToList();
@@ -280,11 +280,11 @@ else
 
     private OperationCC TraiterOperation(OperationCC op)
     {
-        if (string.IsNullOrEmpty(op.Type))
+        if (string.IsNullOrEmpty(op.Categorie))
         {
-            op.Type = GetAutoCategory(op);
+            op.Categorie = GetAutoCategory(op);
 
-            if (!string.IsNullOrEmpty(op.Type))
+            if (!string.IsNullOrEmpty(op.Categorie))
             {
                 op.IsModified = true;
             }
@@ -307,7 +307,7 @@ else
 
         var entity = await db.Operations.FirstAsync(x => x.Id == op.Id);
 
-        entity.Type = op.Type;
+        entity.Categorie = op.Categorie;
 
         await db.SaveChangesAsync();
 

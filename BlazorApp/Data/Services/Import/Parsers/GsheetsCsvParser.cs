@@ -46,7 +46,7 @@ public class GsheetsCsvParser : IBanqueParser
                 Date = DateIso,
                 Description = row.Description,
                 Montant = (double)row.Montant,
-                Type = row.Type,
+                Categorie = row.Type,
                 Banque = row.Banque,
                 Commentaire = row.Commentaires,
                 DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),

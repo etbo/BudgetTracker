@@ -12,8 +12,30 @@
 
 <h1>Stats</h1>
 
-<ImportParMois />
+<select class="form-select" @bind="SelectedStat" @bind:after="OnOptionChanged">
+    <option value="A">Nombre d'opération par mois</option>
+    <option value="B">Incohérences à corriger</option>
+</select>
+
+@if (SelectedStat == "A")
+{
+    <NbOperationsPerMonth />
+}
+else if (SelectedStat == "B")
+{
+    <ErrorsInDb />
+}
+else
+{
+    <p>Stat inconnue</p>
+}
+
 
 @code {
-    
+    private string SelectedStat = "A";
+
+    public void OnOptionChanged()
+    {
+
+    }
 }

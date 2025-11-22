@@ -55,8 +55,8 @@ namespace BlazorApp.Data
                         .HasColumnName("Montant")
                         .IsRequired();
 
-                        entity.Property(e => e.Type)
-                        .HasColumnName("Type");
+                        entity.Property(e => e.Categorie)
+                        .HasColumnName("Categorie");
 
                         entity.Property(e => e.Commentaire)
                         .HasColumnName("Commentaire");
@@ -81,7 +81,7 @@ namespace BlazorApp.Data
             public string Date { get; set; } = string.Empty;
             public string? Description { get; set; }
             public double Montant { get; set; }
-            public string? Type { get; set; }
+            public string? Categorie { get; set; }
             public string? Commentaire { get; set; }
             public string? Banque { get; set; }
             public string? DateImport { get; set; }
