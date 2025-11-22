@@ -1,13 +1,30 @@
 @using BlazorApp.Services
+@using MudBlazor
 @rendermode InteractiveServer
-
 @namespace BlazorApp.Components
+@implements IDisposable // Ajout de IDisposable pour la désinscription
 @inject DatabaseSelectorService DbSelector
 
-<select class="form-select w-auto" @onchange="OnDatabaseChanged">
-    <option value="Production" selected="@IsSelected("Production")">Production</option>
-    <option value="Test" selected="@IsSelected("Test")">Test</option>
-</select>
+@*
+    Le MudSelect remplace la balise <select>.
+    1. T="string" : La valeur est une chaîne.
+    2. Value : Lit la valeur actuelle depuis le service.
+    3. ValueChanged : Déclenche la méthode de changement quand l'utilisateur choisit une nouvelle valeur.
+*@
+<MudSelect T="string" 
+           Label="Base de Données" 
+           Value="@DbSelector.CurrentDatabase" 
+           ValueChanged="OnDatabaseChangedAsync"
+           Variant="Variant.Filled" 
+           AdornmentIcon="@Icons.Material.Filled.Storage"
+           Adornment="Adornment.Start" 
+           Class="my-4"
+           Dense="true"
+           >
+    @* Les MudSelectItem remplacent les balises <option> *@
+    <MudSelectItem Value="@("Production")">Production</MudSelectItem>
+    <MudSelectItem Value="@("Test")">Test</MudSelectItem>
+</MudSelect>
 
 @code {
     protected override void OnInitialized()
@@ -16,25 +33,31 @@
         DbSelector.OnChange += RefreshUI;
     }
 
-    private Task RefreshUI()
+    private async Task RefreshUI()
     {
-        // IMPORTANT : basculer sur le dispatcher Blazor
-        return InvokeAsync(StateHasChanged);
+        // IMPORTANT : basculer sur le dispatcher Blazor pour forcer le rafraîchissement
+        // La propriété Value du MudSelect se mettra à jour en lisant DbSelector.CurrentDatabase
+        await InvokeAsync(StateHasChanged);
     }
 
-    private async Task OnDatabaseChanged(ChangeEventArgs e)
+    // Le MudSelect utilise l'événement ValueChanged<T> pour notifier un changement.
+    // L'argument est la nouvelle valeur directement, et non un ChangeEventArgs.
+    private async Task OnDatabaseChangedAsync(string? selected)
     {
-        var selected = e.Value?.ToString();
         if (!string.IsNullOrEmpty(selected))
         {
+            // Le service met à jour la valeur, puis déclenche l'événement OnChange
+            // qui appellera RefreshUI() sur tous les abonnés.
             await DbSelector.SetDatabase(selected);
         }
     }
 
+    // Implémentation de IDisposable pour la désinscription
     public void Dispose()
     {
         DbSelector.OnChange -= RefreshUI;
     }
 
-    private bool IsSelected(string db) => DbSelector.CurrentDatabase == db;
+    // La méthode IsSelected n'est plus nécessaire car Value="@DbSelector.CurrentDatabase"
+    // gère la sélection de l'élément visuel dans MudSelect.
 }

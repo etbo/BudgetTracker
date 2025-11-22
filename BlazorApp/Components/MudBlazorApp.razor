@@ -1,0 +1,23 @@
+@* MudBlazorApp.razor *@
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Routing
+
+@* 🚨 LES FOURNISSEURS MUD BLAZOR SONT PLACÉS EN TÊTE 🚨 *@
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
+
+@* L'ancienne logique de Routes.razor va ici (ou le contenu du Router) *@
+<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="@typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">Désolé, rien à cette adresse.</p>
+        </LayoutView>
+    </NotFound>
+</Router>

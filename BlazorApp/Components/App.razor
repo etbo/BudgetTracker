@@ -1,5 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@using BlazorApp.Components @* 🚨 AJOUTEZ CETTE LIGNE 🚨 *@
+
+
+<!DOCTYPE html>
 <html lang="en">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+<link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Icons&display=swap" rel="stylesheet" />
 
 <head>
     <meta charset="utf-8" />
@@ -14,10 +21,14 @@
 </head>
 
 <body>
-    <Routes />
+    @* L'utilisation du composant MudBlazorApp (sans @rendermode ici) *@
+    <MudBlazorApp /> 
+    
     <script src="_framework/blazor.web.js"></script>
 </body>
 
 </html>
 
 <script src="download.js"></script>
+
+<script src="_content/MudBlazor/MudBlazor.min.js"></script>

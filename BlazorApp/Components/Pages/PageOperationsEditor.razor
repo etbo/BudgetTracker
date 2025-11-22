@@ -46,7 +46,22 @@ else
             {
                 <tr>
                     <td>@op.Date</td>
-                    <td>@op.Description</td>
+                    @* <td>@op.Description</td> *@
+                    <td>
+                        <MudAutocomplete T="string"
+                            @bind-Value="op.Categorie"
+                            Label="Catégorie"
+                            FreeSolo="true"
+                            CoerceText="true"
+                            Clearable="true"
+                            Placeholder="Choisir ou taper une catégorie"
+                            SearchFunc="@(async (value, token) =>
+                            {
+                                return await Task.FromResult(categories
+                                    .Select(c => c.Name)
+                                    .Where(c => !string.IsNullOrEmpty(value) && c.Contains(value, StringComparison.OrdinalIgnoreCase)));
+                            })" />
+                    </td>
                     <td class="text-end @(op.Montant < 0 ? "text-danger" : "text-success")">
                         @op.Montant.ToString("N2")
                     </td>

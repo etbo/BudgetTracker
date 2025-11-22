@@ -1,20 +1,30 @@
 @using BlazorApp.Data.Services.Export
+@using MudBlazor
 @rendermode InteractiveServer
 @namespace BlazorApp.Components
 @inject DatabaseExportService ExportService
 @inject IJSRuntime JS
 
-<button @onclick="DownloadBackup">Télécharger la base (zip)</button>
+<MudButton 
+    Variant="Variant.Filled" 
+    Color="Color.Secondary" 
+    StartIcon="@Icons.Material.Filled.CloudDownload" 
+    Size="Size.Medium"
+    OnClick="DownloadBackup">
+</MudButton>
 
 @code {
     private async Task DownloadBackup()
     {
+        // 1. Exporter les données
         var zipBytes = ExportService.ExportDatabaseAsZip();
         var fileName = $"backup_{DateTime.Now:yyyyMMdd_HHmm}.zip";
 
+        // 2. Préparer le téléchargement
         using var stream = new MemoryStream(zipBytes);
         var streamRef = new DotNetStreamReference(stream);
 
+        // 3. Lancer le téléchargement via JavaScript
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
     }
 }

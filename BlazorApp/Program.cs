@@ -5,10 +5,13 @@ using BlazorApp.Data;
 using BlazorApp.Data.Services;
 using BlazorApp.Services;
 using BlazorApp.Data.Services.Export;
-
+using MudBlazor.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add for using MudBlazor
+builder.Services.AddMudServices();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

@@ -1,0 +1,49 @@
+﻿@inherits LayoutComponentBase
+@using BlazorApp.Components
+@using MudBlazor
+
+<MudLayout>
+    
+    @* La barre d'application (en haut) *@
+    <MudAppBar Elevation="1">
+        <MudText Typo="Typo.h6" Class="ml-4">Mon Application</MudText>
+        <MudSpacer />
+
+        @* Éléments du 'top-row' *@
+        <DatabaseExport />
+        <DatabaseSelector />
+    </MudAppBar>
+
+    @* Le MudDrawer (Sidebar) est configuré pour être FIXE et PERSISTENT :
+        1. Variant="DrawerVariant.Persistent" : C'est la clé ! Elle force la sidebar à faire partie du flux
+           de la page, poussant le MudMainContent au lieu de le chevaucher.
+        2. Breakpoint="Breakpoint.None" : Force la visibilité sur tous les écrans.
+    *@
+    <MudDrawer 
+        Variant="DrawerVariant.Persistent" 
+        ClipMode="DrawerClipMode.Always" 
+        Breakpoint="Breakpoint.None" 
+        Elevation="2"
+        Open="true"
+    >
+        <NavMenu />
+    </MudDrawer>
+
+    @* Le contenu principal *@
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="content px-4 py-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@* Gardez l'UI d'erreur Blazor standard *@
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    // Le code C# reste vide car tout est géré par les paramètres du MudDrawer
+}
