@@ -1,0 +1,32 @@
+﻿@inherits LayoutComponentBase
+@using MudBlazor
+
+@* 🚨 AJOUT DES 4 FOURNISSEURS 🚨 *@
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
+
+<MudLayout>
+    <MudAppBar>
+        <MudText Typo="Typo.h6">MudBlazor Application</MudText>
+        <MudSpacer />
+    </MudAppBar>
+
+    @* Le Drawer est configuré pour être fixe (persistent) comme vous le vouliez *@
+    <MudDrawer 
+        Variant="DrawerVariant.Persistent" 
+        ClipMode="DrawerClipMode.Always" 
+        Breakpoint="Breakpoint.None" 
+        Elevation="2"
+        Open="true">
+        
+        <NavMenu /> @* Le composant de navigation standard *@
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pt-10">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
