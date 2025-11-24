@@ -56,4 +56,4 @@ nunit-*.xml
 # BDD sqlite
 *.db
 *.db-journal
-BlazorApp/Database/*
+BudgetTrackerApp/Database/*
