@@ -4,7 +4,12 @@
 @inject DatabaseExportService ExportService
 @inject IJSRuntime JS
 
-<button @onclick="DownloadBackup">Télécharger la base (zip)</button>
+<MudIconButton Icon="@Icons.Material.Filled.FileDownload" 
+               Color="Color.Default" 
+               Size="Size.Medium" 
+               Variant="Variant.Text"
+               OnClick="DownloadBackup"
+               Title="Télécharger la base Production" />
 
 @code {
     private async Task DownloadBackup()

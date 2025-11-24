@@ -7,14 +7,12 @@
 @implements IDisposable
 
 <MudSelect T="string"
-           Label="Base de Données"
            Value="@DbSelector.CurrentDatabase"
            ValueChanged="OnDatabaseChangedAsync"
-           Variant="@Variant.Filled"
+           Variant="@Variant.Text"
            AdornmentIcon="@Icons.Material.Filled.Storage"
            Adornment="@Adornment.Start"
            Class="@Class"
-           Dense="true"
            FitContent="true"
            >
     @* Utilise MudSelectItem pour les options *@
