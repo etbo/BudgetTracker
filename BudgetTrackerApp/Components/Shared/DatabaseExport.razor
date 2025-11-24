@@ -1,0 +1,20 @@
+@using BudgetTrackerApp.Data.Services.Export
+@rendermode InteractiveServer
+@namespace BudgetTrackerApp.Components
+@inject DatabaseExportService ExportService
+@inject IJSRuntime JS
+
+<button @onclick="DownloadBackup">Télécharger la base (zip)</button>
+
+@code {
+    private async Task DownloadBackup()
+    {
+        var zipBytes = ExportService.ExportDatabaseAsZip();
+        var fileName = $"backup_{DateTime.Now:yyyyMMdd_HHmm}.zip";
+
+        using var stream = new MemoryStream(zipBytes);
+        var streamRef = new DotNetStreamReference(stream);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
+}

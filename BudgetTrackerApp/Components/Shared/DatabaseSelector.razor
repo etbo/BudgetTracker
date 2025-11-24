@@ -1,0 +1,65 @@
+@using BudgetTrackerApp.Services
+@using MudBlazor
+@rendermode InteractiveServer
+
+@namespace BudgetTrackerApp.Components
+@inject DatabaseSelectorService DbSelector
+@implements IDisposable
+
+<MudSelect T="string"
+           Label="Base de Données"
+           Value="@DbSelector.CurrentDatabase"
+           ValueChanged="OnDatabaseChangedAsync"
+           Variant="@Variant.Filled"
+           AdornmentIcon="@Icons.Material.Filled.Storage"
+           Adornment="@Adornment.Start"
+           Class="@Class"
+           Dense="true"
+           FitContent="true"
+           >
+    @* Utilise MudSelectItem pour les options *@
+    <MudSelectItem Value="@("Production")">Production</MudSelectItem>
+    <MudSelectItem Value="@("Test")">Test</MudSelectItem>
+</MudSelect>
+
+@code {
+    // Le composant MudSelect gère automatiquement la sélection
+    // basée sur la propriété 'Value' (@DbSelector.CurrentDatabase).
+
+    // --- PARAMÈTRES POUR LE LAYOUT ---
+    [Parameter]
+    public string? Class { get; set; }
+
+    [CascadingParameter]
+    public string? UserClass { get; set; }
+    // ---------------------------------
+    
+    protected override void OnInitialized()
+    {
+        // Abonnement propre
+        DbSelector.OnChange += RefreshUI;
+    }
+
+    private async Task RefreshUI()
+    {
+        // Utilisation de async Task pour correspondre à Func<Task>? de DatabaseSelectorService
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnDatabaseChangedAsync(string selected)
+    {
+        // L'argument 'selected' est directement la valeur (string) de l'option MudSelectItem sélectionnée.
+        if (!string.IsNullOrEmpty(selected))
+        {
+            await DbSelector.SetDatabase(selected);
+        }
+    }
+
+    // Le pattern IDisposable est nécessaire pour l'abonnement
+    public void Dispose()
+    {
+        DbSelector.OnChange -= RefreshUI;
+    }
+
+    // La méthode IsSelected n'est plus nécessaire car MudSelect gère la sélection via 'Value'.
+}
