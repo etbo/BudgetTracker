@@ -1,4 +1,6 @@
+@using System.Globalization
 @using System.Text
+@using BudgetTrackerApp.Components.Pages
 @using BudgetTrackerApp.Data
 @using BudgetTrackerApp.Services
 @using Microsoft.EntityFrameworkCore
@@ -10,194 +12,197 @@
 @rendermode InteractiveServer
 
 
-<h2>Importer un fichier</h2>
+<MudText Typo="Typo.h4" Class="my-8">Import</MudText>
 
-<InputFile OnChange="HandleFileSelected" />
+@* <InputFile OnChange="HandleFileSelected" /> *@
 
-<table class="table">
-    <tbody>
-        <tr>
-            <td>Status :</td>
-            <td>@message</td>
-        </tr>
-        <tr>
-            <td>Fichier :</td>
-            <td>@messageFichier</td>
-        </tr>
-        <tr>
-            <td>Parser :</td>
-            <td>@messageParser</td>
-        </tr>
-        <tr>
-            <td>Nombre opérations lues :</td>
-            <td>@messageNbOperationsLues</td>
-        </tr>
-        <tr>
-            <td>Nombre opérations ajoutées :</td>
-            <td>@messageNbOperationsAjoutees</td>
-        </tr>
-        <tr>
-            <td>Date opération la plus ancienne :</td>
-            <td>@messageDatePlusAncienne</td>
-        </tr>
-        <tr>
-            <td>Date opération la plus récente :</td>
-            <td>@messageDatePlusRecente</td>
-        </tr>
-        <tr>
-            <td>Durée du traitement :</td>
-            <td>@messageTempsEcoule</td>
-        </tr>
-        <tr>
-            <td>Base de données :</td>
-            <td>@messageDatabase</td>
-        </tr>
-    </tbody>
-</table>
+<MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Class="d-inline-block">
+    <ActivatorContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">
+            Charger des fichiers
+        </MudButton>
+    </ActivatorContent>
+</MudFileUpload>
+
+<MudTable Items="@fichiersImports" >
+    <HeaderContent>
+        <MudTh>
+            NomDuFichier
+        </MudTh>
+        <MudTh>
+            Résultat
+        </MudTh>
+        <MudTh>
+            Banque
+        </MudTh>
+        <MudTh>
+            Opérations Lues/Importées
+        </MudTh>
+        <MudTh>
+            Dates
+        </MudTh>
+        <MudTh>
+            Durée
+        </MudTh>
+        <MudTh>
+            Date
+        </MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Date">@context.NomDuFichier</MudTd>
+        <MudTd DataLabel="Date">
+            @if (@context.IsSuccessful)
+                {
+                    <MudAlert Severity="Severity.Success">Succès</MudAlert>
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Error">@context.MsgErreur</MudAlert>
+                }
+        </MudTd>
+        <MudTd DataLabel="Date">@context.Parser</MudTd>
+        <MudTd DataLabel="Date">@context.NombreOperationsAjoutees / @context.NombreOperationsLus</MudTd>
+        <MudTd DataLabel="Date">@context.DateMin au @context.DateMax</MudTd>
+        <MudTd DataLabel="Date">@context.TempsDeTraitement.TotalMilliseconds.ToString("N0") ms</MudTd>
+        <MudTd DataLabel="Description">@context.DateTraitement</MudTd>
+    </RowTemplate>
+</MudTable>
+
 
 @code {
-    private string message = "";
-    private string messageFichier = "";
-    private string messageParser = "";
-    private string messageNbOperationsLues = "";
-    private string messageNbOperationsAjoutees = "";
-    private string messageDatePlusAncienne = "";
-    private string messageDatePlusRecente = "";
-    private string messageTempsEcoule = "";
-    private string messageDatabase = "";
 
-    private DateTime DateTimeDebut;
 
-    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    private List<FichierTraite> fichiersImports = new List<FichierTraite>();
+
+    public record FichierTraite(
+    string NomDuFichier,
+    bool IsSuccessful,
+    string MsgErreur,
+    string Database,
+    int NombreOperationsLus,
+    int NombreOperationsAjoutees,
+    string? Parser,
+    string? DateMin,
+    string? DateMax,
+    TimeSpan TempsDeTraitement,
+    DateTime DateTraitement
+    );
+
+    IList<IBrowserFile> _files = new List<IBrowserFile>(); // Champ de classe
+    private async Task UploadFiles(IReadOnlyList<IBrowserFile> newFiles) // Paramètre local
     {
-        var file = e.File;
 
-        message = "En cours...";
+        foreach (var file in newFiles)
+        {
+            var startTime = DateTime.Now;
+            var isSuccessful = false;
+            var messageErreur = "";
+            int operationsCount = 0;
+            int operationsAdded = 0;
+            string datePlusAncienne = "";
+            string datePlusRecente = "";
+            IBanqueParser? parser = null;
 
-        messageTempsEcoule = "";
-
-        messageNbOperationsLues = "0";
-        messageNbOperationsAjoutees = "0";
-        messageDatabase = "";
-        messageDatePlusRecente = "";
-        messageDatePlusAncienne = "";
-
-        DateTimeDebut = DateTime.UtcNow;
-
-        messageFichier = file.Name.ToString();
-
-        try
-        {          
-            Console.WriteLine("Ouverture du fichier");
-            using var originalStream = file.OpenReadStream();
-            using var memoryStream = new MemoryStream();
-            await originalStream.CopyToAsync(memoryStream);
-
-            // Remettre la position au début
-            memoryStream.Position = 0;
-
-            string? textContent = null;
-            
-            Console.WriteLine("Test extension");
-            if (file.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-            {
-                using var reader = new StreamReader(memoryStream, Encoding.UTF8);
-                textContent = await reader.ReadToEndAsync();
-
-                // remettre le stream au début si tu veux le réutiliser
-                memoryStream.Position = 0;
-            }
-
-            Console.WriteLine("Création ParserInputContext");
-            var ctx = new ParserInputContext
-            {
-                FileStream = memoryStream,
-                TextContent = textContent,
-                FileName = file.Name,
-                ContentType = file.ContentType
-            };
-
-            // Déterminer banque → choisir bon parser
-            Console.WriteLine("Détection du parser du fichier");
-            var parser = ParserFactory.GetParser(ctx);
-
-            messageParser = parser.BankName;
-
-            if (parser == null)
-            {
-                message = "Parser non initialisé";
-                Console.WriteLine("Fin");
-                messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
-                return;
-            }
-                
-            // Parser et transformer données
-            Console.WriteLine("Parsing du fichier");
-            // création du TextReader à partir de la chaîne
-            List<Data.OperationCC>? Operations = parser.Parse(ctx);
-
-            if (Operations == null)
-            {
-                message = "Pas d'opérations trouvées (null)";
-                Console.WriteLine("Fin");
-                messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
-                return;
-            }
-
-            if (!Operations.Any())
-            {
-                message = "Pas d'opérations trouvées (null)";
-                messageNbOperationsLues = "0";
-                Console.WriteLine("Fin");
-                messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
-                return;
-            }
-            else
-                messageNbOperationsLues = $"{Operations.Count.ToString()}";
-
-            
             using var db = DbFactory.CreateDbContext();
+            string database = db.Database.GetDbConnection().DataSource;
 
-            messageDatabase = db.Database.GetDbConnection().DataSource;
+            try
+            {
+                // Ouverture du fichier
+                using var originalStream = file.OpenReadStream();
+                using var memoryStream = new MemoryStream();
+                await originalStream.CopyToAsync(memoryStream);
 
-            // 1️⃣ Charger tous les hash existants dans la base
-            var existingHashes = db.Operations
+                // Remettre la position au début
+                memoryStream.Position = 0;
+
+                // Lecture
+
+                string? textContent = null;
+                if (file.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+                {
+                    using var reader = new StreamReader(memoryStream, Encoding.UTF8);
+                    textContent = await reader.ReadToEndAsync();
+
+                    // remettre le stream au début si tu veux le réutiliser
+                    memoryStream.Position = 0;
+                }
+
+                // Création du Contexte pour le parser
+                var ctx = new ParserInputContext
+                {
+                    FileStream = memoryStream,
+                    TextContent = textContent,
+                    FileName = file.Name,
+                    ContentType = file.ContentType
+                };
+
+                // Appel de la factory pour trouver le bon parser
+                parser = ParserFactory.GetParser(ctx);
+
+                if (parser == null)
+                {
+                    throw new Exception("Impossible de reconnaitre la banque");
+                }
+
+                // Parsing du fichier
+                List<Data.OperationCC>? Operations = parser.Parse(ctx);
+
+                operationsCount = Operations.Count;
+
+                if ((Operations == null) || !Operations.Any())
+                {
+                    throw new Exception("Aucune opération trouvée");
+                }
+
+                // Charger tous les hash existants dans la base
+                var existingHashes = db.Operations
                 .Select(o => o.Hash)
                 .ToHashSet();
 
-            Console.WriteLine($"Hashes : {existingHashes.Count}");
-
-            // 2️⃣ Filtrer les nouvelles opérations
-            var filteredOps = Operations
+                // Filtrer les nouvelles opérations (dont le Hash n'est pas dans la BDD)
+                var filteredOps = Operations
                 .Where(op => !existingHashes.Contains(op.Hash))
                 .ToList();
 
-            Console.WriteLine($"filteredOps.Count : {filteredOps.Count}");
 
-            // 3️⃣ Ajouter les opérations filtrées dans la base
-            db.Operations.AddRange(filteredOps);
-            db.SaveChanges();
+                // 3️⃣ Ajouter les opérations filtrées dans la base
+                db.Operations.AddRange(filteredOps);
+                db.SaveChanges();
 
-            message = $"Import terminé";
-            Console.WriteLine($"message : {message}");
-            messageNbOperationsAjoutees = $"{filteredOps.Count}";
+                operationsAdded = filteredOps.Count;
+                datePlusAncienne = filteredOps.Min(o => o.Date) ?? "-";
+                datePlusRecente = filteredOps.Max(o => o.Date) ?? "-";
 
-            messageDatePlusAncienne = filteredOps.Min(o => o.Date) ?? "N/A";
-            messageDatePlusRecente = filteredOps.Max(o => o.Date) ?? "N/A";
-            
+                isSuccessful = true;
+            }
+            catch (Exception e)
+            {
+                messageErreur = $"{e.Message}";
+            }
+
+            var tempsEcoule = DateTime.Now - startTime;
+
+            // Création de l'objet pour stocker les métadonnées
+            var resultat = new FichierTraite(
+            NomDuFichier: file.Name,
+            MsgErreur: messageErreur,
+            Database: database,
+            NombreOperationsLus: operationsCount,
+            IsSuccessful: isSuccessful,
+            NombreOperationsAjoutees: operationsAdded,
+            TempsDeTraitement: tempsEcoule,
+            DateMin: datePlusAncienne,
+            DateMax: datePlusRecente,
+            Parser: parser?.BankName,
+            DateTraitement: DateTime.Now
+            );
+
+            fichiersImports.Insert(0, resultat);
         }
-        catch(Exception ex)
-        {
-            Console.WriteLine($"Erreur: {ex.Message}");
-            message = $"Erreur: {ex.Message}";
 
-            Console.WriteLine("Fin");
-            messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
-        }
-
-        Console.WriteLine("Fin");
-        messageTempsEcoule = (DateTime.UtcNow - DateTimeDebut).ToString();
-
-        
+        StateHasChanged(); // Pour rafraîchir l'interface utilisateur
     }
+
+
 }

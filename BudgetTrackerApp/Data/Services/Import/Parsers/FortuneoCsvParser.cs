@@ -23,8 +23,6 @@ public class FortuneoCsvParser : IBanqueParser
         {
             if (header) { header = false; continue; }
 
-            Console.WriteLine($"line = {line}");
-
             var values = line.Split(';');
 
             // Verfication that the parsing is not null to provide the right value to Date
@@ -52,10 +50,6 @@ public class FortuneoCsvParser : IBanqueParser
             // Ajout de l'operation à la liste
             ListOperations.Add(operation);
         }
-
-        
-
-        Console.WriteLine("Fin du parsing");
 
         return ListOperations;
     }

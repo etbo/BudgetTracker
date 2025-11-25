@@ -2,7 +2,7 @@ using CsvHelper;
 
 public static class ParserFactory
 {
-    public static IBanqueParser GetParser(ParserInputContext ctx)
+    public static IBanqueParser? GetParser(ParserInputContext ctx)
     {
         // 1) Détection Excel (extension + MIME)
         if (ctx.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase) ||
@@ -18,6 +18,7 @@ public static class ParserFactory
             return BanqueCsvParserFactory.GetParser(ctx.TextContent);
         }
 
-        throw new InvalidOperationException("Aucun parser compatible n’a été trouvé.");
+        return null;
+
     }
 }

@@ -22,17 +22,12 @@ public class GsheetsCsvParser : IBanqueParser
             IgnoreBlankLines = true,
         };
 
-        Console.WriteLine("Création CsvReader");
         using var csv = new CsvReader(reader, config);
 
-        Console.WriteLine("get records to do");
         var rows = csv.GetRecords<TransactionGsheetsCsv>().ToList();
-
-        Console.WriteLine("get records done");
 
         // Instancie le hashContext qui mémorisera les Hash de cet import en particulier
         var hashContext = new ImportHashContext();
-
 
         foreach (var row in rows)
         {
