@@ -5,10 +5,8 @@
 @using BudgetTrackerApp.Models
 @using BudgetTrackerApp.Services
 @using Microsoft.EntityFrameworkCore
-@inject BudgetTrackerApp.Data.Services.CompteCourantService CompteService
+@inject BudgetTrackerApp.Data.Services.OperationCCService CompteService
 @inject IDbContextFactory<AppDbContext> DbFactory
-
-@inject DatabaseSelectorService DbSelector
 
 @rendermode InteractiveServer
 
@@ -166,7 +164,7 @@
                 }
 
                 // Charger tous les hash existants dans la base
-                var existingHashes = db.Operations
+                var existingHashes = db.OperationsCC
                 .Select(o => o.Hash)
                 .ToHashSet();
 
@@ -177,7 +175,7 @@
 
 
                 // 3️⃣ Ajouter les opérations filtrées dans la base
-                db.Operations.AddRange(filteredOps);
+                db.OperationsCC.AddRange(filteredOps);
                 db.SaveChanges();
 
                 operationsAdded = filteredOps.Count;

@@ -66,7 +66,7 @@ else
         Console.WriteLine($"end = {end}");
         Console.WriteLine($"account = {account}");
 
-        operations = await Db.Operations
+        operations = await Db.OperationsCC
             .Where(o =>
                DateTime.Parse(o.Date) >= start &&
                DateTime.Parse(o.Date) <= end &&

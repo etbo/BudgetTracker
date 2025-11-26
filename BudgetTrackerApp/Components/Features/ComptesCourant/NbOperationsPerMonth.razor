@@ -79,7 +79,7 @@ else
         var dateFin = DateTime.Today.AddMonths(-1);
 
         // 1. Charger les opérations et parser les dates
-        var operations = await db.Operations
+        var operations = await db.OperationsCC
         .Select(op => new
         {
             Date = DateTime.Parse(op.Date),

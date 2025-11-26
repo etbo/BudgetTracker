@@ -157,7 +157,7 @@ else
 
             using var db = DbFactory.CreateDbContext();
 
-            var operations = db.Operations
+            var operations = db.OperationsCC
     .Where(op => string.IsNullOrEmpty(op.Categorie))
     @* .Select(op => new
             {
@@ -235,7 +235,7 @@ else
         {
             using var db = DbFactory.CreateDbContext();
 
-            var operations = db.Operations
+            var operations = db.OperationsCC
     .Where(op =>
     op.Description != null &&
     (op.Description.ToUpper().Contains("CHEQUE EMIS") || op.Description.ToUpper().Contains("CHQ ")) &&
@@ -263,9 +263,9 @@ else
             using var db = DbFactory.CreateDbContext();
 
             // Get the latest import date
-            lastDateImport = db.Operations.Max(op => op.DateImport);
+            lastDateImport = db.OperationsCC.Max(op => op.DateImport);
 
-            var operations = db.Operations
+            var operations = db.OperationsCC
     .Where(op =>
     op.DateImport == lastDateImport)
     .ToList();
@@ -292,7 +292,7 @@ else
 
             var validCategories = db.Categories.Select(c => c.Name).ToHashSet();
 
-            var operations = db.Operations.ToList();
+            var operations = db.OperationsCC.ToList();
 
             resultatOperations = operations.ToList();
         });
@@ -323,7 +323,7 @@ else
                 Console.WriteLine($"validCategories = {cat}");
             }
 
-            var operations = db.Operations
+            var operations = db.OperationsCC
     .Where(o => !string.IsNullOrEmpty(o.Categorie) && !validCategories.Contains(o.Categorie))
     .ToList();
 
@@ -377,7 +377,7 @@ else
     {
         using var db = DbFactory.CreateDbContext();
 
-        var entity = await db.Operations.FirstAsync(x => x.Id == op.Id);
+        var entity = await db.OperationsCC.FirstAsync(x => x.Id == op.Id);
 
         entity.Categorie = op.Categorie;
 
@@ -393,7 +393,7 @@ else
 
         using var db = DbFactory.CreateDbContext();
 
-        var entity = await db.Operations.FirstAsync(x => x.Id == op.Id);
+        var entity = await db.OperationsCC.FirstAsync(x => x.Id == op.Id);
 
         entity.Commentaire = op.Commentaire;
 

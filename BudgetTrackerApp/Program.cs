@@ -4,6 +4,7 @@ using BudgetTrackerApp.Data;
 using BudgetTrackerApp.Data.Services;
 using BudgetTrackerApp.Services;
 using BudgetTrackerApp.Data.Services.Export;
+using BudgetTrackerApp.Services.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContextFactory<AppDbContext>();
 
 // Add of custom CompteCourant service, defined in Data/Services
-builder.Services.AddScoped<CompteCourantService>();
+builder.Services.AddScoped<OperationCCService>();
 
 // Service pour les filtres lors des requêtes :
 builder.Services.AddSingleton<FiltersState>();
@@ -30,6 +31,7 @@ builder.Services.AddSingleton<MyDataService>();
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<PeaService>();
 builder.Services.AddHttpClient<FinanceService>();
+builder.Services.AddScoped<BalanceReportService>();
 
 builder.Services.AddScoped<DatabaseExportService>();
 

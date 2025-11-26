@@ -25,7 +25,7 @@ namespace BudgetTrackerApp.Data
                         optionsBuilder.UseSqlite(_connectionString);
             }
 
-            public DbSet<OperationCC> Operations => Set<OperationCC>();
+            public DbSet<OperationCC> OperationsCC => Set<OperationCC>();
 
             public DbSet<CategoryRule> CategoryRules { get; set; }
 

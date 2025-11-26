@@ -1,0 +1,93 @@
+@page "/cc-evolution"
+@using BudgetTrackerApp.Data
+@using BudgetTrackerApp.Models
+@using BudgetTrackerApp.Services
+@using BudgetTrackerApp.Services.Data
+@using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@inject BalanceReportService BalanceReportService
+@inject ISnackbar Snackbar
+
+@inject IDbContextFactory<AppDbContext> DbFactory
+
+<MudText Typo="Typo.h4" Class="my-8">Évolution du Compte Bancaire</MudText>
+
+@if (_isLoading)
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+    <MudText>Calcul des balances...</MudText>
+}
+else if (_error)
+{
+    <MudAlert Severity="Severity.Error">Une erreur s'est produite lors du chargement des données.</MudAlert>
+}
+else
+{
+    @if (_dailyBalances.Any())
+    {
+        <MudChart ChartType="ChartType.Line" 
+                  ChartSeries="_series" 
+                  XAxisLabels="_xAxisLabels" 
+                  Width="100%" 
+                  Height="600px" />
+
+        <MudText Typo="Typo.caption" Class="mt-4">
+            Balance Finale: 
+            <MudChip T="string" Color="Color.Primary">
+                @(_series.FirstOrDefault()?.Data.LastOrDefault().ToString("C", CultureInfo.GetCultureInfo("fr-FR")))
+            </MudChip>
+        </MudText>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Error">Aucune opération bancaire trouvée dans la base de données.</MudAlert>
+    }
+}
+
+@code {
+    private bool _isLoading = true;
+    private bool _error = false;
+    private List<DailyBalance> _dailyBalances = new();
+
+    // Propriétés pour le MudChart
+    private List<ChartSeries> _series = new();
+    private string[] _xAxisLabels = Array.Empty<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _dailyBalances = await BalanceReportService.GetCumulatedBalanceAsync();
+            
+            if (_dailyBalances.Any())
+            {
+                ProcessDataForChart();
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = true;
+            Snackbar.Add($"Erreur de chargement: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void ProcessDataForChart()
+    {
+        // 1. Les données Y (Balance Cumulée)
+        var balanceData = _dailyBalances.Select(d => d.CumulatedBalance).ToArray();
+        
+        _series.Add(new ChartSeries() 
+        { 
+            Name = "Balance Cumulée", 
+            Data = balanceData 
+        });
+
+        // 2. Les labels X (Dates)
+        // Afficher la date au format JJ/MM/AA
+        _xAxisLabels = _dailyBalances.Select(d => d.Date.ToString("dd/MM/yy")).ToArray();
+    }
+}
