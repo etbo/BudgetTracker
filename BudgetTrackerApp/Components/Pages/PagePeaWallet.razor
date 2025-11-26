@@ -1,0 +1,132 @@
+@page "/peawallet"
+@inject FinanceService FinanceService
+@using System.Globalization
+@using BudgetTrackerApp.Models
+@using MudBlazor
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="my-8">
+
+    <MudText Typo="Typo.h3" GutterBottom="true">
+        <MudIcon Icon="@Icons.Material.Filled.AccountBalanceWallet" Size="Size.Large" Class="mr-2" />
+        Historique de mon Portefeuille (PEA)
+    </MudText>
+
+    <MudDivider Class="my-4" />
+
+    @* --- Affichage du statut de chargement --- *@
+    @if (_isLoading)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="my-4" />
+        <MudText Color="Color.Primary">
+            <em>Chargement des données du marché...</em>
+        </MudText>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(_globalErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Elevation="2" Class="mb-4">
+            @_globalErrorMessage
+        </MudAlert>
+        }
+        else
+        {
+            @* --- Boucle sur chaque action/ETF --- *@
+            <div class="portefeuille-container">
+                @foreach (var action in _portefeuille)
+                {
+                    <MudCard Elevation="5" Class="my-6">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h5" Class="d-flex align-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Color="Color.Secondary" Class="mr-2" />
+                                    **@action.Ticker** (Quantité : **@action.Quantity**)
+                                </MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+
+                        <MudCardContent>
+                            @if (action.HistoricalPrices.Any())
+                            {
+                                <MudTable Items="@action.HistoricalPrices.TakeLast(5)" Dense="true" Hover="true" Bordered="true">
+                                    <HeaderContent>
+                                        <MudTh>Date de Clôture</MudTh>
+                                        <MudTh>Prix Unitaire</MudTh>
+                                        <MudTh Style="text-align: right;">Valeur Totale</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate Context="item">
+                                        <MudTd DataLabel="Date">@item.Date.ToString("yyyy-MM-dd")</MudTd>
+                                        <MudTd DataLabel="Prix">@item.Price.ToString("C2", CultureInfo.GetCultureInfo("fr-FR"))</MudTd>
+                                        <MudTd DataLabel="Valeur Totale" Style="text-align: right;">
+                                            <MudText Typo="Typo.subtitle2" Color="Color.Primary">
+                                                **@item.TotalValue.ToString("C2", CultureInfo.GetCultureInfo("fr-FR"))**
+                                            </MudText>
+                                        </MudTd>
+                                    </RowTemplate>
+                                </MudTable>
+
+                                <MudText Typo="Typo.caption" Class="mt-3 text-right">
+                                    Affichage des 5 derniers mois. Total d'enregistrements : **@action.HistoricalPrices.Count**
+                                </MudText>
+                            }
+                            else
+                            {
+                                <MudAlert Severity="Severity.Error" Variant="Variant.Text">
+                                    Aucune donnée historique trouvée pour @action.Ticker ou la date d'achat est trop récente.
+                                </MudAlert>
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                }
+            </div>
+        }
+    }
+</MudContainer>
+
+@code {
+    private string _globalErrorMessage = string.Empty; // Variable pour stocker l'erreur globale
+    private List<PortfolioItem> _portefeuille = new List<PortfolioItem>
+{
+// 1. CW8 (Amundi World)
+@* new PortfolioItem { Ticker = "CW8.PA", Quantity = 15, PurchaseDate = new DateTime(2022, 11, 15) }, *@
+// 2. Autre action/ETF (Ex: LQQ (Nasdaq))
+new PortfolioItem { Ticker = "IBM", Quantity = 10, PurchaseDate = new DateTime(2023, 7, 20) },
+};
+
+    private bool _isLoading = true;
+
+    // Classe pour structurer les données de chaque titre (Laisser ici ou dans un fichier Models.cs)
+    // J'utilise ici la version de votre code, assurez-vous que StockPrice est bien dans BudgetTrackerApp.Models
+    public class PortfolioItem
+    {
+        public string Ticker { get; set; } = "";
+        public double Quantity { get; set; }
+        public DateTime PurchaseDate { get; set; }
+        public List<StockPrice> HistoricalPrices { get; set; } = new List<StockPrice>();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _globalErrorMessage = string.Empty;
+
+        // ... (Logique de chargement inchangée)
+        foreach (var item in _portefeuille)
+        {
+            try
+            {
+                item.HistoricalPrices = await FinanceService.GetHistoricalPricesAsync(
+                item.Ticker,
+                item.Quantity,
+                item.PurchaseDate
+                );
+            }
+            catch (Exception ex)
+            {
+                // Ici, vous pourriez utiliser un MudSnackbar pour afficher l'erreur à l'utilisateur
+                _globalErrorMessage = ex.Message;
+            }
+        }
+
+        _isLoading = false;
+    }
+}

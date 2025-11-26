@@ -1,6 +1,7 @@
 using BudgetTrackerApp.Data;
 using BudgetTrackerApp.Data.Helpers;
 using BudgetTrackerApp.Data.Services.Import;
+using BudgetTrackerApp.Models;
 public class FortuneoCsvParser : IBanqueParser
 {
     public string BankName => "Fortuneo";

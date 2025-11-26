@@ -1,7 +1,6 @@
-using System.Text;
-using BudgetTrackerApp.Data;
 using BudgetTrackerApp.Data.Helpers;
 using BudgetTrackerApp.Data.Services.Import;
+using BudgetTrackerApp.Models;
 using OfficeOpenXml;
 
 public class CreditAgricoleExcelParser : IBanqueParser

@@ -3,6 +3,7 @@ using BudgetTrackerApp.CsvMappings;
 using BudgetTrackerApp.Data;
 using BudgetTrackerApp.Data.Helpers;
 using BudgetTrackerApp.Data.Services.Import;
+using BudgetTrackerApp.Models;
 using CsvHelper;
 
 public class MaybankCsvParser : IBanqueParser

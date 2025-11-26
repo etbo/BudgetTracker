@@ -1,4 +1,4 @@
-public static class BanqueCsvParserFactory
+public static class CsvParserFactory
 {
     public static IBanqueParser? GetParser(string fileContent)
     {

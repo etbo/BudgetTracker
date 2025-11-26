@@ -1,5 +1,6 @@
 @page "/ListCategories"
 @using BudgetTrackerApp.Data
+@using BudgetTrackerApp.Models
 @using BudgetTrackerApp.Services
 @using System.Data
 @using Microsoft.EntityFrameworkCore
@@ -38,7 +39,7 @@
 {
     private bool IsLoading { get; set; } = false;
 
-    public List<AutoCategoryRule> resultatRules { get; set; } = new();
+    public List<CategoryRule> resultatRules { get; set; } = new();
 
     private List<Category> categories = new();
 

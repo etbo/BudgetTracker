@@ -1,4 +1,5 @@
 using System;
+using BudgetTrackerApp.Models;
 
 namespace BudgetTrackerApp.Data.Helpers
 {

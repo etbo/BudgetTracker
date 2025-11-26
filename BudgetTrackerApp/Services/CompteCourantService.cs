@@ -1,3 +1,4 @@
+using BudgetTrackerApp.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BudgetTrackerApp.Data.Services

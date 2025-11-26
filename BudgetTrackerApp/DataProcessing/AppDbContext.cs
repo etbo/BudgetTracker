@@ -1,3 +1,4 @@
+using BudgetTrackerApp.Models;
 using BudgetTrackerApp.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,9 +27,12 @@ namespace BudgetTrackerApp.Data
 
             public DbSet<OperationCC> Operations => Set<OperationCC>();
 
-            public DbSet<AutoCategoryRule> AutoCategoryRules { get; set; }
+            public DbSet<CategoryRule> CategoryRules { get; set; }
 
             public DbSet<Category> Categories { get; set; } = null!;
+
+            public DbSet<OperationPea> PEA { get; set; } = null!;
+            public DbSet<CachedStockPrice> CachedStockPrices { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -73,32 +77,5 @@ namespace BudgetTrackerApp.Data
                         entity.Ignore(e => e.IsModified);
                   });
             }
-      }
-
-      public class OperationCC
-      {
-            public int Id { get; set; }
-            public string Date { get; set; } = string.Empty;
-            public string? Description { get; set; }
-            public double Montant { get; set; }
-            public string? Categorie { get; set; }
-            public string? Commentaire { get; set; }
-            public string? Banque { get; set; }
-            public string? DateImport { get; set; }
-            public string? Hash { get; set; }
-            public bool IsModified { get; set; } = false;
-      }
-
-      public class AutoCategoryRule
-      {
-            public int Id { get; set; }
-            public bool IsUsed { get; set; }
-            public string? Pattern { get; set; }
-            public double? MinAmount { get; set; }
-            public double? MaxAmount { get; set; }
-            public DateTime? MinDate { get; set; }
-            public DateTime? MaxDate { get; set; }
-            public string? Category { get; set; } = "";
-            public string? Commentaire { get; set; } = "";
-      }
+      }      
 }

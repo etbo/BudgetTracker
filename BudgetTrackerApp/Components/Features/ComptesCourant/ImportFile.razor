@@ -2,6 +2,7 @@
 @using System.Text
 @using BudgetTrackerApp.Components.Pages
 @using BudgetTrackerApp.Data
+@using BudgetTrackerApp.Models
 @using BudgetTrackerApp.Services
 @using Microsoft.EntityFrameworkCore
 @inject BudgetTrackerApp.Data.Services.CompteCourantService CompteService
@@ -155,7 +156,7 @@
                 }
 
                 // Parsing du fichier
-                List<Data.OperationCC>? Operations = parser.Parse(ctx);
+                List<OperationCC>? Operations = parser.Parse(ctx);
 
                 operationsCount = Operations.Count;
 

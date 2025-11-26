@@ -1,5 +1,6 @@
 @page "/ListRules"
 @using BudgetTrackerApp.Data
+@using BudgetTrackerApp.Models
 @using BudgetTrackerApp.Services
 @using System.Data
 @using Microsoft.EntityFrameworkCore
@@ -104,7 +105,7 @@
 {
     private bool IsLoading { get; set; } = false;
 
-    public List<AutoCategoryRule> resultatRules { get; set; } = new();
+    public List<CategoryRule> resultatRules { get; set; } = new();
 
     private List<Category> categories = new();
 
@@ -122,14 +123,14 @@
     private async Task GetRules()
     {
         IsLoading = true;
-        resultatRules = new List<AutoCategoryRule>();
+        resultatRules = new List<CategoryRule>();
         StateHasChanged(); // rafraîchi l’UI immédiatement
 
         await Task.Run(() =>
         {
             using var db = DbFactory.CreateDbContext();
 
-            resultatRules = db.AutoCategoryRules
+            resultatRules = db.CategoryRules
     .ToList();
         });
 
@@ -150,7 +151,7 @@
     {
         using var db = DbFactory.CreateDbContext();
 
-        var newRule = new AutoCategoryRule
+        var newRule = new CategoryRule
         {
             Category = "",
             MinAmount = null,
@@ -160,14 +161,14 @@
         };
 
         // INSERT dans la base
-        db.AutoCategoryRules.Add(newRule);
+        db.CategoryRules.Add(newRule);
         await db.SaveChangesAsync();
 
         // EF met à jour automatiquement newRule.Id 👍
         resultatRules.Add(newRule);
     }
 
-    private async void OnCategoryChanged(string newCategory, AutoCategoryRule rule)
+    private async void OnCategoryChanged(string newCategory, CategoryRule rule)
     {
         Console.WriteLine($"Changement Type");
         rule.Category = newCategory;
@@ -175,7 +176,7 @@
         await SaveRule(rule);
     }
 
-    private async Task SaveRule(AutoCategoryRule rule)
+    private async Task SaveRule(CategoryRule rule)
     {
         Console.WriteLine("Save rule");
         using var db = DbFactory.CreateDbContext();

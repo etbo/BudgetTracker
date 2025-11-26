@@ -1,5 +1,6 @@
 @page "/operationseditor"
 @using BudgetTrackerApp.Data
+@using BudgetTrackerApp.Models
 @using BudgetTrackerApp.Services
 @using Microsoft.EntityFrameworkCore
 @using System.Threading.Tasks
@@ -177,7 +178,7 @@ else
     {
         using var db = DbFactory.CreateDbContext();
 
-        var rules = db.AutoCategoryRules.ToList();
+        var rules = db.CategoryRules.ToList();
 
         foreach (var r in rules)
         {

@@ -15,7 +15,7 @@ public static class ParserFactory
         if (!string.IsNullOrEmpty(ctx.TextContent))
         {
             // tu gardes ta logique actuelle
-            return BanqueCsvParserFactory.GetParser(ctx.TextContent);
+            return CsvParserFactory.GetParser(ctx.TextContent);
         }
 
         return null;

@@ -28,6 +28,8 @@ builder.Services.AddSingleton<DatabaseSelectorService>();
 builder.Services.AddSingleton<MyDataService>();
 
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<PeaService>();
+builder.Services.AddHttpClient<FinanceService>();
 
 builder.Services.AddScoped<DatabaseExportService>();
 
