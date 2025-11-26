@@ -92,6 +92,7 @@ namespace BudgetTrackerApp.Data
       public class AutoCategoryRule
       {
             public int Id { get; set; }
+            public bool IsUsed { get; set; }
             public string? Pattern { get; set; }
             public double? MinAmount { get; set; }
             public double? MaxAmount { get; set; }

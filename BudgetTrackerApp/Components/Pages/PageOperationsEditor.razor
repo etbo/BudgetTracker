@@ -181,6 +181,9 @@ else
 
         foreach (var r in rules)
         {
+            if (!r.IsUsed)
+                continue;
+            
             if (string.IsNullOrEmpty(r.Category))
                 continue; // If no category set, ignore this rule
 

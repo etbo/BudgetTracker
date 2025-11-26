@@ -3,9 +3,12 @@
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
     <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
     <MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
-    
+    <MudNavGroup Title="Paramètres" Expanded="true" Icon="@Icons.Material.Filled.Edit">
+        <MudNavLink Href="ListCategories" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Catégories</MudNavLink>
+        <MudNavLink Href="ListRules" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditAttributes">Règles</MudNavLink>
+    </MudNavGroup>
     <MudNavLink Href="dashboardcomptecourant" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.DashboardCustomize">Dashboard CC</MudNavLink>
-    <MudNavLink Href="autocategory" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditAttributes">Catégories auto</MudNavLink>
+    
     <MudNavLink Href="operationseditor" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Edit">Editer les opérations</MudNavLink>
     <MudNavLink Href="statsdb" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Calculate">Stats BDD</MudNavLink>
     <MudNavLink Href="importfile" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FileUpload">Importer fichiers</MudNavLink>

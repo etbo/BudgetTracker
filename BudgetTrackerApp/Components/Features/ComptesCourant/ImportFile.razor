@@ -14,8 +14,6 @@
 
 <MudText Typo="Typo.h4" Class="my-8">Import</MudText>
 
-@* <InputFile OnChange="HandleFileSelected" /> *@
-
 <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Class="d-inline-block">
     <ActivatorContent>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.CloudUpload">
@@ -36,7 +34,7 @@
             Banque
         </MudTh>
         <MudTh>
-            Opérations Lues/Importées
+            Opérations Importées/Lues
         </MudTh>
         <MudTh>
             Dates
@@ -61,8 +59,19 @@
                 }
         </MudTd>
         <MudTd DataLabel="Date">@context.Parser</MudTd>
-        <MudTd DataLabel="Date">@context.NombreOperationsAjoutees / @context.NombreOperationsLus</MudTd>
-        <MudTd DataLabel="Date">@context.DateMin au @context.DateMax</MudTd>
+        <MudTd DataLabel="Date">
+            @(context.NombreOperationsAjoutees == 0 ? "-" : context.NombreOperationsAjoutees.ToString()) / @(context.NombreOperationsLus == 0 ? "-" : context.NombreOperationsLus.ToString())
+        </MudTd>
+        <MudTd DataLabel="Date">
+            @if (!string.IsNullOrEmpty(@context.DateMin) && !string.IsNullOrEmpty(@context.DateMax))
+            {
+                @($"{context.DateMin} au {context.DateMax}")
+            }
+            else
+            {
+                @("-")
+            }
+        </MudTd>
         <MudTd DataLabel="Date">@context.TempsDeTraitement.TotalMilliseconds.ToString("N0") ms</MudTd>
         <MudTd DataLabel="Description">@context.DateTraitement</MudTd>
     </RowTemplate>
@@ -142,7 +151,7 @@
 
                 if (parser == null)
                 {
-                    throw new Exception("Impossible de reconnaitre la banque");
+                    throw new Exception("Banque non reconnu");
                 }
 
                 // Parsing du fichier
@@ -171,8 +180,8 @@
                 db.SaveChanges();
 
                 operationsAdded = filteredOps.Count;
-                datePlusAncienne = filteredOps.Min(o => o.Date) ?? "-";
-                datePlusRecente = filteredOps.Max(o => o.Date) ?? "-";
+                datePlusAncienne = filteredOps.Min(o => o.Date) ?? "";
+                datePlusRecente = filteredOps.Max(o => o.Date) ?? "";
 
                 isSuccessful = true;
             }

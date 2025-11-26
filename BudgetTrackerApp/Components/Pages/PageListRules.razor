@@ -1,0 +1,189 @@
+@page "/ListRules"
+@using BudgetTrackerApp.Data
+@using BudgetTrackerApp.Services
+@using System.Data
+@using Microsoft.EntityFrameworkCore
+@using System.Threading.Tasks
+
+@inject DatabaseSelectorService DbSelector
+@inject IDbContextFactory<AppDbContext> DbFactory
+@inject CategoryService CategoryService
+
+@rendermode InteractiveServer
+
+<MudText Typo="Typo.h4" Class="my-8">Liste des règles pour la catégorisation automatique</MudText>
+
+<MudTable Items="@resultatRules" Dense="true" Hover="true" Bordered="false" Striped="true" >
+    <HeaderContent>
+        <MudTh>Active</MudTh>
+        <MudTh>Contient...</MudTh>
+        <MudTh>Montant minimum</MudTh>
+        <MudTh>Montant maximum</MudTh>
+        <MudTh>Date début</MudTh>
+        <MudTh>Date fin</MudTh>
+        <MudTh>Catégorie associée</MudTh>
+        <MudTh>Commentaire</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Date">
+            <MudSwitch T="bool" 
+                Color="Color.Primary"
+                
+                Value="context.IsUsed" 
+                
+                ValueChanged="@(async (bool newValue) => 
+                {
+                    // Mise à jour de la propriété du contexte avec la nouvelle valeur
+                    context.IsUsed = newValue;
+                    
+                    // Appel de la fonction de sauvegarde avec l'objet mis à jour
+                    await SaveRule(context);
+                })" />
+        </MudTd>
+        <MudTd DataLabel="Date">
+            <MudTextField @bind-Value="@context.Pattern" Margin="Margin.Dense" Variant="Variant.Outlined"
+                        OnBlur="() => SaveRule(context)" />
+        </MudTd>
+        <MudTd DataLabel="Description">
+            <MudNumericField @bind-Value="context.MinAmount" Label="" Format="F1" Variant="Variant.Outlined" @bind-Value:after="async () => await SaveRule(context)" />
+        </MudTd>
+        <MudTd>
+            <MudNumericField @bind-Value="context.MaxAmount" Label="" Format="F1" Variant="Variant.Outlined" @bind-Value:after="async () => await SaveRule(context)"/>
+        </MudTd>
+        <MudTd>
+            <MudDatePicker Label="Sélectionner"
+                           AutoClose="true"
+                           Date="context.MinDate"
+                           DateChanged="@(async (DateTime? newDate) => 
+                           {
+                               // Met à jour la propriété de l'objet de contexte
+                               context.MinDate = newDate;
+                               
+                               // Exécute votre fonction de sauvegarde
+                               await SaveRule(context);
+                           })" />
+        </MudTd>
+        <MudTd>
+            <MudDatePicker Label="Sélectionner"
+                           AutoClose="true"
+                           Date="context.MaxDate"
+                           DateChanged="@(async (DateTime? newDate) => 
+                           {
+                               // Met à jour la propriété de l'objet de contexte
+                               context.MaxDate = newDate;
+                               
+                               // Exécute votre fonction de sauvegarde
+                               await SaveRule(context);
+                           })" />
+        </MudTd>
+        <MudTd>
+            <MudSelect T="string" Value="@context.Category"
+                        Variant="Variant.Outlined"
+                        ValueChanged="(value) => OnCategoryChanged(value, context)" Margin="Margin.Dense"
+                        >
+                        @foreach (var cat in categories)
+                        {
+                            <MudSelectItem Value="@cat.Name">@cat.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+        </MudTd>
+        <MudTd>
+            <MudTextField @bind-Value="@context.Commentaire" Margin="Margin.Dense" Variant="Variant.Outlined"
+                    OnBlur="() => SaveRule(context)" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+
+@code
+{
+    private bool IsLoading { get; set; } = false;
+
+    public List<AutoCategoryRule> resultatRules { get; set; } = new();
+
+    private List<Category> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Gzet list of Categories for Select input
+        categories = await CategoryService.GetAllCategoriesAsync();
+        
+        await GetRules();
+
+        // 🔥 On s’abonne pour être notifié du changement
+        DbSelector.OnChange += RefreshOnChange;
+    }
+
+    private async Task GetRules()
+    {
+        IsLoading = true;
+        resultatRules = new List<AutoCategoryRule>();
+        StateHasChanged(); // rafraîchi l’UI immédiatement
+
+        await Task.Run(() =>
+        {
+            using var db = DbFactory.CreateDbContext();
+
+            resultatRules = db.AutoCategoryRules
+    .ToList();
+        });
+
+        IsLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RefreshOnChange()
+    {
+        await GetRules();
+
+        // 🔥 Important : on repasse sur le thread UI
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void AddRule()
+    {
+        using var db = DbFactory.CreateDbContext();
+
+        var newRule = new AutoCategoryRule
+        {
+            Category = "",
+            MinAmount = null,
+            MaxAmount = null,
+            Pattern = "",
+            IsUsed = true
+        };
+
+        // INSERT dans la base
+        db.AutoCategoryRules.Add(newRule);
+        await db.SaveChangesAsync();
+
+        // EF met à jour automatiquement newRule.Id 👍
+        resultatRules.Add(newRule);
+    }
+
+    private async void OnCategoryChanged(string newCategory, AutoCategoryRule rule)
+    {
+        Console.WriteLine($"Changement Type");
+        rule.Category = newCategory;
+
+        await SaveRule(rule);
+    }
+
+    private async Task SaveRule(AutoCategoryRule rule)
+    {
+        Console.WriteLine("Save rule");
+        using var db = DbFactory.CreateDbContext();
+
+        db.Attach(rule);
+        db.Entry(rule).State = EntityState.Modified;
+
+        await db.SaveChangesAsync();
+    }
+
+    public void Dispose()
+    {
+        // 🔥 Toujours se désabonner pour éviter les fuites mémoire
+        DbSelector.OnChange -= RefreshOnChange;
+    }
+}
