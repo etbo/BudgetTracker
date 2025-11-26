@@ -21,8 +21,9 @@
         <MudTh>Montant maximum</MudTh>
         <MudTh>Date début</MudTh>
         <MudTh>Date fin</MudTh>
-        <MudTh>Catégorie associée</MudTh>
         <MudTh>Commentaire</MudTh>
+        <MudTh></MudTh>
+        <MudTh>Catégorie associée</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Date">
@@ -51,7 +52,7 @@
             <MudNumericField @bind-Value="context.MaxAmount" Label="" Format="F1" Variant="Variant.Outlined" @bind-Value:after="async () => await SaveRule(context)"/>
         </MudTd>
         <MudTd>
-            <MudDatePicker Label="Sélectionner"
+            <MudDatePicker Label=""
                            AutoClose="true"
                            Date="context.MinDate"
                            DateChanged="@(async (DateTime? newDate) => 
@@ -64,7 +65,7 @@
                            })" />
         </MudTd>
         <MudTd>
-            <MudDatePicker Label="Sélectionner"
+            <MudDatePicker Label=""
                            AutoClose="true"
                            Date="context.MaxDate"
                            DateChanged="@(async (DateTime? newDate) => 
@@ -77,19 +78,23 @@
                            })" />
         </MudTd>
         <MudTd>
+            <MudTextField @bind-Value="@context.Commentaire" Margin="Margin.Dense" Variant="Variant.Outlined"
+                    OnBlur="() => SaveRule(context)" />
+        </MudTd>
+        <MudTd>
+            <MudIcon Icon="@Icons.Material.Filled.ArrowCircleRight" Color="Color.Primary" />
+        </MudTd>
+        <MudTd>
             <MudSelect T="string" Value="@context.Category"
                         Variant="Variant.Outlined"
                         ValueChanged="(value) => OnCategoryChanged(value, context)" Margin="Margin.Dense"
+                        AdornmentColor="@Color.Primary"
                         >
                         @foreach (var cat in categories)
                         {
                             <MudSelectItem Value="@cat.Name">@cat.Name</MudSelectItem>
                         }
                     </MudSelect>
-        </MudTd>
-        <MudTd>
-            <MudTextField @bind-Value="@context.Commentaire" Margin="Margin.Dense" Variant="Variant.Outlined"
-                    OnBlur="() => SaveRule(context)" />
         </MudTd>
     </RowTemplate>
 </MudTable>

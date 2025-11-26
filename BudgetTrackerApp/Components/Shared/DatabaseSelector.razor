@@ -9,29 +9,33 @@
 <MudSelect T="string"
            Value="@DbSelector.CurrentDatabase"
            ValueChanged="OnDatabaseChangedAsync"
+           AdornmentColor="Color.Inherit"
            Variant="@Variant.Text"
            AdornmentIcon="@Icons.Material.Filled.Storage"
            Adornment="@Adornment.Start"
-           Class="@Class"
            FitContent="true"
+           Class="mud-select-white-override"
            >
-    @* Utilise MudSelectItem pour les options *@
-    <MudSelectItem Value="@("Production")">Production</MudSelectItem>
-    <MudSelectItem Value="@("Test")">Test</MudSelectItem>
+    <MudSelectItem Value="@("Production")">DB Production</MudSelectItem>
+    <MudSelectItem Value="@("Test")">DB Test</MudSelectItem>
 </MudSelect>
 
+<style>
+/* Définissez la classe ici si vous ne voulez pas un fichier CSS externe.
+   Si ce code se trouve dans un composant enfant (par exemple, un .razor), 
+   MudBlazor peut ne pas l'appliquer correctement si la classe est définie 
+   après le composant. Il est préférable de le mettre en début de composant 
+   ou dans un fichier CSS.
+*/
+.mud-select-white-override .mud-input-adornment-icon,
+.mud-select-white-override .mud-input-label,
+.mud-select-white-override .mud-select-input {
+    color: white !important;
+}
+</style>
+
 @code {
-    // Le composant MudSelect gère automatiquement la sélection
-    // basée sur la propriété 'Value' (@DbSelector.CurrentDatabase).
 
-    // --- PARAMÈTRES POUR LE LAYOUT ---
-    [Parameter]
-    public string? Class { get; set; }
-
-    [CascadingParameter]
-    public string? UserClass { get; set; }
-    // ---------------------------------
-    
     protected override void OnInitialized()
     {
         // Abonnement propre

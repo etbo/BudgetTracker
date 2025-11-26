@@ -1,16 +1,16 @@
 ﻿
 <MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
-    <MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
-    <MudNavGroup Title="Paramètres" Expanded="true" Icon="@Icons.Material.Filled.Edit">
-        <MudNavLink Href="ListCategories" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Catégories</MudNavLink>
-        <MudNavLink Href="ListRules" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.EditAttributes">Règles</MudNavLink>
-    </MudNavGroup>
-    <MudNavLink Href="dashboardcomptecourant" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.DashboardCustomize">Dashboard CC</MudNavLink>
+    <MudNavLink Href="dashboardcomptecourant" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Insights">Dashboard Complet</MudNavLink>
+    <MudNavLink Href="dashboardcomptecourant" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.StackedBarChart">Dashboard CC</MudNavLink>
     
-    <MudNavLink Href="operationseditor" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Edit">Editer les opérations</MudNavLink>
-    <MudNavLink Href="statsdb" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Calculate">Stats BDD</MudNavLink>
-    <MudNavLink Href="importfile" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FileUpload">Importer fichiers</MudNavLink>
+    <MudNavGroup Title="Comptes courant" Expanded="true" Icon="@Icons.Material.Filled.Edit">
+        <MudNavLink Href="ListCategories" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Category">Catégories</MudNavLink>
+        <MudNavLink Href="ListRules" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Checklist">Règles</MudNavLink>
+        <MudNavLink Href="operationseditor" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Edit">Editer les opérations</MudNavLink>
+        <MudNavLink Href="statsdb" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Calculate">Stats BDD</MudNavLink>
+        <MudNavLink Href="importfile" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.FileUpload">Importer fichiers</MudNavLink>
+    </MudNavGroup>
+
 
 </MudNavMenu>
