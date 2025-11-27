@@ -11,11 +11,12 @@ namespace BudgetTrackerApp.Data
             public AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration config, DatabaseSelectorService dbSelector)
         : base(options)
             {
-                  // Le service donne la BDD choisie
+                  var dataDir = Path.GetFullPath(Path.Combine("..", "Database"));
+
                   _connectionString = dbSelector.CurrentDatabase switch
                   {
-                        "Test" => "Data Source=Database/BudgetTrackerTest.db",
-                        _ => "Data Source=Database/BudgetTracker.db"
+                        "Test" => $"Data Source={Path.Combine(dataDir, "BudgetTrackerTest.db")}",
+                        _ => $"Data Source={Path.Combine(dataDir, "BudgetTracker.db")}"
                   };
             }
 
@@ -77,5 +78,5 @@ namespace BudgetTrackerApp.Data
                         entity.Ignore(e => e.IsModified);
                   });
             }
-      }      
+      }
 }
