@@ -107,7 +107,7 @@
         };
 
         // INSERT dans la base
-        db.PEA.Add(newOperation);
+        db.OperationsPea.Add(newOperation);
         await db.SaveChangesAsync();
 
         // EF met à jour automatiquement newRule.Id 👍

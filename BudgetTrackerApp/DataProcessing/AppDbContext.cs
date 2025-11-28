@@ -32,7 +32,7 @@ namespace BudgetTrackerApp.Data
 
             public DbSet<Category> Categories { get; set; } = null!;
 
-            public DbSet<OperationPea> PEA { get; set; } = null!;
+            public DbSet<OperationPea> OperationsPea { get; set; } = null!;
             public DbSet<CachedStockPrice> CachedStockPrices { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -37,7 +37,7 @@
 
         foreach (var ticker in _listTicker)
         {
-            var updateStocksValuesResult = await FinanceService.UpdateCachedStockPrice(ticker.Ticker, ticker.OldestDate);
+            var updateStocksValuesResult = await FinanceService.UpdateCachedStockPrice(ticker.Ticker, ticker.OldestDate, false);
 
             if (updateStocksValuesResult == null || updateStocksValuesResult.Status == UpdateStatus.NotAttempted)
                 continue;

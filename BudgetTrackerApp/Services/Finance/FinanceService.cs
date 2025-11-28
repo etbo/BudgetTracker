@@ -38,7 +38,7 @@ public class FinanceService
         using var _dbContext = _dbFactory.CreateDbContext();
 
         // Étape 1 : Récupérer toutes les opérations
-        var operations = await _dbContext.PEA.ToListAsync();
+        var operations = await _dbContext.OperationsPea.ToListAsync();
 
         var tickerMap = new Dictionary<string, TickerPurchaseDate>();
         
@@ -64,10 +64,12 @@ public class FinanceService
         return tickerMap.Values.ToList();
     }
 
-    public async Task<UpdateStocksValuesResult> UpdateCachedStockPrice(string ticker, DateTime? startDate)
+    public async Task<UpdateStocksValuesResult> UpdateCachedStockPrice(string ticker, DateTime? startDate, bool simulateJson)
     {
         if (string.IsNullOrEmpty(ticker) || !startDate.HasValue)
             throw new Exception($"Ticker vide");
+
+        Console.WriteLine($"MàJ {ticker} ? (1er achat {startDate})");
 
         // Lecture dans la base de données de la dernière mise à jour du ticker
         using var _dbContext = _dbFactory.CreateDbContext();
@@ -77,23 +79,36 @@ public class FinanceService
                 .OrderBy(o => o.CacheTimestamp) // Trie par ordre croissant (du plus ancien au plus récent)
                 .FirstOrDefaultAsync();
 
+
         if (dateMinimale != null && DateTime.Now.Date == dateMinimale.CacheTimestamp.Date)
         {
+            Console.WriteLine($"Pas de MàJ pour {ticker}");
+            // There is a dateMinimale found and it is already today : no update needed
             return new UpdateStocksValuesResult(UpdateStatus.NotAttempted, string.Empty);
         }
         
 
         string jsonContent="{}";
+
+        if (simulateJson)
+        {
+            string filePath = "../Database/PA_CW8_Monthly.json";
+            jsonContent = await File.ReadAllTextAsync(filePath);
+        }
+        else
+        {
+             // Construction requête API
+            string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={ticker}&apikey={ApiKey}";
+            Console.WriteLine($"apiUrl = {apiUrl}");
+            // Récupération des données via l'API
+            var httpResponse = await _httpClient.GetAsync(apiUrl);
+            jsonContent = await httpResponse.Content.ReadAsStringAsync();
+        }
         // Pour essai : simulation retour Json
         // string filePath = "../Database/PA_CW8_Monthly.json";
         // jsonContent = await File.ReadAllTextAsync(filePath);
 
-        // Construction requête API
-        string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={ticker}&apikey={ApiKey}";
-        Console.WriteLine($"apiUrl = {apiUrl}");
-        // Récupération des données via l'API
-        var httpResponse = await _httpClient.GetAsync(apiUrl);
-        jsonContent = await httpResponse.Content.ReadAsStringAsync();
+       
 
 
         if (string.IsNullOrEmpty(jsonContent))

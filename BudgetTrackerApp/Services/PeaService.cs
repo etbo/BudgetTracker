@@ -14,7 +14,7 @@ public class PeaService
     public async Task<List<OperationPea>> GetAllOperationsAsync()
     {
         using var db = _dbFactory.CreateDbContext();
-        return await db.PEA
+        return await db.OperationsPea
                        .OrderBy(c => c.Date)
                        .ToListAsync();
     }
