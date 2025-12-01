@@ -294,7 +294,7 @@ else
 
             var operations = db.OperationsCC.ToList();
 
-            resultatOperations = operations.ToList();
+            resultatOperations = operations.Select(TraiterOperation).ToList();
         });
 
         TextResult = $"{resultatOperations.Count} opérations correspondantes";

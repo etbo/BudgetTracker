@@ -1,55 +1,201 @@
 @page "/peawallet"
+
 @inject FinanceService FinanceService
+
 @using System.Globalization
+
 @using BudgetTrackerApp.Models
+
 @using MudBlazor
+
+@using MudBlazor.Charts
+
 @using static FinanceService
+
 @using MudBlazor.Utilities
+
 @using MudBlazor.Services
+
 @using MudBlazor.Extensions
+
+@using BudgetTrackerApp.Data.Services
+
+@inject BudgetTrackerApp.Data.Services.PeaService PeaService
+
 
 @inject ISnackbar Snackbar
 
+
 <MudContainer MaxWidth="MaxWidth.Large" Class="my-8">
 
+
     <MudText Typo="Typo.h3" GutterBottom="true">
+
         <MudIcon Icon="@Icons.Material.Filled.AccountBalanceWallet" Size="Size.Large" Class="mr-2" />
+
         Historique de mon Portefeuille (PEA)
+
     </MudText>
 
-    <MudDivider Class="my-4" />
+
+
+
 
 </MudContainer>
 
+
+@if (Series.Any())
+
+{
+
+    <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px">
+    </MudChart>
+
+}
+
+else
+
+{
+
+    <MudText>Chargement des données ou aucune donnée disponible.</MudText>
+
+}
+
+@foreach (var item in listeCumulsPea)
+
+{
+
+    <MudText>
+
+        @item.Date - @item.AchatCumules - @item.ValeurTotale
+
+    </MudText>
+
+}
+
+
 @code {
-    private bool _isLoading = true;
+
+
+    private List<CumulPea> listeCumulsPea = new List<CumulPea>();
+
+
+    private List<ChartSeries> Series = new();
+
+    private string[] XAxisLabels = Array.Empty<string>();
+
 
     protected override async Task OnInitializedAsync()
+
     {
+
         var _listTicker = await FinanceService.GetTickerList();
 
+
         if (_listTicker == null)
+
             return;
 
+
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
+
         Snackbar.Configuration.VisibleStateDuration = 3000;
+
         Severity snackbarSeverity = Severity.Normal;
 
+
         foreach (var ticker in _listTicker)
+
         {
+
             var updateStocksValuesResult = await FinanceService.UpdateCachedStockPrice(ticker.Ticker, ticker.OldestDate, false);
 
+
             if (updateStocksValuesResult == null || updateStocksValuesResult.Status == UpdateStatus.NotAttempted)
+
                 continue;
 
+
             if (updateStocksValuesResult.Status == UpdateStatus.Success)
+
                 snackbarSeverity = Severity.Success;
+
             else if (updateStocksValuesResult.Status == UpdateStatus.Failed)
+
                 snackbarSeverity = Severity.Error;
 
+
             Snackbar.Add($"{ticker.Ticker} : {updateStocksValuesResult.Message}", snackbarSeverity);
+
         }
 
-        _isLoading = false;
+
+        listeCumulsPea = await PeaService.CalculerCumul();
+
+
+        ProcessChartData();
+
     }
+
+
+    private void ProcessChartData()
+
+    {
+
+        if (!listeCumulsPea.Any())
+
+            return;
+
+
+        // 1. Trier les données par date si ce n'est pas déjà fait dans le service
+
+        var donneesTriees = listeCumulsPea.OrderBy(c => c.Date).ToList();
+
+
+        // 2. Créer les étiquettes de l'Axe X (Dates)
+
+        // On affiche la date en format court (ex: 28/11)
+
+        XAxisLabels = donneesTriees.Select(c => c.Date.ToString("dd/MM/yy")).ToArray();
+
+
+        // 3. Créer les Séries de données (Axe Y)
+
+
+        // Série 1: CumulAchat
+
+        var achatSeries = new ChartSeries()
+
+        {
+
+            Name = "Cumul Achat",
+
+            // MudChart attend un double[] pour les valeurs
+
+            Data = donneesTriees.Select(c => (double)c.AchatCumules).ToArray()
+
+        };
+
+
+        // Série 2: CumulValeurs
+
+        var valeurSeries = new ChartSeries()
+
+        {
+
+            Name = "Valeur totale",
+
+            Data = donneesTriees.Select(c => (double)c.ValeurTotale).ToArray()
+
+        };
+
+
+        // 4. Ajouter les séries à la liste pour le graphique
+
+        Series.Add(achatSeries);
+
+        Series.Add(valeurSeries);
+
+    }
+
 }
