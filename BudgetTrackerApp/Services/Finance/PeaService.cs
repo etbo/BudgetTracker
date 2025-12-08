@@ -22,69 +22,156 @@ namespace BudgetTrackerApp.Data.Services
                            .ToListAsync();
         }
 
+        private Dictionary<(int Year, int Month), int> operationCumuleeParMois = new();
+
         public async Task<List<CumulPea>> CalculerCumul()
         {
-            var serieCumuls = new List<CumulPea>();
-
             using var db = _dbFactory.CreateDbContext();
-            
-            var operations = await db.OperationsPea
+
+            // 1. Récupération des opérations triées
+            var orderedOperations = await db.OperationsPea
+                .OrderBy(o => o.Date)
                 .ToListAsync();
 
-            if (!operations.Any())
+            if (!orderedOperations.Any())
             {
-                Console.WriteLine($"New DailyBalance");
                 return new List<CumulPea>();
             }
-            else
+
+            // Préparation des prix et tickers (inchangé)
+            var allTickers = orderedOperations.Select(o => o.Code).Distinct().ToList();
+            var tousLesPrixCaches = await db.CachedStockPrices
+                .Where(c => allTickers.Contains(c.Ticker))
+                .ToListAsync();
+
+            var prixOrganises = tousLesPrixCaches
+                .GroupBy(c => c.Ticker)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.ToDictionary(
+                        c => c.Date.Date,
+                        c => c.Price
+                    )
+                );
+
+            // --- 2. Calcul du cumul et valorisation (quotidienne temporaire, mais étendue) ---
+
+            // Key: Date de l'opération
+            // Value: (Cumul Achat, Quantités détenues pour valorisation)
+            var historiqueQuotidien = new SortedDictionary<DateTime, (double Achat, Dictionary<string, double> Quantites)>();
+            double cumulAchatGlobal = 0;
+            var quantitesPossedees = new Dictionary<string, double>();
+
+            foreach (var operation in orderedOperations)
             {
-                Console.WriteLine($"DailyBalance existant ({operations.Count()})");
+                // Mise à jour des cumuls d'achats
+                cumulAchatGlobal += (double)(operation.Quantité * operation.MontantNet);
+
+                // Mise à jour des quantités détenues par Ticker
+                if (quantitesPossedees.ContainsKey(operation.Code))
+                {
+                    quantitesPossedees[operation.Code] += operation.Quantité;
+                }
+                else
+                {
+                    quantitesPossedees[operation.Code] = operation.Quantité;
+                }
+
+                // Enregistrement de l'état du portefeuille pour cette date.
+                // On clone les quantités pour avoir un snapshot de l'état à la date de l'opération.
+                historiqueQuotidien[operation.Date] = (cumulAchatGlobal, new Dictionary<string, double>(quantitesPossedees));
             }
 
+            // --- 3. Filtrage et Valorisation au Dernier Jour Calendaire du Mois ---
 
-            // var orderedOperations = operations
-            //     .Where(o => DateTime.TryParseExact(
-            //         o.Date, 
-            //         DateFormat, 
-            //         CultureInfo.InvariantCulture, 
-            //         DateTimeStyles.None, 
-            //         out _))
-            //     .OrderBy(o => DateTime.ParseExact(
-            //         o.Date, 
-            //         DateFormat, 
-            //         CultureInfo.InvariantCulture))
-            //     .ToList();
+            var dateDebut = orderedOperations.First().Date.Date;
+            var dateFin = DateTime.Now.Date;
+            var historiqueMensuel = new List<CumulPea>();
 
+            // Itérer de mois en mois
+            var d = new DateTime(dateDebut.Year, dateDebut.Month, 1);
 
+            while (d <= dateFin)
+            {
+                // Trouver le dernier jour du mois
+                var dernierJourDuMois = new DateTime(d.Year, d.Month, DateTime.DaysInMonth(d.Year, d.Month));
 
+                // S'assurer de ne pas dépasser la date d'aujourd'hui
+                if (dernierJourDuMois > dateFin)
+                {
+                    dernierJourDuMois = dateFin;
+                }
 
+                // Trouver la dernière entrée de portefeuille enregistrée AVANT ou À cette date de fin de mois.
+                var dernierSnapshot = historiqueQuotidien
+                    .Where(kvp => kvp.Key.Date <= dernierJourDuMois)
+                    .LastOrDefault(); // Comme le dictionnaire est trié, LastOrDefault prend le plus récent.
 
+                // Si nous avons des données pour ce mois
+                if (dernierSnapshot.Key != default)
+                {
+                    var dateSnapshot = dernierSnapshot.Key;
+                    var (cumulAchatSnapshot, quantitesSnapshot) = dernierSnapshot.Value;
 
-            serieCumuls.Add(new CumulPea(
-                new DateTime(2025, 1, 1),
-                1500.0,
-                1800.50
-            ));
+                    double valeurTotaleJour = 0;
 
-            serieCumuls.Add(new CumulPea(
-                new DateTime(2024, 1, 1),
-                150.0,
-                180.50
-            ));
+                    // Re-valoriser le snapshot avec les prix du dernier jour du mois (dernierJourDuMois)
+                    foreach (var kvp in quantitesSnapshot)
+                    {
+                        var ticker = kvp.Key;
+                        var qte = kvp.Value;
 
-            serieCumuls.Add(new CumulPea(
-                new DateTime(2023, 1, 1),
-                150.0,
-                500.50
-            ));
+                        // Trouver le prix de clôture pour le dernier jour du mois (ou le jour de bourse le plus proche)
+                        if (TryGetClosingPriceFromCache(prixOrganises, dernierJourDuMois, ticker, out double prixJour))
+                        {
+                            valeurTotaleJour += qte * prixJour;
+                        }
+                        // Si le prix n'est pas trouvé même après recherche arrière (TryGetClosingPriceFromCache),
+                        // la valeur de ce titre est zéro pour ce bilan.
+                    }
 
-            serieCumuls.Add(new CumulPea(
-                new DateTime(2012, 1, 1),
-                10.0,
-                0.50
-            ));
+                    // Enregistrer le bilan
+                    historiqueMensuel.Add(new CumulPea(
+                        Date: dernierJourDuMois, // Utilise la date de fin de mois CALENDAIRE
+                        AchatCumules: cumulAchatSnapshot,
+                        ValeurTotale: valeurTotaleJour
+                    ));
+                }
 
-            return serieCumuls;
+                // Passer au mois suivant
+                d = d.AddMonths(1);
+            }
+
+            return historiqueMensuel;
+        }
+
+        private bool TryGetClosingPriceFromCache(
+                            Dictionary<string, Dictionary<DateTime, decimal>> prixOrganises,
+                            DateTime dateOperation,
+                            string ticker,
+                            out double prix)
+        {
+            prix = 0.0;
+
+            // 1. Chercher le dictionnaire des prix pour ce Ticker
+            if (prixOrganises.TryGetValue(ticker, out var prixParJour))
+            {
+                DateTime currentDate = dateOperation.Date;
+
+                // 2. Itérer à rebours pour trouver le prix de clôture le plus récent
+                // C'est nécessaire car les marchés sont fermés le weekend/jours fériés.
+                for (int i = 0; i < 7; i++) // Chercher jusqu'à 7 jours en arrière (pour couvrir le weekend)
+                {
+                    if (prixParJour.TryGetValue(currentDate, out var prixDecimal))
+                    {
+                        prix = (double)prixDecimal;
+                        return true;
+                    }
+                    currentDate = currentDate.AddDays(-1);
+                }
+            }
+
+            return false;
         }
     }
 }

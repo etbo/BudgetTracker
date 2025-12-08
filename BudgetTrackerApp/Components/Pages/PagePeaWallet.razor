@@ -8,6 +8,7 @@
 @using MudBlazor.Charts
 @using static BudgetTrackerApp.Data.Services.FinanceService
 
+
 <MudContainer MaxWidth="MaxWidth.Large" Class="my-8">
     <MudText Typo="Typo.h3" GutterBottom="true">
         <MudIcon Icon="@Icons.Material.Filled.AccountBalanceWallet" Size="Size.Large" Class="mr-2" />
@@ -17,7 +18,17 @@
 
 @if (ChartSeries.Any())
 {
-    <MudTimeSeriesChart ChartSeries="@ChartSeries" Height="600px" TimeLabelFormat="MM/yy" TimeLabelSpacing="@(TimeSpan.FromDays(364))" />
+    <MudSelect T="string" Label="Sélectionnez une Valeur" @bind-Value="ValeurSelectionnee" @bind-Value:after="OnChartVisuChanged"">
+
+        @foreach (var valeur in ValeursPossibles)
+        {
+            <MudSelectItem Value="valeur">@valeur</MudSelectItem>
+        }
+
+    </MudSelect>
+    <MudTimeSeriesChart ChartSeries="@ChartSeries" Height="600px" Width="100%" TimeLabelFormat="MM/yy"
+        TimeLabelSpacing="@(TimeSpan.FromDays(364))" ChartOptions="@_options" DataMarkerTooltipTimeLabelFormat="MMM yyyy" >
+    </MudTimeSeriesChart>
 }
 else
 {
@@ -35,6 +46,28 @@ else
     private List<CumulPea> listeCumulsPea = new();
     private List<TimeSeriesChartSeries> ChartSeries { get; set; } = new();
 
+    // 1. Propriété pour stocker la valeur choisie par l'utilisateur
+    private string ValeurSelectionnee { get; set; } = "Gains";
+
+    // 2. Collection fixe des options disponibles
+    private List<string> ValeursPossibles = new List<string> { "Achat & Valeurs", "Gains" };
+
+    private ChartOptions _options = new ChartOptions
+        {
+            // Ces propriétés viennent de ChartOptions :
+            YAxisLines = false,
+            YAxisTicks = 100,
+            MaxNumYAxisTicks = 10,
+            YAxisRequireZeroPoint = true,
+            XAxisLines = false,
+            LineStrokeWidth = 1,
+            
+            // Ajoutez ici les options spécifiques au TimeSeries (Format, etc.) :
+            // Ces propriétés existent sur ChartOptions lorsqu'elles sont utilisées avec MudTimeSeriesChart
+            // et qu'elles sont gérées par la classe de base.
+            YAxisFormat = "C2",           // Pour le format des valeurs de l'axe Y (devise)
+        };
+
     protected override async Task OnInitializedAsync()
     {
         var tickers = await FinanceService.GetTickerList();
@@ -51,8 +84,8 @@ else
                 continue;
 
             var sev = result.Status == UpdateStatus.Success ? Severity.Success
-                      : result.Status == UpdateStatus.Failed ? Severity.Error
-                      : Severity.Normal;
+            : result.Status == UpdateStatus.Failed ? Severity.Error
+            : Severity.Normal;
 
             Snackbar.Add($"{ticker.Ticker} : {result.Message}", sev);
         }
@@ -60,6 +93,13 @@ else
         listeCumulsPea = await PeaService.CalculerCumul();
         ProcessChartData();
     }
+
+
+    private void OnChartVisuChanged()
+    {
+        ProcessChartData();
+    }
+    
 
     private void ProcessChartData()
     {
@@ -70,27 +110,39 @@ else
 
         var data = listeCumulsPea.OrderBy(c => c.Date).ToList();
 
-        Console.WriteLine($"data = {data.Count}");
-
-        // Série "Cumul Achat"
-        var achat = new TimeSeriesChartSeries
+        if (ValeurSelectionnee == "Gains")
         {
-            Name = "Cumul Achat",
-            Data = data.Select(d => new TimeSeriesChartSeries.TimeValue(d.Date, (double)d.AchatCumules)).ToList()
-        };
+            var gains = new TimeSeriesChartSeries
+            {
+                Name = "Gains",
+                Data = data.Select(d => new TimeSeriesChartSeries.TimeValue(d.Date, Math.Round((double)(d.ValeurTotale - d.AchatCumules),2))).ToList(),
+                DataMarkerTooltipTitleFormat = "{{X_VALUE}} : {{Y_VALUE}} €"
+            };
 
-        Console.WriteLine($"Cumul achat ok");
-        // Série "Valeur Totale"
-        var valeur = new TimeSeriesChartSeries
+            ChartSeries.Add(gains);
+        }
+        else
         {
-            Name = "Valeur Totale",
-            Data = data.Select(d => new TimeSeriesChartSeries.TimeValue(d.Date, (double)d.ValeurTotale)).ToList()
-        };
-        Console.WriteLine($"Valeur totale ok");
+            // Série "Cumul Achat"
+            var achat = new TimeSeriesChartSeries
+            {
+                Name = "Cumul Achat",
+                Data = data.Select(d => new TimeSeriesChartSeries.TimeValue(d.Date, Math.Round((double)d.AchatCumules,2))).ToList(),
+                DataMarkerTooltipTitleFormat = "{{X_VALUE}} : {{Y_VALUE}} "
+            };
 
-        ChartSeries.Add(achat);
-        Console.WriteLine($"Add(achat) ok");
-        ChartSeries.Add(valeur);
-        Console.WriteLine($"Add(valeur) ok");
+            // Série "Valeur Totale"
+            var valeur = new TimeSeriesChartSeries
+            {
+                Name = "Valeur Totale",
+                Data = data.Select(d => new TimeSeriesChartSeries.TimeValue(d.Date, Math.Round((double)d.ValeurTotale,2))).ToList(),
+                DataMarkerTooltipTitleFormat = "{{X_VALUE}} : {{Y_VALUE}} "
+            };
+
+            ChartSeries.Add(achat);
+            ChartSeries.Add(valeur);
+        }
+
+
     }
 }

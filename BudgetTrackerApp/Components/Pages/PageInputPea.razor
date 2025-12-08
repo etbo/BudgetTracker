@@ -28,11 +28,14 @@
                            Date="context.Date"
                            DateChanged="@(async (DateTime? newDate) => 
                            {
-                               // Met à jour la propriété de l'objet de contexte
-                               context.Date = newDate;
-                               
-                               // Exécute votre fonction de sauvegarde
-                               await SaveOperationPea(context);
+                                if (newDate.HasValue)
+                                {
+                                    // Met à jour la propriété de l'objet de contexte
+                                    context.Date = newDate.Value;
+
+                                    // Exécute votre fonction de sauvegarde
+                                    await SaveOperationPea(context);
+                                }
                            })" />
         </MudTd>
         <MudTd>
