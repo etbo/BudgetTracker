@@ -26,6 +26,7 @@
             <MudDatePicker Label=""
                            AutoClose="true"
                            Date="context.Date"
+                           Editable="true"
                            DateChanged="@(async (DateTime? newDate) => 
                            {
                                 if (newDate.HasValue)
