@@ -2,7 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetTrackerApp", "BudgetTrackerApp\BudgetTrackerApp.csproj", "{1BFA0EE5-BAE8-9041-030C-6E2936318239}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BudgetTrackerApi", "Backend\BudgetTrackerApi\BudgetTrackerApi.csproj", "{05AF3F11-78F7-322F-FFE9-7ABDD851CE17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,15 +12,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1BFA0EE5-BAE8-9041-030C-6E2936318239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1BFA0EE5-BAE8-9041-030C-6E2936318239}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1BFA0EE5-BAE8-9041-030C-6E2936318239}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1BFA0EE5-BAE8-9041-030C-6E2936318239}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05AF3F11-78F7-322F-FFE9-7ABDD851CE17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05AF3F11-78F7-322F-FFE9-7ABDD851CE17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05AF3F11-78F7-322F-FFE9-7ABDD851CE17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05AF3F11-78F7-322F-FFE9-7ABDD851CE17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{05AF3F11-78F7-322F-FFE9-7ABDD851CE17} = {1AE8ACA6-933B-BF2A-3671-3E2EAC007D16}
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {F0DF6CC1-DC61-4498-9198-E0C26E323ACB}
+		SolutionGuid = {DF4CE926-4055-466A-B24C-C7813DE9935F}
 	EndGlobalSection
 EndGlobal

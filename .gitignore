@@ -56,4 +56,4 @@ nunit-*.xml
 # BDD sqlite
 *.db
 *.db-journal
-Database/*
+Backend/Database/*

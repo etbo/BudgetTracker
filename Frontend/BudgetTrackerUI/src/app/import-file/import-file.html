@@ -1,0 +1,21 @@
+<div style="padding: 20px;">
+  <h2>Importer des transactions (CSV / Excel)</h2>
+  
+  <input type="file" (change)="onFileSelected($event)" style="display: none" #fileInput>
+  
+  <button mat-raised-button color="primary" (click)="fileInput.click()">
+    <mat-icon>attach_file</mat-icon> Sélectionner un fichier
+  </button>
+
+  <span *ngIf="selectedFile" style="margin-left: 10px;">
+    {{ selectedFile.name }}
+  </span>
+
+  <div style="margin-top: 20px;">
+    <button mat-flat-button color="accent" [disabled]="!selectedFile" (click)="onUpload()">
+      <mat-icon>cloud_upload</mat-icon> Lancer l'importation
+    </button>
+  </div>
+
+  <p *ngIf="uploadStatus" style="margin-top: 15px;">{{ uploadStatus }}</p>
+</div>

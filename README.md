@@ -1,2 +1,2 @@
 # BudgetTracker
-ASP .NET 9 + Blazor
+ASP .NET 9 + Angular
