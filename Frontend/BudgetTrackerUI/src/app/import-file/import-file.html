@@ -12,10 +12,10 @@
   </span>
 
   <div style="margin-top: 20px;">
-    <button mat-flat-button color="accent" [disabled]="!selectedFile" (click)="onUpload()">
+    <button mat-flat-button color="accent" [disabled]="!selectedFile || isUploading()" (click)="onUpload()">
       <mat-icon>cloud_upload</mat-icon> Lancer l'importation
     </button>
   </div>
 
-  <p *ngIf="uploadStatus" style="margin-top: 15px;">{{ uploadStatus }}</p>
+  <p *ngIf="uploadStatus()">{{ uploadStatus() }}</p>
 </div>

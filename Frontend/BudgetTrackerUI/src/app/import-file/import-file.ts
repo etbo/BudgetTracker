@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpClient } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-import-file',
@@ -12,7 +13,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ImportFileComponent {
   selectedFile: File | null = null;
-  uploadStatus: string = '';
+  uploadStatus = signal('');
 
   constructor(private http: HttpClient) {}
 
@@ -20,8 +21,12 @@ export class ImportFileComponent {
     this.selectedFile = event.target.files[0];
   }
 
+  isUploading = signal(false);
+
   onUpload() {
     if (!this.selectedFile) return;
+    
+    this.isUploading.set(true);
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
@@ -29,8 +34,13 @@ export class ImportFileComponent {
     // L'URL de votre futur endpoint .NET
     this.http.post('http://localhost:5011/api/imports/upload', formData)
       .subscribe({
-        next: () => this.uploadStatus = 'Fichier importé avec succès !',
-        error: (err) => this.uploadStatus = 'Erreur lors de l\'import : ' + err.message
+        next: () => {
+          this.uploadStatus.set('Fichier importé avec succès !');
+          this.isUploading.set(false);
+        },
+        error: (err) => {
+          this.uploadStatus.set('Erreur lors de l\'import');
+        }
       });
   }
 }
