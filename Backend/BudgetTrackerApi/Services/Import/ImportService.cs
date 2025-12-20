@@ -13,20 +13,35 @@ namespace BudgetTrackerApp.Services
             try
             {
                 using var memoryStream = new MemoryStream();
-                await file.OpenReadStream().CopyToAsync(memoryStream);
+                await file.CopyToAsync(memoryStream);
                 memoryStream.Position = 0;
+
+                string? textContent = null;
+
+                // On lit le texte uniquement si c'est un fichier texte/csv
+                if (file.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+                {
+                    using var reader = new StreamReader(memoryStream, System.Text.Encoding.UTF8, leaveOpen: true);
+                    textContent = await reader.ReadToEndAsync();
+
+                    // IMPORTANT : Remettre la position à 0 après la lecture du texte
+                    // pour que le Parser puisse relire le Stream s'il en a besoin.
+                    memoryStream.Position = 0;
+                }
 
                 // ... Votre logique de Factory et de Parser (identique à Blazor) ...
                 var ctx = new ParserInputContext
                 {
                     FileStream = memoryStream,
-                    FileName = file.FileName
+                    TextContent = textContent,
+                    FileName = file.FileName,
+                    ContentType = file.ContentType
                 };
                 var parser = ParserFactory.GetParser(ctx);
 
                 if (parser == null)
                     throw new Exception("Parser non trouvé");
-                    
+
                 var operations = parser.Parse(ctx);
 
                 // Filtrage par Hash

@@ -1,8 +1,8 @@
 <div class="import-container" style="padding: 20px;">
-  <input type="file" (change)="onFileSelected($event)" #fileInput hidden>
+  <input type="file" (change)="onFileSelected($event)" #fileInput multiple hidden>
   
   <button mat-raised-button color="primary" (click)="fileInput.click()" [disabled]="isUploading()">
-    <mat-icon>cloud_upload</mat-icon> Charger un fichier
+    <mat-icon>cloud_upload</mat-icon> Charger des fichiers
   </button>
 
   <p *ngIf="uploadStatus()" style="margin: 10px 0;">{{ uploadStatus() }}</p>

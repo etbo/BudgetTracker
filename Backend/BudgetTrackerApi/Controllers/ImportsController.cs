@@ -26,12 +26,6 @@ public class ImportsController : ControllerBase
         var result = await _importService.ProcessImportAsync(file);
         Console.WriteLine($"Fichier reçu : var result");
 
-        if (result.IsSuccessful)
-        {
-            Console.WriteLine($"Fichier reçu : Success");
-            return Ok(result); // Envoie le JSON que l'interface FichierTraite d'Angular attend
-        }
-
-        return UnprocessableEntity(result); // Envoie le rapport même en cas d'erreur de parsing
+        return Ok(result);
     }
 }

@@ -32,22 +32,30 @@ export class ImportFileComponent {
 
   displayedColumns: string[] = ['nom', 'resultat', 'banque', 'stats', 'dates', 'duree'];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   onFileSelected(event: any) {
-    const file: File = event.target.files[0];
-    if (file) {
-      this.uploadFile(file);
-      
-      // CORRECTION 1 : Reset de la valeur de l'input
-      // Cela permet de redéclencher l'événement (change) même si on choisit le même fichier
+    const files: FileList = event.target.files;
+
+    if (files && files.length > 0) {
+      this.isUploading.set(true);
+
+      // On transforme la FileList en tableau pour utiliser forEach
+      Array.from(files).forEach((file, index) => {
+        this.uploadFile(file);
+      });
+
+      // Reset de l'input pour permettre de reprendre les mêmes fichiers plus tard
       event.target.value = '';
     }
   }
 
+  private filesInProgress = 0;
+
   private uploadFile(file: File) {
+    this.filesInProgress++;
     this.isUploading.set(true);
-    this.uploadStatus.set(`Import de ${file.name}...`);
+    this.uploadStatus.set(`Import de ${this.filesInProgress} fichier(s) en cours...`);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -57,20 +65,35 @@ export class ImportFileComponent {
         next: (result) => {
           result.dateTraitement = new Date();
           this.fichiersImports.update(actuels => [result, ...actuels]);
-          
-          this.uploadStatus.set('Import terminé avec succès');
-          this.isUploading.set(false);
+          this.checkFinalization();
         },
         error: (err) => {
           console.error('Erreur upload:', err);
-          
-          // CORRECTION 2 : Affichage du message d'erreur précis du Backend
-          // Si le backend renvoie un objet FichierTraite avec msgErreur, on l'affiche
-          const errorMessage = err.error?.msgErreur || 'Erreur technique ou serveur injoignable';
-          this.uploadStatus.set(`Échec : ${errorMessage}`);
-          
-          this.isUploading.set(false);
+          // On crée une ligne d'erreur pour le tableau même si l'API est injoignable
+          const errorResult: FichierTraite = {
+            nomDuFichier: file.name,
+            isSuccessful: false,
+            msgErreur: "Serveur injoignable",
+            nombreOperationsLus: 0,
+            nombreOperationsAjoutees: 0,
+            parser: null,
+            dateMin: null,
+            dateMax: null,
+            tempsDeTraitementMs: 0,
+            dateTraitement: new Date()
+          };
+          this.fichiersImports.update(actuels => [errorResult, ...actuels]);
+          this.checkFinalization();
         }
       });
+  }
+
+  private checkFinalization() {
+    this.filesInProgress--;
+    if (this.filesInProgress <= 0) {
+      this.filesInProgress = 0;
+      this.isUploading.set(false);
+      this.uploadStatus.set('Tous les imports sont terminés');
+    }
   }
 }
