@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
+
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngular",
         policy => policy.WithOrigins("http://localhost:4200")
@@ -33,6 +35,8 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<PeaService>();
 builder.Services.AddHttpClient<FinanceService>();
 builder.Services.AddScoped<BalanceReportService>();
+
+builder.Services.AddScoped<ImportService>();
 
 builder.Services.AddScoped<DatabaseExportService>();
 
@@ -80,20 +84,8 @@ app.MapGet("/api/reports/evolution", async ([FromServices] BalanceReportService 
     }
 });
 
-app.MapPost("/api/imports/upload", async (IFormFile file) =>
-{
-    if (file == null || file.Length == 0)
-        return Results.BadRequest("Fichier vide.");
-
-    Console.WriteLine($"Upload fichier");
-    // Ici, vous réutiliserez votre logique CsvHelper que vous aviez dans Blazor
-    // 1. Lire le stream du fichier
-    // 2. Parser avec CsvHelper
-    // 3. Enregistrer en base
-    
-    return Results.Ok(new { message = "Fichier reçu !" });
-})
-.DisableAntiforgery(); // Important pour les uploads en Minimal API si vous n'avez pas configuré le CSRF
+// Active le mappage des routes des contrôleurs
+app.MapControllers();
 
 app.Run();
 

@@ -2,44 +2,74 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
 import { HttpClient } from '@angular/common/http';
 
+export interface FichierTraite {
+  nomDuFichier: string;
+  isSuccessful: boolean;
+  msgErreur: string;
+  nombreOperationsLus: number;
+  nombreOperationsAjoutees: number;
+  parser: string | null;
+  dateMin: string | null;
+  dateMax: string | null;
+  tempsDeTraitementMs: number;
+  dateTraitement: Date;
+}
 
 @Component({
   selector: 'app-import-file',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
-  templateUrl: './import-file.html'
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatTableModule],
+  templateUrl: './import-file.html',
+  styleUrl: './import-file.scss'
 })
 export class ImportFileComponent {
-  selectedFile: File | null = null;
+  fichiersImports = signal<FichierTraite[]>([]);
+  isUploading = signal(false);
   uploadStatus = signal('');
+
+  displayedColumns: string[] = ['nom', 'resultat', 'banque', 'stats', 'dates', 'duree'];
 
   constructor(private http: HttpClient) {}
 
   onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
+    const file: File = event.target.files[0];
+    if (file) {
+      this.uploadFile(file);
+      
+      // CORRECTION 1 : Reset de la valeur de l'input
+      // Cela permet de redéclencher l'événement (change) même si on choisit le même fichier
+      event.target.value = '';
+    }
   }
 
-  isUploading = signal(false);
-
-  onUpload() {
-    if (!this.selectedFile) return;
-    
+  private uploadFile(file: File) {
     this.isUploading.set(true);
+    this.uploadStatus.set(`Import de ${file.name}...`);
 
     const formData = new FormData();
-    formData.append('file', this.selectedFile);
+    formData.append('file', file);
 
-    // L'URL de votre futur endpoint .NET
-    this.http.post('http://localhost:5011/api/imports/upload', formData)
+    this.http.post<FichierTraite>('http://localhost:5011/api/imports/upload', formData)
       .subscribe({
-        next: () => {
-          this.uploadStatus.set('Fichier importé avec succès !');
+        next: (result) => {
+          result.dateTraitement = new Date();
+          this.fichiersImports.update(actuels => [result, ...actuels]);
+          
+          this.uploadStatus.set('Import terminé avec succès');
           this.isUploading.set(false);
         },
         error: (err) => {
-          this.uploadStatus.set('Erreur lors de l\'import');
+          console.error('Erreur upload:', err);
+          
+          // CORRECTION 2 : Affichage du message d'erreur précis du Backend
+          // Si le backend renvoie un objet FichierTraite avec msgErreur, on l'affiche
+          const errorMessage = err.error?.msgErreur || 'Erreur technique ou serveur injoignable';
+          this.uploadStatus.set(`Échec : ${errorMessage}`);
+          
+          this.isUploading.set(false);
         }
       });
   }
