@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace BudgetTrackerApp.Models
 {
     public class OperationPea
@@ -6,6 +8,7 @@ namespace BudgetTrackerApp.Models
         public string? Titulaire { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
         public string Code { get; set; } = string.Empty;
+        [JsonPropertyName("quantite")]
         public int Quantité { get; set; }
         public double MontantBrutUnitaire { get; set; }
         public double MontantNet { get; set; }
