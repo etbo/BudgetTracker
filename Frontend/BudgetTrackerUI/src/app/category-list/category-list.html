@@ -1,0 +1,32 @@
+<div class="p-8">
+  <h2 class="text-2xl mb-4">Liste des Catégories</h2>
+  <p class="text-gray-500 mb-6 italic">Le renommage met à jour automatiquement les opérations et les règles associées.</p>
+
+  <table mat-table [dataSource]="categories()" class="mat-elevation-z8 w-full mb-4">
+    
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Nom</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-form-field appearance="outline" class="w-full mt-2">
+          <input matInput [(ngModel)]="element.name" (blur)="save(element)">
+        </mat-form-field>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Type</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-form-field appearance="outline" class="w-full mt-2">
+          <input matInput [(ngModel)]="element.type" (blur)="save(element)">
+        </mat-form-field>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <button mat-raised-button color="primary" (click)="addCategory()">
+    Ajouter une catégorie
+  </button>
+</div>

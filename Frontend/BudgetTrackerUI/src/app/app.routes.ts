@@ -4,6 +4,7 @@ import { ImportFileComponent } from './import-file/import-file';
 import { PeaInputComponent } from './pea-input/pea-input';
 import { RulesListComponent } from './rules-list/rules-list';
 import { OperationsEditorComponent } from './operations-editor/operations-editor';
+import { CategoryListComponent } from './category-list/category-list';
 
 export const routes: Routes = [
   { path: '', component: DashboardCcComponent },
@@ -11,7 +12,7 @@ export const routes: Routes = [
   { path: 'dashboardcomptecourant', component: DashboardCcComponent },
   
   // Routes temporaires (pointent vers le graph en attendant)
-  { path: 'ListCategories', component: DashboardCcComponent },
+  { path: 'ListCategories', component: CategoryListComponent },
   { path: 'ListRules', component: RulesListComponent },
   { path: 'operationseditor', component: OperationsEditorComponent },
   { path: 'statsdb', component: DashboardCcComponent },
