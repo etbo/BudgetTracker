@@ -1,0 +1,84 @@
+<div class="p-6">
+  <h2 class="text-2xl mb-4">Règles de catégorisation</h2>
+
+  <table mat-table [dataSource]="rules()" class="mat-elevation-z8 w-full">
+    
+    <ng-container matColumnDef="active">
+      <th mat-header-cell *matHeaderCellDef>Active</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-slide-toggle [(ngModel)]="element.isUsed" (change)="save(element)"></mat-slide-toggle>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="pattern">
+      <th mat-header-cell *matHeaderCellDef>Contient...</th>
+      <td mat-cell *matCellDef="let element">
+        <input matInput [(ngModel)]="element.pattern" (blur)="save(element)" class="border p-1 rounded">
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="minAmount">
+      <th mat-header-cell *matHeaderCellDef>Min</th>
+      <td mat-cell *matCellDef="let element">
+        <input type="number" [(ngModel)]="element.minAmount" (blur)="save(element)" class="border p-1 rounded w-20">
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="maxAmount">
+      <th mat-header-cell *matHeaderCellDef>Max</th>
+      <td mat-cell *matCellDef="let element">
+        <input type="number" [(ngModel)]="element.maxAmount" (blur)="save(element)" class="border p-1 rounded w-20">
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="minDate">
+      <th mat-header-cell *matHeaderCellDef>Début</th>
+      <td mat-cell *matCellDef="let element">
+        <input matInput [matDatepicker]="p1" [(ngModel)]="element.minDate" (dateChange)="save(element)" class="w-24">
+        <mat-datepicker-toggle [for]="p1"></mat-datepicker-toggle>
+        <mat-datepicker #p1></mat-datepicker>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="maxDate">
+      <th mat-header-cell *matHeaderCellDef>Fin</th>
+      <td mat-cell *matCellDef="let element">
+        <input matInput [matDatepicker]="p2" [(ngModel)]="element.maxDate" (dateChange)="save(element)" class="w-24">
+        <mat-datepicker-toggle [for]="p2"></mat-datepicker-toggle>
+        <mat-datepicker #p2></mat-datepicker>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="comment">
+      <th mat-header-cell *matHeaderCellDef>Commentaire</th>
+      <td mat-cell *matCellDef="let element">
+        <input matInput [(ngModel)]="element.commentaire" (blur)="save(element)">
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="arrow">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element">
+        <mat-icon color="primary">arrow_circle_right</mat-icon>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="category">
+      <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-select [(ngModel)]="element.category" (selectionChange)="save(element)">
+          <mat-option *ngFor="let cat of categories()" [value]="cat.name">
+            {{cat.name}}
+          </mat-option>
+        </mat-select>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <button mat-raised-button color="primary" class="mt-4" (click)="addRule()">
+    Ajouter une règle
+  </button>
+</div>
