@@ -39,6 +39,7 @@ builder.Services.AddScoped<BalanceReportService>();
 builder.Services.AddScoped<ImportService>();
 
 builder.Services.AddScoped<DatabaseExportService>();
+builder.Services.AddScoped<IRuleService, RuleService>();
 
 var app = builder.Build();
 

@@ -1,0 +1,86 @@
+<div class="p-6">
+  <h2 class="text-2xl mb-4">Édition d'opérations</h2>
+
+  <div class="flex items-center gap-4 mb-6">
+    <mat-form-field appearance="outline">
+      <mat-label>Filtre</mat-label>
+      <mat-select [(ngModel)]="filterType" (selectionChange)="refresh()">
+        <mat-option value="AllOps">Toutes les opérations</mat-option>
+        <mat-option value="A">Type manquant</mat-option>
+        <mat-option value="B">Chèques</mat-option>
+        <mat-option value="C">Dernier import</mat-option>
+        <mat-option value="D">Erreur catégorie</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" (click)="refresh()">Refresh</button>
+    
+    <mat-form-field appearance="outline" class="flex-grow">
+      <mat-label>Recherche</mat-label>
+      <input matInput [(ngModel)]="searchString" placeholder="Filtrer la description...">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div *ngIf="isLoading()" class="flex flex-col items-center p-10">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Chargement des opérations...</p>
+  </div>
+
+  <p class="mb-2 font-semibold">{{ textResult() }}</p>
+
+  <table mat-table [dataSource]="filteredOperations()" class="mat-elevation-z8 w-full" *ngIf="!isLoading()">
+    
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef>Date</th>
+      <td mat-cell *matCellDef="let op">{{ op.date }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef>Description</th>
+      <td mat-cell *matCellDef="let op">{{ op.description }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="montant">
+      <th mat-header-cell *matHeaderCellDef class="text-right">Montant</th>
+      <td mat-cell *matCellDef="let op" [ngClass]="op.montant < 0 ? 'text-red-500' : 'text-green-500'" class="text-right font-mono">
+        {{ op.montant.toFixed(2) }} €
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="categorie">
+      <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+      <td mat-cell *matCellDef="let op">
+        <mat-select [(ngModel)]="op.categorie" (selectionChange)="onCategoryChanged($event.value, op)" 
+                    [class.bg-yellow-100]="op.isModified">
+          <mat-option value="">-- Sans catégorie --</mat-option>
+          <mat-option *ngFor="let cat of categories()" [value]="cat.name">{{ cat.name }}</mat-option>
+        </mat-select>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let op">
+        <button mat-mini-fab color="primary" *ngIf="op.isModified" (click)="save(op)">
+          <mat-icon>save</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="commentaire">
+      <th mat-header-cell *matHeaderCellDef>Commentaire</th>
+      <td mat-cell *matCellDef="let op">
+        <input matInput [(ngModel)]="op.commentaire" (blur)="save(op)" class="border rounded p-1">
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="banque">
+      <th mat-header-cell *matHeaderCellDef>Banque</th>
+      <td mat-cell *matCellDef="let op" class="text-gray-400 text-sm">{{ op.banque }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>
