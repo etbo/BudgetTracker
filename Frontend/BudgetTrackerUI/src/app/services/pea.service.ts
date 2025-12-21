@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { OperationPea } from '../models/operation-pea.model';
+import { CumulPea } from '../models/cumul-pea.model'; // <--- Ajoute cet import
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class PeaService {
@@ -8,6 +10,7 @@ export class PeaService {
 
   constructor(private http: HttpClient) {}
 
+  // --- Méthodes pour la page d'édition (PeaInput) ---
   getAll() {
     return this.http.get<OperationPea[]>(this.apiUrl);
   }

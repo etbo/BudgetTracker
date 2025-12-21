@@ -5,7 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BudgetTrackerApp.Services
 {
-    public class PeaService
+    public interface IPeaService
+    {
+        Task<List<OperationPea>> GetAllOperationsAsync();
+        Task<List<CumulPea>> CalculerCumul();
+    }
+
+    public class PeaService : IPeaService
     {
         private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
@@ -26,6 +32,7 @@ namespace BudgetTrackerApp.Services
 
         public async Task<List<CumulPea>> CalculerCumul()
         {
+            Console.WriteLine($"Début calcul cumul");
             using var db = _dbFactory.CreateDbContext();
 
             // 1. Récupération des opérations triées
@@ -33,7 +40,7 @@ namespace BudgetTrackerApp.Services
                 .OrderBy(o => o.Date)
                 .ToListAsync();
 
-            if (!orderedOperations.Any())
+            if (orderedOperations == null || !orderedOperations.Any())
             {
                 return new List<CumulPea>();
             }
@@ -42,7 +49,7 @@ namespace BudgetTrackerApp.Services
             var allTickers = orderedOperations.Select(o => o.Code).Distinct().ToList();
             var tousLesPrixCaches = await db.CachedStockPrices
                 .Where(c => allTickers.Contains(c.Ticker))
-                .ToListAsync();
+                .ToListAsync() ?? new List<CachedStockPrice>();
 
             var prixOrganises = tousLesPrixCaches
                 .GroupBy(c => c.Ticker)

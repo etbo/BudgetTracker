@@ -5,6 +5,7 @@ import { PeaInputComponent } from './pea-input/pea-input';
 import { RulesListComponent } from './rules-list/rules-list';
 import { OperationsEditorComponent } from './operations-editor/operations-editor';
 import { CategoryListComponent } from './category-list/category-list';
+import { PeaWalletComponent } from './pea-wallet/pea-wallet';
 
 export const routes: Routes = [
   { path: '', component: DashboardCcComponent },
@@ -18,7 +19,7 @@ export const routes: Routes = [
   { path: 'statsdb', component: DashboardCcComponent },
   { path: 'importfile', component: ImportFileComponent },
   { path: 'InputPea', component: PeaInputComponent },
-  { path: 'peawallet', component: DashboardCcComponent },
+  { path: 'peawallet', component: PeaWalletComponent },
   
   // Redirection si l'URL est inconnue
   { path: '**', redirectTo: '' }

@@ -71,8 +71,6 @@ namespace BudgetTrackerApp.Services
             if (string.IsNullOrEmpty(ticker) || !startDate.HasValue)
                 throw new Exception($"Ticker vide");
 
-            Console.WriteLine($"MàJ {ticker} ? (1er achat {startDate})");
-
             // Lecture dans la base de données de la dernière mise à jour du ticker
             using var _dbContext = _dbFactory.CreateDbContext();
 
@@ -88,6 +86,8 @@ namespace BudgetTrackerApp.Services
                 // There is a dateMinimale found and it is already today : no update needed
                 return new UpdateStocksValuesResult(UpdateStatus.NotAttempted, string.Empty);
             }
+
+            Console.WriteLine($"MàJ nécessaire pour {ticker}");
 
 
             string jsonContent = "{}";

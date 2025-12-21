@@ -18,28 +18,25 @@ builder.Services.AddCors(options => {
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContextFactory<AppDbContext>();
-
-// Add of custom CompteCourant service, defined in Data/Services
+// --- SERVICES ---
 builder.Services.AddScoped<OperationCCService>();
-
-// Service pour les filtres lors des requêtes :
 builder.Services.AddSingleton<FiltersState>();
-
-// Service pour gérer le choix de la Database entre production et test
 builder.Services.AddSingleton<DatabaseSelectorService>();
-
 builder.Services.AddSingleton<MyDataService>();
-
 builder.Services.AddScoped<CategoryService>();
-builder.Services.AddScoped<PeaService>();
+
+// Utilise UNIQUEMENT l'interface pour PeaService
+builder.Services.AddScoped<IPeaService, PeaService>(); 
+
+// FinanceService doit être enregistré via AddHttpClient (ne pas rajouter AddScoped après)
 builder.Services.AddHttpClient<FinanceService>();
+
 builder.Services.AddScoped<BalanceReportService>();
-
 builder.Services.AddScoped<ImportService>();
-
 builder.Services.AddScoped<DatabaseExportService>();
 builder.Services.AddScoped<IRuleService, RuleService>();
+
+builder.Services.AddDbContextFactory<AppDbContext>();
 
 var app = builder.Build();
 
