@@ -108,7 +108,7 @@ export class DeleteButtonRenderer implements ICellRendererAngularComp {
   standalone: true,
   imports: [
     CommonModule, FormsModule, AgGridModule, MatCardModule,
-    MatIconModule, MatButtonModule, DeleteButtonRenderer
+    MatIconModule, MatButtonModule
   ],
   templateUrl: './categorization-grid.html',
   styleUrls: ['./categorization-grid.scss']
@@ -182,7 +182,7 @@ export class CategorizationGridComponent implements OnInit {
       }
     },
     {
-      headerName: '',
+      headerName: 'X',
       width: 50,
       sortable: false,
       filter: false,

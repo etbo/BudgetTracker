@@ -29,3 +29,19 @@
 ::ng-deep .ag-checkbox-input-wrapper {
   transform: scale(1.1);
 }
+
+::ng-deep {
+  /* On force l'opacité à 1 quand la ligne est survolée */
+  .ag-row-hover .delete-btn {
+    opacity: 1 !important;
+  }
+
+  /* On s'assure que le conteneur du renderer laisse passer l'icône */
+  .delete-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+}
