@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RulesService } from '../services/rules.service';
 import { CategoryRule, Category } from '../models/category-rule.model';
@@ -15,7 +16,7 @@ import { CategoryRule, Category } from '../models/category-rule.model';
   standalone: true,
   imports: [
     CommonModule, FormsModule, MatTableModule, MatInputModule, 
-    MatSelectModule, MatSlideToggleModule, MatDatepickerModule, MatIconModule
+    MatSelectModule, MatSlideToggleModule, MatDatepickerModule, MatIconModule, MatCardModule
   ],
   templateUrl: './rules-list.html'
 })
