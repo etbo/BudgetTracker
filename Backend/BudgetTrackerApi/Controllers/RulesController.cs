@@ -24,6 +24,24 @@ public class RulesController : ControllerBase
         return Ok(rule);
     }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteRule(int id)
+    {
+        // On utilise _db (le nom que vous avez choisi) 
+        // et CategoryRules (le nom de votre DbSet)
+        var rule = await _db.CategoryRules.FindAsync(id);
+
+        if (rule == null)
+        {
+            return NotFound();
+        }
+
+        _db.CategoryRules.Remove(rule);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, CategoryRule rule)
     {
