@@ -7,46 +7,49 @@
     <div class="table-container">
       <table mat-table [dataSource]="rules()" class="mat-elevation-z8 w-full">
 
+        <!-- Active -->
         <ng-container matColumnDef="active">
-          <th mat-header-cell *matHeaderCellDef>Active</th>
-          <td mat-cell *matCellDef="let element">
+          <th mat-header-cell *matHeaderCellDef class="col-toggle">Active</th>
+          <td mat-cell *matCellDef="let element" class="col-toggle">
             <mat-slide-toggle [(ngModel)]="element.isUsed" (change)="save(element)"></mat-slide-toggle>
           </td>
         </ng-container>
 
+        <!-- Pattern -->
         <ng-container matColumnDef="pattern">
-          <th mat-header-cell *matHeaderCellDef>Contient...</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-form-field appearance="outline" class="w-full">
+          <th mat-header-cell *matHeaderCellDef class="col-pattern">Contient...</th>
+          <td mat-cell *matCellDef="let element" class="col-pattern">
+            <mat-form-field appearance="outline" class="col-input">
               <input matInput [(ngModel)]="element.pattern" (blur)="save(element)">
             </mat-form-field>
           </td>
         </ng-container>
 
+        <!-- Min -->
         <ng-container matColumnDef="minAmount">
-          <th mat-header-cell *matHeaderCellDef>Min</th>
-          <td mat-cell *matCellDef="let element">
-            <div class="w-24">
-              <mat-form-field appearance="outline" class="w-full">
-                <input matInput type="number" [(ngModel)]="element.minAmount" (blur)="save(element)">
-              </mat-form-field>
-            </div>
+          <th mat-header-cell *matHeaderCellDef class="col-number">Min</th>
+          <td mat-cell *matCellDef="let element" class="col-number">
+            <mat-form-field appearance="outline" class="col-input">
+              <input matInput type="number" [(ngModel)]="element.minAmount" (blur)="save(element)">
+            </mat-form-field>
           </td>
         </ng-container>
 
+        <!-- Max -->
         <ng-container matColumnDef="maxAmount">
-          <th mat-header-cell *matHeaderCellDef>Max</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-form-field appearance="outline" class="w-12">
+          <th mat-header-cell *matHeaderCellDef class="col-number">Max</th>
+          <td mat-cell *matCellDef="let element" class="col-number">
+            <mat-form-field appearance="outline" class="col-input">
               <input matInput type="number" [(ngModel)]="element.maxAmount" (blur)="save(element)">
             </mat-form-field>
           </td>
         </ng-container>
 
+        <!-- Min Date -->
         <ng-container matColumnDef="minDate">
-          <th mat-header-cell *matHeaderCellDef>Début</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-form-field appearance="outline" class="w-32">
+          <th mat-header-cell *matHeaderCellDef class="col-date">Début</th>
+          <td mat-cell *matCellDef="let element" class="col-date">
+            <mat-form-field appearance="outline" class="col-input">
               <input matInput [matDatepicker]="p1" [(ngModel)]="element.minDate" (dateChange)="save(element)">
               <mat-datepicker-toggle matSuffix [for]="p1"></mat-datepicker-toggle>
               <mat-datepicker #p1></mat-datepicker>
@@ -54,40 +57,41 @@
           </td>
         </ng-container>
 
+        <!-- Max Date -->
         <ng-container matColumnDef="maxDate">
-          <th mat-header-cell *matHeaderCellDef>Fin</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-form-field appearance="outline" class="w-32">
-              <input matInput [matDatepicker]="p1" [(ngModel)]="element.maxDate" (dateChange)="save(element)">
-              <mat-datepicker-toggle matSuffix [for]="p1"></mat-datepicker-toggle>
-              <mat-datepicker #p1></mat-datepicker>
+          <th mat-header-cell *matHeaderCellDef class="col-date">Fin</th>
+          <td mat-cell *matCellDef="let element" class="col-date">
+            <mat-form-field appearance="outline" class="col-input">
+              <input matInput [matDatepicker]="p2" [(ngModel)]="element.maxDate" (dateChange)="save(element)">
+              <mat-datepicker-toggle matSuffix [for]="p2"></mat-datepicker-toggle>
+              <mat-datepicker #p2></mat-datepicker>
             </mat-form-field>
           </td>
         </ng-container>
 
+        <!-- Commentaire -->
         <ng-container matColumnDef="comment">
-          <th mat-header-cell *matHeaderCellDef>Commentaire</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-form-field appearance="outline" class="w-full">
+          <th mat-header-cell *matHeaderCellDef class="col-comment">Commentaire</th>
+          <td mat-cell *matCellDef="let element" class="col-comment">
+            <mat-form-field appearance="outline" class="col-input">
               <input matInput [(ngModel)]="element.commentaire" (blur)="save(element)">
             </mat-form-field>
-
           </td>
         </ng-container>
 
+        <!-- Arrow -->
         <ng-container matColumnDef="arrow">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let element">
-            <button mat-icon-button color="primary" disabled>
-              <mat-icon>arrow_forward</mat-icon>
-            </button>
+          <th mat-header-cell *matHeaderCellDef class="col-arrow"></th>
+          <td mat-cell *matCellDef="let element" class="col-arrow">
+            <mat-icon color="primary" class="arrow-icon">arrow_forward</mat-icon>
           </td>
         </ng-container>
 
+        <!-- Catégorie -->
         <ng-container matColumnDef="category">
-          <th mat-header-cell *matHeaderCellDef>Catégorie</th>
-          <td mat-cell *matCellDef="let element">
-            <mat-form-field appearance="outline" class="w-48">
+          <th mat-header-cell *matHeaderCellDef class="col-category">Catégorie</th>
+          <td mat-cell *matCellDef="let element" class="col-category">
+            <mat-form-field appearance="outline" class="col-input">
               <mat-select [(ngModel)]="element.category" (selectionChange)="save(element)">
                 <mat-option *ngFor="let cat of categories()" [value]="cat.name">
                   {{ cat.name }}

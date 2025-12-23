@@ -58,20 +58,115 @@ body {
    App layout helpers (hors Material)
    ========================================================= */
 
-.table-container {
-  overflow-x: auto; // scroll seulement si nécessaire
-}
-
-.table-container table {
-  width: 100%;      // occupe toute la largeur de la section
-  table-layout: auto; // ou fixed si tu veux colonnes fixes
-  max-width: 100%;  // jamais plus large que la section
-}
+/* =========================================================
+   Section / Card
+   ========================================================= */
 
 .section {
-  width: 100%;           // occupe tout l'espace disponible
-  padding: 24px 16px;    // padding interne
-  box-sizing: border-box; // inclus padding dans la largeur
-  margin: 24px auto;      // centrer verticalement si moins large
-  max-width: 2200px;      // limite raisonnable sur très grand écran
+  width: 100%;
+  max-width: 2200px;       // limite sur très grands écrans
+  margin: 24px auto;
+  padding: 24px 16px;      // padding interne
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   Table container
+   ========================================================= */
+
+.table-container {
+  overflow-x: auto;        // scroll horizontal si table trop large
+}
+
+/* Table générale */
+.table-container table {
+  width: 100%;
+  table-layout: fixed;     // colonnes respectent largeur définie
+  border-collapse: collapse;
+}
+
+/* =========================================================
+   Colonnes et inputs
+   ========================================================= */
+
+/* Inputs prennent toute la largeur de la cellule */
+.col-input {
+  width: 100%;
+}
+
+/* Colonne Pattern : large, texte long */
+.col-pattern {
+  width: 30%;
+  min-width: 150px;        // réduit pour petites fenêtres
+}
+
+/* Colonnes Min / Max : juste largeur pour chiffres */
+.col-number {
+  width: 120px;
+  text-align: right;
+}
+
+/* Colonnes Date : largeur moyenne */
+.col-date {
+  width: 190px;
+}
+
+/* Colonne Commentaire : flexible */
+.col-comment {
+  width: auto;
+  min-width: 150px;
+}
+
+/* Toggle / Arrow */
+.col-toggle {
+  width: 85px;
+  text-align: center;
+}
+
+.col-arrow {
+  width: 60px;
+  text-align: center;
+}
+
+/* Colonne Catégorie : largeur adaptée */
+.col-category {
+  width: 200px;
+}
+
+/* Supprime l’espace sous les inputs */
+.table-container td mat-form-field .mat-mdc-form-field-subscript-wrapper {
+  display: none; /* plus d’espace réservé en bas */
+}
+
+/* Mettre en avant le mat-select de catégorie */
+.col-category mat-form-field {
+  background-color: rgba(0, 120, 212, 0.05); /* léger fond bleu */
+}
+
+.col-category mat-select {
+  color: var(--mat-sys-primary);
+}
+
+/* Arrow color même si disabled */
+.arrow-icon {
+  --mat-icon-color: var(--mat-sys-primary);
+}
+
+
+
+/* mat-slide-toggle et bouton restent centrés automatiquement */
+
+
+
+/* =========================================================
+   Ajustement Mat-Form-Field
+   ========================================================= */
+
+/* Tous les mat-form-field dans les cellules utilisent la largeur de leur colonne */
+.col-pattern mat-form-field,
+.col-number mat-form-field,
+.col-date mat-form-field,
+.col-comment mat-form-field,
+.col-category mat-form-field {
+  width: 100%;
 }
