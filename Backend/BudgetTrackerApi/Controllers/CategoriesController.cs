@@ -43,4 +43,16 @@ public class CategoriesController : ControllerBase
         await _db.SaveChangesAsync();
         return Ok(cat);
     }
+
+    [HttpDelete("{id}")] // <--- Très important : définit la méthode et le paramètre
+    public async Task<IActionResult> DeleteCategory(int id)
+    {
+        var category = await _db.Categories.FindAsync(id);
+        if (category == null) return NotFound();
+
+        _db.Categories.Remove(category);
+        await _db.SaveChangesAsync();
+
+        return NoContent(); // Retourne 204
+    }
 }
