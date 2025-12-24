@@ -1,20 +1,32 @@
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.sidenav-container {
-  height: 100vh; /* 100% de la hauteur de vue */
+.azure-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   width: 100vw;
 }
 
-.app-sidenav {
-  width: 260px;
-  background-color: #fafafa;
-  border-right: 1px solid #e0e0e0;
+.azure-toolbar {
+  height: 48px !important;
+  min-height: 48px !important;
+  background-color: #ffffff !important;
+  color: #0078d4 !important;
+  border-bottom: 1px solid #dcdcdc;
+  z-index: 1001;
+  
+  .app-brand {
+    font-size: 16px;
+    font-weight: 600;
+  }
 }
 
-.main-content {
-  padding: 24px;
+.sidenav-container {
+  flex: 1;
 }
+
+
+
+.main-content-area {
+  background-color: #f8f8f8 !important;
+}
+
+.spacer { flex: 1 1 auto; }

@@ -3,7 +3,6 @@
 /* =========================================================
    Material 3 – Theme initialization
    ========================================================= */
-
 html {
   height: 100%;
 
@@ -18,155 +17,112 @@ html {
 }
 
 /* =========================================================
-   Global surface & typography
+   Azure DevOps Design Tokens (Overrides)
    ========================================================= */
+:root {
+  /* Couleurs personnalisées */
+  --azure-bg-color: #f8f8f8;
+  --azure-sidebar-color: #eaeaea;
+  --azure-blue: #0078d4;
+
+  /* Suppression des arrondis Material 3 (Shapes) */
+  --mat-sys-corner-extra-small: 0px;
+  --mat-sys-corner-small: 0px;
+  --mat-sys-corner-medium: 0px;
+  --mat-sys-corner-large: 0px;
+  --mat-sys-corner-extra-large: 0px;
+  
+  /* Désactivation des arrondis spécifiques aux cartes et aux champs */
+  --mat-card-elevated-container-shape: 0px;
+  --mat-form-field-container-shape: 0px;
+  --mdc-filled-text-field-container-shape: 0px;
+  --mdc-outlined-text-field-container-shape: 0px;
+
+  /* Configuration des surfaces */
+  --mat-sys-surface-container-lowest: var(--azure-bg-color);
+  
+  /* Form fields compact */
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-outlined-label-text-size: 13px;
+  --mat-form-field-input-text-size: 14px;
+}
 
 body {
   height: 100%;
   margin: 0;
   color-scheme: light;
-
-  background-color: var(--mat-sys-surface-container-lowest);
+  background-color: var(--azure-bg-color) !important;
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
 }
 
-/* =========================================================
-   Material 3 – Card (tokens réellement utilisés)
-   ========================================================= */
-
-:root {
-  /* Card container */
-  --mat-card-elevated-container-color: #ffffff;
-  --mat-card-elevated-container-elevation: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --mat-card-elevated-container-shape: 12px;
-}
-
-/* =========================================================
-   Material 3 – Form fields (compact, EFFECTIF)
-   ========================================================= */
-
-:root {
-  --mat-form-field-container-height: 40px;
-  --mat-form-field-container-vertical-padding: 8px;
-
-  --mat-form-field-outlined-label-text-size: 13px;
-  --mat-form-field-input-text-size: 14px;
-}
-
-/* =========================================================
-   App layout helpers (hors Material)
-   ========================================================= */
-
-/* =========================================================
-   Section / Card
-   ========================================================= */
-
+/* Utilitaires de mise en page */
 .section {
   width: 100%;
-  max-width: 2200px;       // limite sur très grands écrans
+  max-width: 2200px;
   margin: 24px auto;
-  padding: 24px 16px;      // padding interne
+  padding: 24px 16px;
   box-sizing: border-box;
 }
 
-/* =========================================================
-   Table container
-   ========================================================= */
-
-.table-container {
-  overflow-x: auto;        // scroll horizontal si table trop large
+/* Suppression globale des ombres pour un look Flat Azure */
+.mat-elevation-z1, .mat-elevation-z8, .mat-mdc-card {
+  box-shadow: none !important;
+  border: 1px solid #e0e0e0;
 }
 
-/* Table générale */
-.table-container table {
-  width: 100%;
-  table-layout: fixed;     // colonnes respectent largeur définie
-  border-collapse: collapse;
-}
+/* À mettre dans styles.scss pour écraser Material */
 
-/* =========================================================
-   Colonnes et inputs
-   ========================================================= */
+.app-sidenav {
+  background-color: #eaeaea !important;
+  width: 280px !important;
+  border-right: 1px solid #dcdcdc !important;
 
-/* Inputs prennent toute la largeur de la cellule */
-.col-input {
-  width: 100%;
-}
+  .azure-nav {
+    padding-top: 8px !important;
+  }
 
-/* Colonne Pattern : large, texte long */
-.col-pattern {
-  width: 30%;
-  min-width: 150px;        // réduit pour petites fenêtres
-}
+  .nav-group {
+    margin-bottom: 16px;
 
-/* Colonnes Min / Max : juste largeur pour chiffres */
-.col-number {
-  width: 120px;
-  text-align: right;
-}
+    /* Le titre du groupe fixe */
+    .group-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      padding: 0 16px;
+      margin: 8px 0;
+      letter-spacing: 0.5px;
+      text-transform: uppercase; /* Look très "Sidebar technique" */
+    }
+  }
+  
+  .mat-mdc-list-item {
+    padding: 0 !important;
+    
+    /* Le conteneur interne de Material 3 */
+    .mdc-list-item__content {
+      padding-left: 16px !important; /* Padding standard pour tout le monde */
+    }
+  }
 
-/* Colonnes Date : largeur moyenne */
-.col-date {
-  width: 190px;
-}
+  .active-link {
+    background-color: #ffffff !important;
+    color: #0078d4 !important;
+    /* On remet la bordure physique */
+    border-left: 4px solid #0078d4 !important;
 
-/* Colonne Commentaire : flexible */
-.col-comment {
-  width: auto;
-  min-width: 150px;
-}
+    /* LE SECRET : On réduit le padding interne de la valeur de la bordure (16px - 4px = 12px) */
+    .mdc-list-item__content {
+      padding-left: 12px !important; 
+    }
 
-/* Toggle / Arrow */
-.col-toggle {
-  width: 85px;
-  text-align: center;
-}
+    mat-icon {
+      color: #0078d4 !important;
+      /* On s'assure qu'aucune marge ne vient perturber l'icône */
+      margin-left: 0 !important;
+    }
+  }
 
-.col-arrow {
-  width: 60px;
-  text-align: center;
-}
-
-/* Colonne Catégorie : largeur adaptée */
-.col-category {
-  width: 200px;
-}
-
-/* Supprime l’espace sous les inputs */
-.table-container td mat-form-field .mat-mdc-form-field-subscript-wrapper {
-  display: none; /* plus d’espace réservé en bas */
-}
-
-/* Mettre en avant le mat-select de catégorie */
-.col-category mat-form-field {
-  background-color: rgba(0, 120, 212, 0.05); /* léger fond bleu */
-}
-
-.col-category mat-select {
-  color: var(--mat-sys-primary);
-}
-
-/* Arrow color même si disabled */
-.arrow-icon {
-  --mat-icon-color: var(--mat-sys-primary);
-}
-
-
-
-/* mat-slide-toggle et bouton restent centrés automatiquement */
-
-
-
-/* =========================================================
-   Ajustement Mat-Form-Field
-   ========================================================= */
-
-/* Tous les mat-form-field dans les cellules utilisent la largeur de leur colonne */
-.col-pattern mat-form-field,
-.col-number mat-form-field,
-.col-date mat-form-field,
-.col-comment mat-form-field,
-.col-category mat-form-field {
-  width: 100%;
+  
 }

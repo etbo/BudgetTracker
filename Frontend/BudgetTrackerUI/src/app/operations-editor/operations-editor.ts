@@ -32,7 +32,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   template: `
     <div class="flex justify-center items-center h-full">
       <button mat-icon-button color="primary" *ngIf="params.data.isModified" (click)="onSave()">
-        <mat-icon>save</mat-icon>
+        <mat-icon>save_alt</mat-icon>
       </button>
     </div>
   `
@@ -99,7 +99,10 @@ export class OperationsEditorComponent implements OnInit {
       headerName: '',
       width: 60,
       cellRenderer: SaveButtonRenderer,
-      sortable: false, filter: false
+      sortable: false, filter: false,
+      cellClassRules: {
+        'bg-yellow-100-bis': (p: any) => p.data.isModified // Jaune si suggestion backend
+      }
     },
     { headerName: 'Commentaire', field: 'commentaire', editable: true, flex: 1 },
     { headerName: 'Banque', field: 'banque', width: 120, cellClass: 'text-gray-400 text-sm' }
@@ -179,8 +182,8 @@ export class OperationsEditorComponent implements OnInit {
       // SCÉNARIO B : On modifie manuellement la catégorie
       // Ici, on considère que l'utilisateur a fait un choix, on peut soit auto-save,
       // soit simplement marquer isModified pour faire apparaître la disquette.
-      op.isModified = true;
-      this.gridApi.applyTransaction({ update: [op] });
+      op.isModified = false;
+      this.save(op);
     }
   }
 

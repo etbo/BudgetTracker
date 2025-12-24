@@ -1,20 +1,22 @@
-<mat-sidenav-container class="sidenav-container">
-  
-  <mat-sidenav mode="side" [opened]="isDrawerOpen" class="app-sidenav">
-    <app-nav-menu></app-nav-menu>
-  </mat-sidenav>
+<div class="azure-wrapper">
+  <mat-toolbar class="azure-toolbar">
+    <button mat-icon-button (click)="toggleDrawer()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span class="app-brand">BudgetTracker</span>
+    <span class="spacer"></span>
+    <button mat-icon-button><mat-icon>account_circle</mat-icon></button>
+  </mat-toolbar>
 
-  <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <button mat-icon-button (click)="toggleDrawer()">
-        <mat-icon>menu</mat-icon>
-      </button>
-      <span>BudgetTracker</span>
-    </mat-toolbar>
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav mode="side" [opened]="isDrawerOpen" class="app-sidenav">
+      <app-nav-menu></app-nav-menu>
+    </mat-sidenav>
 
-    <div class="main-content">
-      <router-outlet></router-outlet>
-    </div>
-  </mat-sidenav-content>
-
-</mat-sidenav-container>
+    <mat-sidenav-content class="main-content-area">
+      <div class="main-content">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

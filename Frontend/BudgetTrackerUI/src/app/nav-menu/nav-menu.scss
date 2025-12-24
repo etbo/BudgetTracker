@@ -1,21 +1,5 @@
-.active-link {
-  background: rgba(89, 74, 226, 0.1) !important; // Violet transparent
-  color: #594ae2 !important;
-  
-  mat-icon {
-    color: #594ae2;
-  }
-}
-
-.sub-menu {
-  padding-left: 12px;
-}
-
 .group-title {
-  margin-left: 12px;
+  font-size: 14px;
   font-weight: 500;
-}
-
-mat-expansion-panel {
-  background: transparent !important;
+  margin-left: 8px;
 }
