@@ -26,49 +26,9 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { Category, CategoryRule } from '../models/category-rule.model';
 import { RulesService } from '../services/rules.service';
 
+import { currencyFormatter, amountParser, localDateSetter, customDateFormatter } from '../shared/utils/grid-utils';
+
 ModuleRegistry.registerModules([AllCommunityModule]);
-
-/* =========================================================
-    RESOURCES : Formatteurs et Setters
-   ========================================================= */
-
-const customDateFormatter = (params: ValueFormatterParams): string => {
-  if (!params.value) return '';
-  const date = new Date(params.value);
-  if (isNaN(date.getTime())) return params.value;
-  return new Intl.DateTimeFormat('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  }).format(date).replace('.', '');
-};
-
-const localDateSetter = (params: ValueSetterParams): boolean => {
-  if (!params.newValue) {
-    params.data[params.colDef.field!] = null;
-    return true;
-  }
-  const d = new Date(params.newValue);
-  if (isNaN(d.getTime())) return false;
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  params.data[params.colDef.field!] = `${year}-${month}-${day}`;
-  return true;
-};
-
-const currencyFormatter = (params: ValueFormatterParams) => {
-  if (params.value === null || params.value === undefined) return '';
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(params.value);
-};
-
-const amountParser = (params: any) => {
-  if (params.newValue === null || params.newValue === '') return null;
-  return parseFloat(params.newValue.toString().replace(',', '.'));
-};
 
 /* =========================================================
     RENDERER : Bouton Supprimer (Hover & Warn)

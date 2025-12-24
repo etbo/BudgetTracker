@@ -1,66 +1,21 @@
-<div class="p-8">
-  <h2 class="text-2xl mb-6">Saisie d'opération sur le PEA</h2>
+<div class="section">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-gray-800">Saisie d'opération sur le PEA</h2>
+    <button mat-flat-button color="primary" (click)="addOperation()">
+      <mat-icon class="mr-1">add</mat-icon> Ajouter une opération
+    </button>
+  </div>
 
-  <table mat-table [dataSource]="operations()" class="mat-elevation-z8 w-full mb-4">
-    
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef>Date d'achat</th>
-      <td mat-cell *matCellDef="let element">
-        <mat-form-field appearance="outline" class="mt-2">
-          <input matInput [matDatepicker]="picker" [(ngModel)]="element.date" (dateChange)="save(element)">
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="titulaire">
-      <th mat-header-cell *matHeaderCellDef>Titulaire</th>
-      <td mat-cell *matCellDef="let element">
-        <input matInput [(ngModel)]="element.titulaire" (blur)="save(element)" class="border p-2 rounded">
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="code">
-      <th mat-header-cell *matHeaderCellDef>Code</th>
-      <td mat-cell *matCellDef="let element">
-        <input matInput [(ngModel)]="element.code" (blur)="save(element)" class="border p-2 rounded w-24">
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="quantite">
-      <th mat-header-cell *matHeaderCellDef>Quantité</th>
-      <td mat-cell *matCellDef="let element">
-        <input type="number" [(ngModel)]="element.quantite" (blur)="save(element)" class="border p-2 rounded w-20">
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="brut">
-      <th mat-header-cell *matHeaderCellDef>Montant Brut</th>
-      <td mat-cell *matCellDef="let element">
-        <input type="number" [(ngModel)]="element.montantBrutUnitaire" (blur)="save(element)" class="border p-2 rounded w-24">
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="net">
-      <th mat-header-cell *matHeaderCellDef>Montant Net</th>
-      <td mat-cell *matCellDef="let element">
-        <input type="number" [(ngModel)]="element.montantNet" (blur)="save(element)" class="border p-2 rounded w-24">
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="frais">
-      <th mat-header-cell *matHeaderCellDef>Frais</th>
-      <td mat-cell *matCellDef="let element">
-        {{ calculateFrais(element) }}
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-
-  <button mat-raised-button color="primary" (click)="addOperation()">
-    Ajouter une opération
-  </button>
+  <ag-grid-angular
+    style="width: 100%; height: 600px;"
+    class="ag-theme-alpine"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef"
+    [rowData]="operations()"
+    [getRowId]="getRowId"
+    (gridReady)="onGridReady($event)"
+    (cellValueChanged)="onCellValueChanged($event)"
+    [undoRedoCellEditing]="true"
+    [undoRedoCellEditingLimit]="10">
+  </ag-grid-angular>
 </div>
