@@ -50,17 +50,17 @@ export class SaveButtonRenderer implements ICellRendererAngularComp {
 }
 
 @Component({
-  selector: 'app-operations-editor',
+  selector: 'app-cc-operations',
   standalone: true,
   imports: [
     CommonModule, FormsModule, AgGridModule,
     MatSelectModule, MatInputModule, MatButtonModule,
     MatIconModule, MatProgressSpinnerModule, MatCardModule
   ],
-  templateUrl: './operations-editor.html',
-  styleUrls: ['./operations-editor.scss']
+  templateUrl: './cc-operations.html',
+  styleUrls: ['./cc-operations.scss']
 })
-export class OperationsEditorComponent implements OnInit {
+export class CcOperations implements OnInit {
   private gridApi!: GridApi;
 
   resultatOperations = signal<OperationCC[]>([]);

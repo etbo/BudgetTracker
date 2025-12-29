@@ -6,12 +6,12 @@ import { PeaGraphService } from '../services/peagraph.service';
 import { NgApexchartsModule, ChartComponent } from "ng-apexcharts";
 
 @Component({
-  selector: 'app-pea-wallet',
+  selector: 'app-pea-dashboard',
   standalone: true,
   imports: [CommonModule, MatSnackBarModule, NgApexchartsModule],
-  templateUrl: './pea-wallet.html'
+  templateUrl: './pea-dashboard.html'
 })
-export class PeaWalletComponent implements OnInit {
+export class PeaDashboard implements OnInit {
   listeCumulsPea = signal<any[]>([]);
   chartSeries = signal<any[]>([]);
   isLoading = signal(true);

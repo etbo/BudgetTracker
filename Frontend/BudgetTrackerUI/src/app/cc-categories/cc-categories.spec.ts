@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CategorizationGrid } from './categorization-grid';
+import { CcCategories } from './cc-categories';
 
-describe('CategorizationGrid', () => {
-  let component: CategorizationGrid;
-  let fixture: ComponentFixture<CategorizationGrid>;
+describe('CcCategories', () => {
+  let component: CcCategories;
+  let fixture: ComponentFixture<CcCategories>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CategorizationGrid]
+      imports: [CcCategories]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CategorizationGrid);
+    fixture = TestBed.createComponent(CcCategories);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

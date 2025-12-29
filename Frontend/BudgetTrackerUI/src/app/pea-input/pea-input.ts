@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AgGridModule } from 'ag-grid-angular';
+import { AgGridModule, ICellRendererAngularComp } from 'ag-grid-angular';
 import { 
   ColDef, 
   GridReadyEvent, 
@@ -19,6 +19,26 @@ import { currencyFormatter, amountParser, localDateSetter, customDateFormatter }
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatIconModule],
+  template: `
+    <div class="flex justify-center items-center h-full">
+      <button mat-icon-button color="warn" (click)="onDelete()">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
+  `
+})
+export class DeleteButtonRenderer implements ICellRendererAngularComp {
+  params: any;
+  agInit(params: any): void { this.params = params; }
+  refresh(): boolean { return false; }
+  onDelete() {
+    this.params.context.componentParent.delete(this.params.data);
+  }
+}
+
+@Component({
   selector: 'app-pea-input',
   standalone: true,
   imports: [CommonModule, AgGridModule, MatButtonModule, MatIconModule],
@@ -27,6 +47,8 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 export class PeaInputComponent implements OnInit {
   private gridApi!: GridApi;
   operations = signal<OperationPea[]>([]);
+
+  gridContext = { componentParent: this };
 
   // Définition des colonnes
   columnDefs: ColDef[] = [
@@ -70,6 +92,13 @@ export class PeaInputComponent implements OnInit {
       valueGetter: params => this.calculateFrais(params.data),
       editable: false,
       cellClass: 'text-gray-500 bg-gray-50' 
+    },
+    { 
+      headerName: '', 
+      width: 60, 
+      cellRenderer: DeleteButtonRenderer, // Utilisation du nouveau renderer
+      sortable: false, 
+      filter: false
     }
   ];
 

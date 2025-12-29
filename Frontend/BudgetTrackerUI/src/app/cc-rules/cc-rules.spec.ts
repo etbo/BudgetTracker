@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ImportFileComponent } from './import-file';
+import { CcRules } from './cc-rules';
 
-describe('ImportFile', () => {
-  let component: ImportFileComponent;
-  let fixture: ComponentFixture<ImportFileComponent>;
+describe('CcRules', () => {
+  let component: CcRules;
+  let fixture: ComponentFixture<CcRules>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ImportFileComponent]
+      imports: [CcRules]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ImportFileComponent);
+    fixture = TestBed.createComponent(CcRules);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

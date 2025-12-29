@@ -19,13 +19,13 @@ export interface FichierTraite {
 }
 
 @Component({
-  selector: 'app-import-file',
+  selector: 'app-cc-input',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule, MatTableModule],
-  templateUrl: './import-file.html',
-  styleUrl: './import-file.scss'
+  templateUrl: './cc-input.html',
+  styleUrl: './cc-input.scss'
 })
-export class ImportFileComponent {
+export class CcInput {
   fichiersImports = signal<FichierTraite[]>([]);
   isUploading = signal(false);
   uploadStatus = signal('');

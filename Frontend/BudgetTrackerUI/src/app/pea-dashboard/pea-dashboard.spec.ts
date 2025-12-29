@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PeaWallet } from './pea-wallet';
+import { PeaDashboard } from './pea-dashboard';
 
-describe('PeaWallet', () => {
-  let component: PeaWallet;
-  let fixture: ComponentFixture<PeaWallet>;
+describe('PeaDashboard', () => {
+  let component: PeaDashboard;
+  let fixture: ComponentFixture<PeaDashboard>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PeaWallet]
+      imports: [PeaDashboard]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PeaWallet);
+    fixture = TestBed.createComponent(PeaDashboard);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

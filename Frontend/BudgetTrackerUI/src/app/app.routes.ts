@@ -1,25 +1,25 @@
 import { Routes } from '@angular/router';
-import { DashboardCcComponent } from './dashboard-cc/dashboard-cc';
-import { ImportFileComponent } from './import-file/import-file';
+import { CcDashboard } from './cc-dashboard/cc-dashboard';
+import { CcInput } from './cc-input/cc-input';
 import { PeaInputComponent } from './pea-input/pea-input';
-import { OperationsEditorComponent } from './operations-editor/operations-editor';
-import { CategoryListComponent } from './category-list/category-list';
-import { PeaWalletComponent } from './pea-wallet/pea-wallet';
-import { CategorizationGridComponent } from './categorization-grid/categorization-grid';
+import { CcOperations } from './cc-operations/cc-operations';
+import { CcCategories } from './cc-categories/cc-categories';
+import { PeaDashboard } from './pea-dashboard/pea-dashboard';
+import { CcRules } from './cc-rules/cc-rules';
 
 export const routes: Routes = [
-  { path: '', component: DashboardCcComponent },
-  { path: 'cc-evolution', component: DashboardCcComponent },
-  { path: 'dashboardcomptecourant', component: DashboardCcComponent },
-  
-  // Routes temporaires (pointent vers le graph en attendant)
-  { path: 'ListCategories', component: CategoryListComponent },
-  { path: 'ListRules', component: CategorizationGridComponent },
-  { path: 'operationseditor', component: OperationsEditorComponent },
-  { path: 'statsdb', component: CategorizationGridComponent },
-  { path: 'importfile', component: ImportFileComponent },
-  { path: 'InputPea', component: PeaInputComponent },
-  { path: 'peawallet', component: PeaWalletComponent },
+  { path: '', component: CcDashboard },
+
+  // Comptes courant : cc
+  { path: 'cc-dashboard', component: CcDashboard },
+  { path: 'cc-categories', component: CcCategories },
+  { path: 'cc-rules', component: CcRules },
+  { path: 'cc-operations', component: CcOperations },
+  { path: 'cc-input', component: CcInput },
+
+  // pea
+  { path: 'pea-input', component: PeaInputComponent },
+  { path: 'pea-dashboard', component: PeaDashboard },
   
   // Redirection si l'URL est inconnue
   { path: '**', redirectTo: '' }

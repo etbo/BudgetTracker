@@ -44,12 +44,13 @@ export class DeleteButtonRenderer implements ICellRendererAngularComp {
 }
 
 @Component({
-  selector: 'app-category-list',
+  selector: 'app-cc-categories',
   standalone: true,
   imports: [CommonModule, FormsModule, AgGridModule, MatButtonModule, MatIconModule, MatCardModule],
-  templateUrl: './category-list.html'
+  templateUrl: './cc-categories.html',
+  styleUrl: './cc-categories.scss',
 })
-export class CategoryListComponent implements OnInit {
+export class CcCategories implements OnInit {
   private gridApi!: GridApi;
   categories = signal<Category[]>([]);
   gridContext = { componentParent: this };

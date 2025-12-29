@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100vw;
 }
 
 .azure-toolbar {
@@ -23,10 +22,5 @@
   flex: 1;
 }
 
-
-
-.main-content-area {
-  background-color: #f8f8f8 !important;
-}
 
 .spacer { flex: 1 1 auto; }

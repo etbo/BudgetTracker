@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CategoryList } from './category-list';
+import { CcOperations } from './cc-operations';
 
-describe('CategoryList', () => {
-  let component: CategoryList;
-  let fixture: ComponentFixture<CategoryList>;
+describe('CcOperations', () => {
+  let component: CcOperations;
+  let fixture: ComponentFixture<CcOperations>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CategoryList]
+      imports: [CcOperations]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CategoryList);
+    fixture = TestBed.createComponent(CcOperations);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

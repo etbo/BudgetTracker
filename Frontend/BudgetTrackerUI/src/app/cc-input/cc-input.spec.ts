@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DashboardCc } from './dashboard-cc';
+import { CcInput } from './cc-input';
 
-describe('DashboardCc', () => {
-  let component: DashboardCc;
-  let fixture: ComponentFixture<DashboardCc>;
+describe('CcInput', () => {
+  let component: CcInput;
+  let fixture: ComponentFixture<CcInput>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardCc]
+      imports: [CcInput]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DashboardCc);
+    fixture = TestBed.createComponent(CcInput);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

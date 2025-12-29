@@ -4,13 +4,13 @@ import { NgApexchartsModule } from "ng-apexcharts";
 import { BalanceService } from '../services/balance.service';
 
 @Component({
-  selector: 'app-dashboard-cc',
+  selector: 'app-cc-dashboard',
   standalone: true,
   imports: [CommonModule, NgApexchartsModule],
-  templateUrl: './dashboard-cc.html',
-  styleUrl: './dashboard-cc.scss'
+  templateUrl: './cc-dashboard.html',
+  styleUrl: './cc-dashboard.scss'
 })
-export class DashboardCcComponent implements OnInit {
+export class CcDashboard implements OnInit {
   public chartOptions: any;
   public isLoading = signal(true);
 

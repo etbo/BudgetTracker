@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OperationsEditor } from './operations-editor';
+import { CcDashboard } from './cc-dashboard';
 
-describe('OperationsEditor', () => {
-  let component: OperationsEditor;
-  let fixture: ComponentFixture<OperationsEditor>;
+describe('CcDashboard', () => {
+  let component: CcDashboard;
+  let fixture: ComponentFixture<CcDashboard>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OperationsEditor]
+      imports: [CcDashboard]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(OperationsEditor);
+    fixture = TestBed.createComponent(CcDashboard);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

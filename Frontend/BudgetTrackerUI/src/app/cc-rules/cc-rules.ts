@@ -64,16 +64,16 @@ export class DeleteButtonRenderer implements ICellRendererAngularComp {
    ========================================================= */
 
 @Component({
-  selector: 'app-categorization-grid',
+  selector: 'app-cc-rules',
   standalone: true,
   imports: [
     CommonModule, FormsModule, AgGridModule, MatCardModule,
     MatIconModule, MatButtonModule
   ],
-  templateUrl: './categorization-grid.html',
-  styleUrls: ['./categorization-grid.scss']
+  templateUrl: './cc-rules.html',
+  styleUrls: ['./cc-rules.scss']
 })
-export class CategorizationGridComponent implements OnInit {
+export class CcRules implements OnInit {
   rules = signal<CategoryRule[]>([]);
   categories = signal<Category[]>([]);
 
@@ -146,7 +146,10 @@ export class CategorizationGridComponent implements OnInit {
       width: 50,
       sortable: false,
       filter: false,
-      cellRenderer: DeleteButtonRenderer
+      cellRenderer: DeleteButtonRenderer,
+      cellStyle: {
+        'background-color': '#e3f2fd'
+      }
     }
   ];
 

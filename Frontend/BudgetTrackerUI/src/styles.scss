@@ -66,10 +66,7 @@ body {
 }
 
 /* Suppression globale des ombres pour un look Flat Azure */
-.mat-elevation-z1, .mat-elevation-z8, .mat-mdc-card {
-  box-shadow: none !important;
-  border: 1px solid #e0e0e0;
-}
+
 
 /* À mettre dans styles.scss pour écraser Material */
 
@@ -77,10 +74,9 @@ body {
   background-color: #eaeaea !important;
   width: 280px !important;
   border-right: 1px solid #dcdcdc !important;
+  padding: 5px;
 
-  .azure-nav {
-    padding-top: 8px !important;
-  }
+
 
   .nav-group {
     margin-bottom: 16px;
@@ -96,31 +92,13 @@ body {
       text-transform: uppercase; /* Look très "Sidebar technique" */
     }
   }
-  
-  .mat-mdc-list-item {
-    padding: 0 !important;
-    
-    /* Le conteneur interne de Material 3 */
-    .mdc-list-item__content {
-      padding-left: 16px !important; /* Padding standard pour tout le monde */
-    }
-  }
 
   .active-link {
     background-color: #ffffff !important;
     color: #0078d4 !important;
-    /* On remet la bordure physique */
-    border-left: 4px solid #0078d4 !important;
-
-    /* LE SECRET : On réduit le padding interne de la valeur de la bordure (16px - 4px = 12px) */
-    .mdc-list-item__content {
-      padding-left: 12px !important; 
-    }
 
     mat-icon {
       color: #0078d4 !important;
-      /* On s'assure qu'aucune marge ne vient perturber l'icône */
-      margin-left: 0 !important;
     }
   }
 
