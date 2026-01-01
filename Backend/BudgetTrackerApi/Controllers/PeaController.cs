@@ -13,7 +13,7 @@ public class PeaController : ControllerBase
     public PeaController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OperationPea>>> Get() 
+    public async Task<ActionResult<IEnumerable<OperationPea>>> Get()
         => await _db.OperationsPea.ToListAsync();
 
     [HttpPost]
@@ -27,9 +27,26 @@ public class PeaController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, OperationPea op)
     {
+        Console.WriteLine($"OperationPea : {op.Id}, {op.Date}, {op.Titulaire}");
         if (id != op.Id) return BadRequest();
         _db.Entry(op).State = EntityState.Modified;
         await _db.SaveChangesAsync();
         return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var operation = await _db.OperationsPea.FindAsync(id);
+
+        if (operation == null)
+        {
+            return NotFound(); // Retourne 404 si l'ID n'existe pas en base
+        }
+
+        _db.OperationsPea.Remove(operation);
+        await _db.SaveChangesAsync();
+
+        return NoContent(); // Retourne 204 (Succès sans contenu)
     }
 }

@@ -71,6 +71,9 @@ namespace BudgetTrackerApp.Services
 
             foreach (var operation in orderedOperations)
             {
+                // On ignore l'opération si la date est nulle pour le calcul du cumul
+                if (!operation.Date.HasValue) continue;
+
                 // Mise à jour des cumuls d'achats
                 cumulAchatGlobal += (double)(operation.Quantité * operation.MontantNet);
 
@@ -86,12 +89,23 @@ namespace BudgetTrackerApp.Services
 
                 // Enregistrement de l'état du portefeuille pour cette date.
                 // On clone les quantités pour avoir un snapshot de l'état à la date de l'opération.
-                historiqueQuotidien[operation.Date] = (cumulAchatGlobal, new Dictionary<string, double>(quantitesPossedees));
+                historiqueQuotidien[operation.Date.Value] = (cumulAchatGlobal, new Dictionary<string, double>(quantitesPossedees));
             }
 
             // --- 3. Filtrage et Valorisation au Dernier Jour Calendaire du Mois ---
 
-            var dateDebut = orderedOperations.First().Date.Date;
+            // On cherche la première opération qui a une date non nulle
+            var premiereOpAvecDate = orderedOperations.FirstOrDefault(o => o.Date.HasValue);
+
+            // Si aucune opération n'a de date, on s'arrête là
+            if (premiereOpAvecDate?.Date == null)
+            {
+                return new List<CumulPea>();
+            }
+
+            // Le .Value! (avec point d'exclamation) dit au compilateur : 
+            // "Je garantis que ce n'est pas null car j'ai vérifié juste au-dessus"
+            var dateDebut = premiereOpAvecDate.Date.Value.Date;
             var dateFin = DateTime.Now.Date;
             var historiqueMensuel = new List<CumulPea>();
 

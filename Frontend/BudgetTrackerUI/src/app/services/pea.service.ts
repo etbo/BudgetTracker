@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class PeaService {
   private apiUrl = 'http://localhost:5011/api/pea';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // --- Méthodes pour la page d'édition (PeaInput) ---
   getAll() {
@@ -21,5 +21,9 @@ export class PeaService {
 
   update(op: OperationPea) {
     return this.http.put(`${this.apiUrl}/${op.id}`, op);
+  }
+
+  delete(id: number | string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

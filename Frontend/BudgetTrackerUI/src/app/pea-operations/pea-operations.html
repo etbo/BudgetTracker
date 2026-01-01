@@ -13,6 +13,7 @@
     [defaultColDef]="defaultColDef"
     [rowData]="operations()"
     [getRowId]="getRowId"
+    [context]="gridContext"
     (gridReady)="onGridReady($event)"
     (cellValueChanged)="onCellValueChanged($event)"
     [undoRedoCellEditing]="true"

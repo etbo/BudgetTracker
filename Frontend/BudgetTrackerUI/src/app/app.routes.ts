@@ -1,14 +1,15 @@
 import { Routes } from '@angular/router';
 import { CcDashboard } from './cc-dashboard/cc-dashboard';
 import { CcInput } from './cc-input/cc-input';
-import { PeaInputComponent } from './pea-input/pea-input';
+import { PeaOperations } from './pea-operations/pea-operations';
 import { CcOperations } from './cc-operations/cc-operations';
 import { CcCategories } from './cc-categories/cc-categories';
 import { PeaDashboard } from './pea-dashboard/pea-dashboard';
 import { CcRules } from './cc-rules/cc-rules';
+import { Home } from './home/home';
 
 export const routes: Routes = [
-  { path: '', component: CcDashboard },
+  { path: '', component: Home },
 
   // Comptes courant : cc
   { path: 'cc-dashboard', component: CcDashboard },
@@ -18,7 +19,7 @@ export const routes: Routes = [
   { path: 'cc-input', component: CcInput },
 
   // pea
-  { path: 'pea-input', component: PeaInputComponent },
+  { path: 'pea-input', component: PeaOperations },
   { path: 'pea-dashboard', component: PeaDashboard },
   
   // Redirection si l'URL est inconnue

@@ -9,7 +9,8 @@ import {
   ModuleRegistry,
   AllCommunityModule,
   ValueFormatterParams,
-  ValueSetterParams
+  ValueSetterParams,
+  ColDef
 } from 'ag-grid-community';
 
 // Angular Material (Uniquement pour le bouton de suppression et les icônes)
@@ -80,7 +81,7 @@ export class CcRules implements OnInit {
   gridContext = { componentParent: this };
   defaultColDef = { resizable: true, sortable: true, filter: true };
 
-  columnDefs: any[] = [
+  columnDefs: ColDef[] = [
     {
       headerName: 'Active',
       field: 'isUsed',
@@ -113,7 +114,9 @@ export class CcRules implements OnInit {
       field: 'minDate',
       editable: true,
       cellEditor: 'agDateCellEditor',
+      cellDataType: false, // Désactive la détection automatique de type
       width: 140,
+      valueParser: params => params.newValue,
       valueFormatter: customDateFormatter,
       valueSetter: localDateSetter
     },

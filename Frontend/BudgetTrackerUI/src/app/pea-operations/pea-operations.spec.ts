@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PeaInput } from './pea-input';
+import { PeaOperations } from './pea-operations';
 
-describe('PeaInput', () => {
-  let component: PeaInput;
-  let fixture: ComponentFixture<PeaInput>;
+describe('PeaOperations', () => {
+  let component: PeaOperations;
+  let fixture: ComponentFixture<PeaOperations>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PeaInput]
+      imports: [PeaOperations]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PeaInput);
+    fixture = TestBed.createComponent(PeaOperations);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
