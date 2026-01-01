@@ -39,24 +39,22 @@ export const localDateSetter = (params: ValueSetterParams): boolean => {
     return true;
   }
 
-  // On récupère la valeur de l'éditeur (souvent YYYY-MM-DD venant du calendrier)
-  const val = params.newValue; 
-  
-  // Si c'est déjà une chaîne YYYY-MM-DD, on la stocke telle quelle
-  if (typeof val === 'string' && val.length >= 10) {
-    params.data[params.colDef.field!] = val.substring(0, 10);
-    return true;
-  }
+  let datePart: string = '';
 
-  // Si c'est un objet Date, on le formate proprement en JJ/MM/AAAA ou ISO
-  const d = new Date(val);
-  if (!isNaN(d.getTime())) {
+  if (params.newValue instanceof Date) {
+    // Si l'éditeur renvoie un objet Date, on extrait YYYY-MM-DD
+    const d = params.newValue;
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
-    params.data[params.colDef.field!] = `${year}-${month}-${day}`;
-    return true;
+    datePart = `${year}-${month}-${day}`;
+  } else {
+    // Si c'est déjà une chaîne, on ne garde que les 10 premiers caractères
+    datePart = String(params.newValue).substring(0, 10);
   }
 
-  return false;
+  // On force l'heure à midi (format ISO 8601 compréhensible par .NET)
+  params.data[params.colDef.field!] = `${datePart}T12:00:00`;
+  
+  return true;
 };
