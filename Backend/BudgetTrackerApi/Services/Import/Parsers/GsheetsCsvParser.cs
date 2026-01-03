@@ -13,6 +13,7 @@ public class GsheetsCsvParser : IBanqueParser
     {
         var ListOperations = new List<CcOperation>();
         var reader = ctx.GetTextReader();
+
         
         if (reader is null)
             return ListOperations;
@@ -25,10 +26,14 @@ public class GsheetsCsvParser : IBanqueParser
 
         using var csv = new CsvReader(reader, config);
 
+        Console.WriteLine($"Breakpoint");
         var rows = csv.GetRecords<TransactionGsheetsCsv>().ToList();
+        Console.WriteLine($"Breakpoint2");
 
         // Instancie le hashContext qui mémorisera les Hash de cet import en particulier
         var hashContext = new ImportHashContext();
+
+        Console.WriteLine($"test");
 
         foreach (var row in rows)
         {
@@ -45,7 +50,7 @@ public class GsheetsCsvParser : IBanqueParser
                 Montant = (double)row.Montant,
                 Categorie = row.Type,
                 Banque = row.Banque,
-                Comment = row.Comments,
+                Comment = row.Commentaires,
                 DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
             };
 

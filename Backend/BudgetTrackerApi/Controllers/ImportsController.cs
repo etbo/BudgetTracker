@@ -19,12 +19,10 @@ public class ImportsController : ControllerBase
 
         if (file == null || file.Length == 0)
             return BadRequest("Aucun fichier reçu.");
-        Console.WriteLine($"Fichier reçu : ile == null");
 
         // On appelle la logique que tu avais dans ton @code Blazor
         // mais désormais encapsulée dans le service
         var result = await _importService.ProcessImportAsync(file);
-        Console.WriteLine($"Fichier reçu : var result");
 
         return Ok(result);
     }

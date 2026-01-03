@@ -12,6 +12,7 @@ namespace BudgetTrackerApp.Services
             var startTime = DateTime.Now;
             try
             {
+                Console.WriteLine($"memoryStream");
                 using var memoryStream = new MemoryStream();
                 await file.CopyToAsync(memoryStream);
                 memoryStream.Position = 0;
@@ -28,8 +29,7 @@ namespace BudgetTrackerApp.Services
                     // pour que le Parser puisse relire le Stream s'il en a besoin.
                     memoryStream.Position = 0;
                 }
-
-                // ... Votre logique de Factory et de Parser (identique à Blazor) ...
+                
                 var ctx = new ParserInputContext
                 {
                     FileStream = memoryStream,
@@ -39,10 +39,15 @@ namespace BudgetTrackerApp.Services
                 };
                 var parser = ParserFactory.GetParser(ctx);
 
+                
                 if (parser == null)
                     throw new Exception("Parser non trouvé");
 
+                Console.WriteLine($"parser = {parser.BankName}");
+
                 var operations = parser.Parse(ctx);
+
+                Console.WriteLine($"Parsing terminé");
 
                 // Filtrage par Hash
                 var existingHashes = _db.CcOperations.Select(o => o.Hash).ToHashSet();
