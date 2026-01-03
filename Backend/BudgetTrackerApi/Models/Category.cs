@@ -1,6 +1,6 @@
 namespace BudgetTrackerApp.Data
 {
-    public class Category
+    public class CcCategory
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

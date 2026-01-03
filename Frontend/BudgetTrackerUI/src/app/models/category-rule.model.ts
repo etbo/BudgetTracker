@@ -1,4 +1,4 @@
-export interface CategoryRule {
+export interface CcCategoryRule {
   id: number;
   isUsed: boolean;
   pattern: string;
@@ -6,11 +6,11 @@ export interface CategoryRule {
   maxAmount?: number;
   minDate?: string;
   maxDate?: string;
-  commentaire: string;
+  Comment: string;
   category: string;
 }
 
-export interface Category {
+export interface CcCategory {
   id: number;
   name: string;
   type: string;

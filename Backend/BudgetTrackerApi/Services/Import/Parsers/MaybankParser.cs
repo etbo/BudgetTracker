@@ -10,9 +10,9 @@ public class MaybankCsvParser : IBanqueParser
 {
     public string BankName => "Maybank";
 
-    public List<OperationCC> Parse(ParserInputContext ctx)
+    public List<CcOperation> Parse(ParserInputContext ctx)
     {
-        var ListOperations = new List<OperationCC>();
+        var ListOperations = new List<CcOperation>();
         var reader = ctx.GetTextReader();
 
         if (reader is null)
@@ -58,7 +58,7 @@ public class MaybankCsvParser : IBanqueParser
                 MontantReel = (double) row.Montant * TauxChangeMyrToEur;
             
 
-            var operation = new OperationCC
+            var operation = new CcOperation
             {
                 Date = DateIso,
                 Description = row.Description,

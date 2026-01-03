@@ -45,10 +45,10 @@ namespace BudgetTrackerApp.Services
                 var operations = parser.Parse(ctx);
 
                 // Filtrage par Hash
-                var existingHashes = _db.OperationsCC.Select(o => o.Hash).ToHashSet();
+                var existingHashes = _db.CcOperations.Select(o => o.Hash).ToHashSet();
                 var filteredOps = operations.Where(op => !existingHashes.Contains(op.Hash)).ToList();
 
-                _db.OperationsCC.AddRange(filteredOps);
+                _db.CcOperations.AddRange(filteredOps);
                 await _db.SaveChangesAsync();
 
                 return new ImportResultDto(file.FileName, true, "", operations.Count, filteredOps.Count,

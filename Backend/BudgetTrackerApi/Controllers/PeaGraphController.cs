@@ -51,7 +51,7 @@ namespace BudgetTrackerApp.Controllers
                 if (string.IsNullOrEmpty(ticker.Ticker)) continue;
 
                 // On appelle ta logique existante du FinanceService
-                var res = await _financeService.UpdateCachedStockPrice(ticker.Ticker, ticker.OldestDate, false);
+                var res = await _financeService.UpdatePeaCachedStockPrice(ticker.Ticker, ticker.OldestDate, false);
 
                 results.Add(new UpdateResult
                 {

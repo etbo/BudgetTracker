@@ -16,7 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 
 import { CategoryService } from '../services/category.service';
-import { Category } from '../models/category-rule.model';
+import { CcCategory } from '../models/category-rule.model';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -27,7 +27,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   template: `
     <div class="flex justify-center items-center h-full">
       <button mat-icon-button color="warn" (click)="onDelete()">
-        <mat-icon>delete</mat-icon>
+        <mat-icon>delete_outline</mat-icon>
       </button>
     </div>
   `
@@ -44,15 +44,15 @@ export class DeleteButtonRenderer implements ICellRendererAngularComp {
 }
 
 @Component({
-  selector: 'app-cc-categories',
+  selector: 'app-cc-Categories',
   standalone: true,
   imports: [CommonModule, FormsModule, AgGridModule, MatButtonModule, MatIconModule, MatCardModule],
-  templateUrl: './cc-categories.html',
-  styleUrl: './cc-categories.scss',
+  templateUrl: './cc-Categories.html',
+  styleUrl: './cc-Categories.scss',
 })
 export class CcCategories implements OnInit {
   private gridApi!: GridApi;
-  categories = signal<Category[]>([]);
+  CcCategories = signal<CcCategory[]>([]);
   gridContext = { componentParent: this };
 
   columnDefs: any[] = [
@@ -90,13 +90,13 @@ export class CcCategories implements OnInit {
   }
 
   load() {
-    this.catService.getAll().subscribe(data => this.categories.set(data));
+    this.catService.getAll().subscribe(data => this.CcCategories.set(data));
   }
 
   onCellValueChanged(event: CellValueChangedEvent) {
     if (event.oldValue !== event.newValue) {
       this.catService.update(event.data).subscribe(() => {
-        this.categories.update(list => [...list]);
+        this.CcCategories.update(list => [...list]);
       });
     }
   }
@@ -104,16 +104,16 @@ export class CcCategories implements OnInit {
   addCategory() {
     const newCatData = { name: 'Nouvelle catégorie', type: 'Dépense' };
     this.catService.create(newCatData).subscribe(newCat => {
-      this.categories.update(list => [...list, newCat]);
+      this.CcCategories.update(list => [...list, newCat]);
     });
   }
 
-  deleteCategory(cat: Category) {
+  deleteCategory(cat: CcCategory) {
     if (confirm(`Voulez-vous vraiment supprimer la catégorie "${cat.name}" ?`)) {
       this.catService.delete(cat.id).subscribe({
         next: () => {
           // Mise à jour immuable du signal pour retirer l'élément
-          this.categories.update(list => list.filter(c => c.id !== cat.id));
+          this.CcCategories.update(list => list.filter(c => c.id !== cat.id));
         },
         error: (err) => console.error("Erreur suppression", err)
       });

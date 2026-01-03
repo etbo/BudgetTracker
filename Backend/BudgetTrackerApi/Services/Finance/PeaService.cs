@@ -7,7 +7,7 @@ namespace BudgetTrackerApp.Services
 {
     public interface IPeaService
     {
-        Task<List<OperationPea>> GetAllOperationsAsync();
+        Task<List<PeaOperation>> GetAllOperationsAsync();
         Task<List<CumulPea>> CalculerCumul();
     }
 
@@ -20,10 +20,10 @@ namespace BudgetTrackerApp.Services
             _dbFactory = dbFactory;
         }
 
-        public async Task<List<OperationPea>> GetAllOperationsAsync()
+        public async Task<List<PeaOperation>> GetAllOperationsAsync()
         {
             using var db = _dbFactory.CreateDbContext();
-            return await db.OperationsPea
+            return await db.PeaOperations
                            .OrderBy(c => c.Date)
                            .ToListAsync();
         }
@@ -36,7 +36,7 @@ namespace BudgetTrackerApp.Services
             using var db = _dbFactory.CreateDbContext();
 
             // 1. Récupération des opérations triées
-            var orderedOperations = await db.OperationsPea
+            var orderedOperations = await db.PeaOperations
                 .OrderBy(o => o.Date)
                 .ToListAsync();
 
@@ -47,9 +47,9 @@ namespace BudgetTrackerApp.Services
 
             // Préparation des prix et tickers (inchangé)
             var allTickers = orderedOperations.Select(o => o.Code).Distinct().ToList();
-            var tousLesPrixCaches = await db.CachedStockPrices
+            var tousLesPrixCaches = await db.PeaCachedStockPrices
                 .Where(c => allTickers.Contains(c.Ticker))
-                .ToListAsync() ?? new List<CachedStockPrice>();
+                .ToListAsync() ?? new List<PeaCachedStockPrice>();
 
             var prixOrganises = tousLesPrixCaches
                 .GroupBy(c => c.Ticker)

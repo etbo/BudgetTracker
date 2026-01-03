@@ -9,9 +9,9 @@ public class GsheetsCsvParser : IBanqueParser
 {
     public string BankName => "Extraction Google Sheets";
     
-    public List<OperationCC> Parse(ParserInputContext ctx)
+    public List<CcOperation> Parse(ParserInputContext ctx)
     {
-        var ListOperations = new List<OperationCC>();
+        var ListOperations = new List<CcOperation>();
         var reader = ctx.GetTextReader();
         
         if (reader is null)
@@ -38,14 +38,14 @@ public class GsheetsCsvParser : IBanqueParser
             if (string.IsNullOrWhiteSpace(DateIso))
                 throw new FormatException("La colonne Date est vide dans le CSV.");
 
-            var operation = new OperationCC
+            var operation = new CcOperation
             {
                 Date = DateIso,
                 Description = row.Description,
                 Montant = (double)row.Montant,
                 Categorie = row.Type,
                 Banque = row.Banque,
-                Commentaire = row.Commentaires,
+                Comment = row.Comments,
                 DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
             };
 

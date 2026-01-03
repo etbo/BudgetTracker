@@ -24,7 +24,7 @@ import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/sl
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 
-import { Category, CategoryRule } from '../models/category-rule.model';
+import { CcCategory, CcCategoryRule } from '../models/category-rule.model';
 import { RulesService } from '../services/rules.service';
 
 import { currencyFormatter, amountParser, localDateSetter, customDateFormatter } from '../shared/utils/grid-utils';
@@ -75,8 +75,8 @@ export class DeleteButtonRenderer implements ICellRendererAngularComp {
   styleUrls: ['./cc-rules.scss']
 })
 export class CcRules implements OnInit {
-  rules = signal<CategoryRule[]>([]);
-  categories = signal<Category[]>([]);
+  rules = signal<CcCategoryRule[]>([]);
+  CcCategories = signal<CcCategory[]>([]);
 
   gridContext = { componentParent: this };
   defaultColDef = { resizable: true, sortable: true, filter: true };
@@ -129,7 +129,7 @@ export class CcRules implements OnInit {
       valueFormatter: customDateFormatter,
       valueSetter: localDateSetter
     },
-    { headerName: 'Commentaire', field: 'commentaire', editable: true, flex: 1 },
+    { headerName: 'Comment', field: 'comment', editable: true, flex: 1 },
     {
       headerName: 'Catégorie cible',
       field: 'category',
@@ -159,8 +159,8 @@ export class CcRules implements OnInit {
   constructor(private rulesService: RulesService) { }
 
   ngOnInit() {
-    this.rulesService.getCategories().subscribe(cats => {
-      this.categories.set(cats);
+    this.rulesService.getCcCategories().subscribe(cats => {
+      this.CcCategories.set(cats);
       this.updateCategoryColumnParams(cats);
     });
     this.loadRules();
@@ -170,7 +170,7 @@ export class CcRules implements OnInit {
     this.rulesService.getRules().subscribe(data => this.rules.set(data));
   }
 
-  updateCategoryColumnParams(cats: Category[]) {
+  updateCategoryColumnParams(cats: CcCategory[]) {
     const categoryCol = this.columnDefs.find(col => col.field === 'category');
     if (categoryCol) {
       categoryCol.cellEditorParams = { values: cats.map(c => c.name) };
@@ -182,13 +182,13 @@ export class CcRules implements OnInit {
   }
 
   addRule() {
-    const newRule: Partial<CategoryRule> = { isUsed: true, pattern: '', category: '', minAmount: 0, maxAmount: 0 };
+    const newRule: Partial<CcCategoryRule> = { isUsed: true, pattern: '', category: '', minAmount: 0, maxAmount: 0 };
     this.rulesService.create(newRule).subscribe(saved => {
       this.rules.update(list => [...list, saved]);
     });
   }
 
-  deleteRule(rule: CategoryRule) {
+  deleteRule(rule: CcCategoryRule) {
     if (!rule.id) {
       this.rules.update(list => list.filter(r => r !== rule));
       return;

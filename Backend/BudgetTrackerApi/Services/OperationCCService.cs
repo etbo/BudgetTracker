@@ -4,46 +4,46 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BudgetTrackerApp.Services
 {
-    public class OperationCCService
+    public class CcOperationService
     {
         private readonly AppDbContext _context;
 
-        public OperationCCService(AppDbContext context)
+        public CcOperationService(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task<List<OperationCC>> GetAllAsync()
+        public async Task<List<CcOperation>> GetAllAsync()
         {
-            return await _context.OperationsCC
+            return await _context.CcOperations
                 .OrderByDescending(c => c.Date)
                 .ToListAsync();
         }
 
-        public async Task<OperationCC?> GetByIdAsync(int id)
+        public async Task<CcOperation?> GetByIdAsync(int id)
         {
-            return await _context.OperationsCC.FindAsync(id);
+            return await _context.CcOperations.FindAsync(id);
         }
 
-        public async Task AddAsync(OperationCC item)
+        public async Task AddAsync(CcOperation item)
         {
-            _context.OperationsCC.Add(item);
+            _context.CcOperations.Add(item);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(OperationCC item)
+        public async Task UpdateAsync(CcOperation item)
         {
-            _context.OperationsCC.Update(item);
+            _context.CcOperations.Update(item);
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var item = await _context.OperationsCC.FindAsync(id);
+            var item = await _context.CcOperations.FindAsync(id);
 
             if (item != null)
             {
-                _context.OperationsCC.Remove(item);
+                _context.CcOperations.Remove(item);
                 await _context.SaveChangesAsync();
             }
         }

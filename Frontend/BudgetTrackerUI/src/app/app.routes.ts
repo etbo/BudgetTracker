@@ -13,7 +13,7 @@ export const routes: Routes = [
 
   // Comptes courant : cc
   { path: 'cc-dashboard', component: CcDashboard },
-  { path: 'cc-categories', component: CcCategories },
+  { path: 'cc-Categories', component: CcCategories },
   { path: 'cc-rules', component: CcRules },
   { path: 'cc-operations', component: CcOperations },
   { path: 'cc-input', component: CcInput },

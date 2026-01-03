@@ -21,7 +21,7 @@ namespace BudgetTrackerApp.Services
             using var _dbContext = _dbFactory.CreateDbContext();
 
             // Étape 1 : Récupérer toutes les opérations
-            var operations = await _dbContext.OperationsCC
+            var operations = await _dbContext.CcOperations
                 .ToListAsync();
 
             if (!operations.Any())

@@ -6,9 +6,9 @@ public class FortuneoCsvParser : IBanqueParser
 {
     public string BankName => "Fortuneo";
 
-    public List<OperationCC> Parse(ParserInputContext ctx)
+    public List<CcOperation> Parse(ParserInputContext ctx)
     {
-        var ListOperations = new List<OperationCC>();
+        var ListOperations = new List<CcOperation>();
         var reader = ctx.GetTextReader();
 
         if (reader is null)
@@ -32,13 +32,13 @@ public class FortuneoCsvParser : IBanqueParser
             if (string.IsNullOrWhiteSpace(DateIso))
                 throw new FormatException("La colonne Date est vide dans le CSV.");
 
-            var operation = new OperationCC
+            var operation = new CcOperation
             {
                 Date = DateIso, // Sur que ce n'est pas null
                 Description = values[2],
                 Montant = double.Parse(string.IsNullOrWhiteSpace(values[3]) ? "0" : values[3]) + double.Parse(string.IsNullOrWhiteSpace(values[4]) ? "0" : values[4]),
                 Banque = "Fortuneo",
-                Commentaire = "",
+                Comment = "",
                 DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
             };
 

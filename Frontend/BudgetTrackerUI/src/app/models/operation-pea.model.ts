@@ -1,4 +1,4 @@
-export interface OperationPea {
+export interface PeaOperation {
   id: number;
   date: string;
   titulaire: string;

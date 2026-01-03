@@ -20,7 +20,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { OperationsService } from '../services/operations.service';
 import { RulesService } from '../services/rules.service';
-import { OperationCC } from '../models/operation-cc.model';
+import { CcOperation } from '../models/operation-cc.model';
 import { MatCardModule } from '@angular/material/card';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -63,7 +63,7 @@ export class SaveButtonRenderer implements ICellRendererAngularComp {
 export class CcOperations implements OnInit {
   private gridApi!: GridApi;
 
-  resultatOperations = signal<OperationCC[]>([]);
+  resultatOperations = signal<CcOperation[]>([]);
   isLoading = signal(false);
   filterType = 'C';
   searchString = '';
@@ -104,14 +104,14 @@ export class CcOperations implements OnInit {
         'bg-yellow-100-bis': (p: any) => p.data.isModified // Jaune si suggestion backend
       }
     },
-    { headerName: 'Commentaire', field: 'commentaire', editable: true, flex: 1 },
+    { headerName: 'Comment', field: 'Comment', editable: true, flex: 1 },
     { headerName: 'Banque', field: 'banque', width: 120, cellClass: 'text-gray-400 text-sm' }
   ];
 
   constructor(private opService: OperationsService, private rulesService: RulesService) { }
 
   ngOnInit() {
-    this.rulesService.getCategories().subscribe(cats => {
+    this.rulesService.getCcCategories().subscribe(cats => {
       const catCol = this.columnDefs.find(c => c.field === 'categorie');
       if (catCol) {
         catCol.cellEditorParams = { values: ['', ...cats.map(c => c.name)] };
@@ -135,7 +135,7 @@ export class CcOperations implements OnInit {
     });
   }
 
-  save(op: OperationCC) {
+  save(op: CcOperation) {
     this.opService.updateOperation(op).subscribe({
       next: () => {
         // 1. On met à jour l'objet localement
@@ -162,19 +162,19 @@ export class CcOperations implements OnInit {
     const field = event.colDef.field;
     const op = event.data;
 
-    if (field === 'commentaire') {
-      // SCÉNARIO A : On modifie le commentaire
-      // On crée un objet temporaire avec uniquement l'ID et le nouveau commentaire
+    if (field === 'Comment') {
+      // SCÉNARIO A : On modifie le Comment
+      // On crée un objet temporaire avec uniquement l'ID et le nouveau Comment
       const partialUpdate = {
         id: op.id,
-        commentaire: event.newValue
-      } as OperationCC;
+        Comment: event.newValue
+      } as CcOperation;
 
       this.opService.updateOperation(partialUpdate).subscribe({
         next: () => {
           // On ne touche pas à isModified ! 
           // La disquette doit rester si elle était là.
-          console.log('Commentaire sauvegardé');
+          console.log('Comment sauvegardé');
         }
       });
     }

@@ -19,20 +19,20 @@ public class OperationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OperationCC>>> Get([FromQuery] string filterType)
+    public async Task<ActionResult<IEnumerable<CcOperation>>> Get([FromQuery] string filterType)
     {
-        IQueryable<OperationCC> query = _db.OperationsCC;
+        IQueryable<CcOperation> query = _db.CcOperations;
 
         switch (filterType)
         {
             case "A": query = query.Where(op => string.IsNullOrEmpty(op.Categorie)); break;
             case "B": query = query.Where(op => op.Description != null && (op.Description.ToUpper().Contains("CHEQUE") || op.Description.ToUpper().Contains("CHQ "))); break;
             case "C": 
-                var lastDate = await _db.OperationsCC.MaxAsync(op => op.DateImport);
+                var lastDate = await _db.CcOperations.MaxAsync(op => op.DateImport);
                 query = query.Where(op => op.DateImport == lastDate);
                 break;
             case "D":
-                var validCats = _db.Categories.Select(c => c.Name).ToHashSet();
+                var validCats = _db.CcCategories.Select(c => c.Name).ToHashSet();
                 var all = await query.ToListAsync();
                 return Ok(all.Where(o => !string.IsNullOrEmpty(o.Categorie) && !validCats.Contains(o.Categorie)));
         }
@@ -56,13 +56,13 @@ public class OperationsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, OperationCC op)
+    public async Task<IActionResult> Update(int id, CcOperation op)
     {
-        var entity = await _db.OperationsCC.FindAsync(id);
+        var entity = await _db.CcOperations.FindAsync(id);
         if (entity == null) return NotFound();
 
         entity.Categorie = op.Categorie;
-        entity.Commentaire = op.Commentaire;
+        entity.Comment = op.Comment;
 
         await _db.SaveChangesAsync();
         return NoContent();

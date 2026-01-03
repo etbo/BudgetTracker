@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { OperationCC } from '../models/operation-cc.model';
+import { CcOperation } from '../models/operation-cc.model';
 
 @Injectable({ providedIn: 'root' })
 export class OperationsService {
@@ -9,10 +9,10 @@ export class OperationsService {
   constructor(private http: HttpClient) {}
 
   getOperations(filterType: string) {
-    return this.http.get<OperationCC[]>(`${this.apiUrl}?filterType=${filterType}`);
+    return this.http.get<CcOperation[]>(`${this.apiUrl}?filterType=${filterType}`);
   }
 
-  updateOperation(op: OperationCC) {
+  updateOperation(op: CcOperation) {
     return this.http.put(`${this.apiUrl}/${op.id}`, op);
   }
 }

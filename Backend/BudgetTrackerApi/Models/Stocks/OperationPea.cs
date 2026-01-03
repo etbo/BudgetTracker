@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace BudgetTrackerApp.Models
 {
-    public class OperationPea
+    public class PeaOperation
     {
         public int Id { get; set; }
         public string? Titulaire { get; set; }

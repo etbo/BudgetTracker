@@ -1,4 +1,4 @@
-// Fichier : MonProjetBlazor/Models/CachedStockPrice.cs
+// Fichier : MonProjetBlazor/Models/PeaCachedStockPrice.cs
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BudgetTrackerApp.Models
 {
     // Cette table stockera un prix unitaire pour une date donnée
-    public class CachedStockPrice
+    public class PeaCachedStockPrice
     {
         public int Id { get; set; }
 

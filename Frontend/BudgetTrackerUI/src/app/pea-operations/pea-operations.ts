@@ -11,7 +11,7 @@ import {
 } from 'ag-grid-community';
 import { MatButtonModule } from '@angular/material/button';
 import { PeaService } from '../services/pea.service';
-import { OperationPea } from '../models/operation-pea.model';
+import { PeaOperation } from '../models/operation-pea.model';
 import { MatIconModule } from '@angular/material/icon';
 import { currencyFormatter, amountParser, localDateSetter, customDateFormatter } from '../shared/utils/grid-utils';
 
@@ -47,7 +47,7 @@ export class DeleteButtonRenderer implements ICellRendererAngularComp {
 })
 export class PeaOperations implements OnInit {
   private gridApi!: GridApi;
-  operations = signal<OperationPea[]>([]);
+  operations = signal<PeaOperation[]>([]);
 
   gridContext = { componentParent: this };
 
@@ -149,7 +149,7 @@ export class PeaOperations implements OnInit {
     this.save(event.data);
   }
 
-  save(op: OperationPea) {
+  save(op: PeaOperation) {
     console.log("Date avant envoi au serveur :", op.date);
     this.peaService.update(op).subscribe({
       next: () => {
@@ -161,7 +161,7 @@ export class PeaOperations implements OnInit {
     });
   }
 
-  delete(op: OperationPea) {
+  delete(op: PeaOperation) {
     if (confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
       this.peaService.delete(op.id).subscribe({
         next: () => {
@@ -173,7 +173,7 @@ export class PeaOperations implements OnInit {
     }
   }
 
-  calculateFrais(op: OperationPea): string {
+  calculateFrais(op: PeaOperation): string {
     if (op.montantNet > 0 && op.montantBrutUnitaire > 0 && op.montantNet > op.montantBrutUnitaire) {
       const pourcentage = ((op.montantNet / op.montantBrutUnitaire) - 1) * 100;
       return pourcentage.toFixed(2) + ' %';

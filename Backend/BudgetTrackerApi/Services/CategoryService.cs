@@ -10,10 +10,10 @@ public class CategoryService
         _dbFactory = dbFactory;
     }
 
-    public async Task<List<Category>> GetAllCategoriesAsync()
+    public async Task<List<CcCategory>> GetAllCcCategoriesAsync()
     {
         using var db = _dbFactory.CreateDbContext();
-        return await db.Categories
+        return await db.CcCategories
                        .OrderBy(c => c.Name)
                        .ToListAsync();
     }

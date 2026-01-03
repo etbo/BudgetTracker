@@ -7,8 +7,8 @@ namespace BudgetTrackerApp.Services
     // L'interface définit ce que le service sait faire
     public interface IRuleService
     {
-        string GetAutoCategory(OperationCC op, List<CategoryRule> rules);
-        Task<List<CategoryRule>> GetActiveRulesAsync();
+        string GetAutoCategory(CcOperation op, List<CcCategoryRule> rules);
+        Task<List<CcCategoryRule>> GetActiveRulesAsync();
     }
 
     // L'implémentation contient la logique
@@ -21,14 +21,14 @@ namespace BudgetTrackerApp.Services
             _db = db;
         }
 
-        public async Task<List<CategoryRule>> GetActiveRulesAsync()
+        public async Task<List<CcCategoryRule>> GetActiveRulesAsync()
         {
-            return await _db.CategoryRules
+            return await _db.CcCategoryRules
                 .Where(r => r.IsUsed && !string.IsNullOrEmpty(r.Category))
                 .ToListAsync();
         }
 
-        public string GetAutoCategory(OperationCC op, List<CategoryRule> rules)
+        public string GetAutoCategory(CcOperation op, List<CcCategoryRule> rules)
         {
             foreach (var r in rules)
             {

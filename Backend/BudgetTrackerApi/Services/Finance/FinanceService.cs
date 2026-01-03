@@ -40,7 +40,7 @@ namespace BudgetTrackerApp.Services
             using var _dbContext = _dbFactory.CreateDbContext();
 
             // Étape 1 : Récupérer toutes les opérations
-            var operations = await _dbContext.OperationsPea.ToListAsync();
+            var operations = await _dbContext.PeaOperations.ToListAsync();
 
             var tickerMap = new Dictionary<string, TickerPurchaseDate>();
 
@@ -66,7 +66,7 @@ namespace BudgetTrackerApp.Services
             return tickerMap.Values.ToList();
         }
 
-        public async Task<UpdateStocksValuesResult> UpdateCachedStockPrice(string ticker, DateTime? startDate, bool simulateJson)
+        public async Task<UpdateStocksValuesResult> UpdatePeaCachedStockPrice(string ticker, DateTime? startDate, bool simulateJson)
         {
             if (string.IsNullOrEmpty(ticker) || !startDate.HasValue)
                 throw new Exception($"Ticker vide");
@@ -74,7 +74,7 @@ namespace BudgetTrackerApp.Services
             // Lecture dans la base de données de la dernière mise à jour du ticker
             using var _dbContext = _dbFactory.CreateDbContext();
 
-            var dateMinimale = await _dbContext.CachedStockPrices
+            var dateMinimale = await _dbContext.PeaCachedStockPrices
                     .Where(o => o.Ticker == ticker)
                     .OrderBy(o => o.CacheTimestamp) // Trie par ordre croissant (du plus ancien au plus récent)
                     .FirstOrDefaultAsync();
@@ -129,11 +129,11 @@ namespace BudgetTrackerApp.Services
             }
 
             // 3.1. Préparer les données pour le cache et l'affichage
-            var newCacheEntries = new List<CachedStockPrice>();
+            var newCacheEntries = new List<PeaCachedStockPrice>();
             var now = DateTime.Now;
 
             // Effacer l'ancien cache pour le ticker avant d'insérer les nouvelles données
-            _dbContext.CachedStockPrices.RemoveRange(_dbContext.CachedStockPrices.Where(c => c.Ticker == ticker));
+            _dbContext.PeaCachedStockPrices.RemoveRange(_dbContext.PeaCachedStockPrices.Where(c => c.Ticker == ticker));
 
             foreach (var entry in response.MonthlyTimeSeries)
             {
@@ -143,7 +143,7 @@ namespace BudgetTrackerApp.Services
                     if (date.Date >= startDate)
                     {
                         // 3.2. Stocker la donnée pour la BDD (cache)
-                        newCacheEntries.Add(new CachedStockPrice
+                        newCacheEntries.Add(new PeaCachedStockPrice
                         {
                             Ticker = ticker,
                             Date = date,
@@ -155,7 +155,7 @@ namespace BudgetTrackerApp.Services
             }
 
             // Sauvegarde dans la base de données
-            await _dbContext.CachedStockPrices.AddRangeAsync(newCacheEntries);
+            await _dbContext.PeaCachedStockPrices.AddRangeAsync(newCacheEntries);
             await _dbContext.SaveChangesAsync();
 
             // retour info Succès

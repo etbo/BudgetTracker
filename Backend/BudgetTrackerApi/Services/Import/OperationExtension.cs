@@ -5,7 +5,7 @@ namespace BudgetTrackerApp.Data.Helpers
 {
     public static class OperationExtensions
     {
-        public static string GenerateBaseHash(this OperationCC op)
+        public static string GenerateBaseHash(this CcOperation op)
         {
             string raw = $"{op.Date}|{op.Description}|{op.Montant}|{op.Categorie}|{op.Banque}";
 

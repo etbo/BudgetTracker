@@ -11,15 +11,15 @@ public class RulesController : ControllerBase
     public RulesController(AppDbContext db) => _db = db;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryRule>>> GetRules() => await _db.CategoryRules.ToListAsync();
+    public async Task<ActionResult<IEnumerable<CcCategoryRule>>> GetRules() => await _db.CcCategoryRules.ToListAsync();
 
-    [HttpGet("categories")]
-    public async Task<ActionResult<IEnumerable<Category>>> GetCategories() => await _db.Categories.ToListAsync();
+    [HttpGet("CcCategories")]
+    public async Task<ActionResult<IEnumerable<CcCategory>>> GetCcCategories() => await _db.CcCategories.ToListAsync();
 
     [HttpPost]
-    public async Task<ActionResult<CategoryRule>> Create(CategoryRule rule)
+    public async Task<ActionResult<CcCategoryRule>> Create(CcCategoryRule rule)
     {
-        _db.CategoryRules.Add(rule);
+        _db.CcCategoryRules.Add(rule);
         await _db.SaveChangesAsync();
         return Ok(rule);
     }
@@ -28,22 +28,22 @@ public class RulesController : ControllerBase
     public async Task<IActionResult> DeleteRule(int id)
     {
         // On utilise _db (le nom que vous avez choisi) 
-        // et CategoryRules (le nom de votre DbSet)
-        var rule = await _db.CategoryRules.FindAsync(id);
+        // et CcCategoryRules (le nom de votre DbSet)
+        var rule = await _db.CcCategoryRules.FindAsync(id);
 
         if (rule == null)
         {
             return NotFound();
         }
 
-        _db.CategoryRules.Remove(rule);
+        _db.CcCategoryRules.Remove(rule);
         await _db.SaveChangesAsync();
 
         return NoContent();
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, CategoryRule rule)
+    public async Task<IActionResult> Update(int id, CcCategoryRule rule)
     {
         if (id != rule.Id) return BadRequest();
         _db.Entry(rule).State = EntityState.Modified;

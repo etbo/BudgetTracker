@@ -7,12 +7,12 @@ public class CreditAgricoleExcelParser : IBanqueParser
 {
     public string BankName => "Crédit agricole";
 
-    public List<OperationCC> Parse(ParserInputContext ctx)
+    public List<CcOperation> Parse(ParserInputContext ctx)
     {
         if (ctx.FileStream == null)
             throw new ArgumentException("Le flux du fichier Excel est null.");
         
-        var ListOperations = new List<OperationCC>();
+        var ListOperations = new List<CcOperation>();
 
         // Pour un usage non commercial personnel
         ExcelPackage.License.SetNonCommercialPersonal("TonNom");
@@ -57,13 +57,13 @@ public class CreditAgricoleExcelParser : IBanqueParser
                 if (string.IsNullOrWhiteSpace(DateIso))
                     throw new FormatException("La colonne Date est vide dans le CSV.");
 
-                var operation = new OperationCC
+                var operation = new CcOperation
                 {
                     Date = DateIso,
                     Description = sheet.Cells[i, 2].Text,
                     Montant = double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 4].Text) ? "0" : sheet.Cells[i, 4].Text) - double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 3].Text) ? "0" : sheet.Cells[i, 3].Text),
                     Banque = "CA",
-                    Commentaire = "",
+                    Comment = "",
                     DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
                 };
 

@@ -43,7 +43,7 @@ export class CcDashboard implements OnInit {
       },
       xaxis: {
         type: 'category',
-        categories: data.map(d => new Date(d.date).toLocaleDateString('fr-FR')),
+        CcCategories: data.map(d => new Date(d.date).toLocaleDateString('fr-FR')),
         title: { text: 'Date' }
       },
       yaxis: {

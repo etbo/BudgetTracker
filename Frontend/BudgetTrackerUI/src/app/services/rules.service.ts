@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CategoryRule, Category } from '../models/category-rule.model';
+import { CcCategoryRule, CcCategory } from '../models/category-rule.model';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -9,11 +9,11 @@ export class RulesService {
 
   constructor(private http: HttpClient) { }
 
-  getRules() { return this.http.get<CategoryRule[]>(this.apiUrl); }
-  getCategories() { return this.http.get<Category[]>(`${this.apiUrl}/categories`); }
+  getRules() { return this.http.get<CcCategoryRule[]>(this.apiUrl); }
+  getCcCategories() { return this.http.get<CcCategory[]>(`${this.apiUrl}/CcCategories`); }
 
-  create(rule: Partial<CategoryRule>) { return this.http.post<CategoryRule>(this.apiUrl, rule); }
-  update(rule: CategoryRule) { return this.http.put(`${this.apiUrl}/${rule.id}`, rule); }
+  create(rule: Partial<CcCategoryRule>) { return this.http.post<CcCategoryRule>(this.apiUrl, rule); }
+  update(rule: CcCategoryRule) { return this.http.put(`${this.apiUrl}/${rule.id}`, rule); }
 
   delete(id: number | string): Observable<void> {
     // On ne rajoute PAS "/rules/" ici si c'est déjà dans l'apiUrl

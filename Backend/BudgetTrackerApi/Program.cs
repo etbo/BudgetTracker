@@ -19,7 +19,7 @@ builder.Services.AddCors(options => {
 builder.Services.AddOpenApi();
 
 // --- SERVICES ---
-builder.Services.AddScoped<OperationCCService>();
+builder.Services.AddScoped<CcOperationService>();
 builder.Services.AddSingleton<FiltersState>();
 builder.Services.AddSingleton<DatabaseSelectorService>();
 builder.Services.AddSingleton<MyDataService>();
