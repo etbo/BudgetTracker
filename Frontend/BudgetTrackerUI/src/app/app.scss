@@ -24,3 +24,47 @@
 
 
 .spacer { flex: 1 1 auto; }
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  height: 100%; /* S'assure que le container ne dépasse pas */
+}
+
+.date-range-field {
+  width: 250px;
+  /* Réduit la taille globale */
+  transform: scale(0.8); 
+  /* Ou alors on force la hauteur du container interne */
+}
+
+/* Version plus précise sans scale */
+.date-range-field {
+  width: 280px;
+}
+
+/* On force la suppression de l'espace réservé aux messages d'erreur (subscript) */
+.date-range-field .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+/* On ajuste la hauteur de la zone de saisie */
+.date-range-field .mat-mdc-text-field-wrapper {
+  height: 40px !important;
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* On ajuste l'alignement de l'icône du calendrier */
+.date-range-field .mat-mdc-form-field-icon-suffix {
+  padding: 0 !important;
+}

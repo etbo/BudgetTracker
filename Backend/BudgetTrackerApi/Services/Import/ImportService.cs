@@ -1,4 +1,5 @@
 using BudgetTrackerApp.Data;
+using BudgetTrackerApp.DTOs;
 
 namespace BudgetTrackerApp.Services
 {

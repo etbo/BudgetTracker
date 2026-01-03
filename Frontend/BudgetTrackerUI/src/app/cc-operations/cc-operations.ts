@@ -23,6 +23,9 @@ import { RulesService } from '../services/rules.service';
 import { CcOperation } from '../models/operation-cc.model';
 import { MatCardModule } from '@angular/material/card';
 
+import { filtersService, FilterState } from '../services/filters.service';
+import { HttpClient } from '@angular/common/http';
+
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 /* --- Renderer pour le bouton de validation des suggestions --- */
@@ -69,6 +72,8 @@ export class CcOperations implements OnInit {
   searchString = '';
   gridContext = { componentParent: this };
 
+  operations: any[] = [];
+
   defaultColDef = { resizable: true, sortable: true, filter: true };
 
   columnDefs: any[] = [
@@ -108,9 +113,17 @@ export class CcOperations implements OnInit {
     { headerName: 'Banque', field: 'banque', width: 120, cellClass: 'text-gray-400 text-sm' }
   ];
 
-  constructor(private opService: OperationsService, private rulesService: RulesService) { }
+  constructor(private opService: OperationsService, private rulesService: RulesService, private http: HttpClient) { }
 
   ngOnInit() {
+    // 1. Charger les données au démarrage avec les filtres présents dans l'URL
+    this.refreshData(filtersService.getFilters());
+
+    // 2. Écouter les changements futurs
+    window.addEventListener('filterChanged', (event: any) => {
+            this.refreshData(event.detail);
+        });
+
     this.rulesService.getCcCategories().subscribe(cats => {
       const catCol = this.columnDefs.find(c => c.field === 'categorie');
       if (catCol) {
@@ -193,4 +206,20 @@ export class CcOperations implements OnInit {
 
   // Pour s'assurer que AG Grid suit bien les objets (Remplacez 'id' par votre clé primaire)
   getRowId = (params: any) => params.data.id.toString();
+
+  refreshData(filters: FilterState) {
+        // On construit l'URL avec les paramètres de filtrage
+        let url = `http://localhost:5000/api/operations?`;
+        
+        if (filters.start) url += `&startDate=${filters.start}`;
+        if (filters.end) url += `&endDate=${filters.end}`;
+
+        this.http.get<any[]>(url).subscribe({
+            next: (data) => {
+                this.operations = data;
+                console.log("Données filtrées reçues :", data);
+            },
+            error: (err) => console.error("Erreur lors du chargement", err)
+        });
+    }
 }

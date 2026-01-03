@@ -5,7 +5,23 @@
     </button>
     <span class="app-brand">BudgetTracker</span>
     <span class="spacer"></span>
-    <button mat-icon-button><mat-icon>account_circle</mat-icon></button>
+    <div class="filter-container">
+
+      <mat-form-field appearance="fill" class="date-range-field">
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate #startDateInput placeholder="Début">
+          <input matEndDate #endDateInput placeholder="Fin"
+            (dateChange)="onFilterChange(startDateInput.value, endDateInput.value)">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+
+      <button mat-icon-button (click)="resetFilters()" matTooltip="Réinitialiser les filtres">
+        <mat-icon>refresh</mat-icon>
+      </button>
+
+    </div>
   </mat-toolbar>
 
   <mat-sidenav-container class="sidenav-container">
