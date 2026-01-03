@@ -8,7 +8,7 @@ namespace BudgetTrackerApp.Models
     public class AlphaVantageMonthly
     {
         [JsonPropertyName("Monthly Time Series")]
-        public Dictionary<string, AlphaVantageData> MonthlyTimeSeries { get; set; }
+        public Dictionary<string, AlphaVantageData> MonthlyTimeSeries { get; set; } = new();
     }
 
     // Utilisé pour mapper les données de prix pour chaque date

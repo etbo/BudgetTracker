@@ -26,7 +26,7 @@ public class OperationsController : ControllerBase
         switch (filterType)
         {
             case "A": query = query.Where(op => string.IsNullOrEmpty(op.Categorie)); break;
-            case "B": query = query.Where(op => op.Description.Contains("CHEQUE") || op.Description.Contains("CHQ ")); break;
+            case "B": query = query.Where(op => op.Description != null && (op.Description.ToUpper().Contains("CHEQUE") || op.Description.ToUpper().Contains("CHQ "))); break;
             case "C": 
                 var lastDate = await _db.OperationsCC.MaxAsync(op => op.DateImport);
                 query = query.Where(op => op.DateImport == lastDate);

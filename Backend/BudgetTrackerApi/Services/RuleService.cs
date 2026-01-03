@@ -32,13 +32,13 @@ namespace BudgetTrackerApp.Services
         {
             foreach (var r in rules)
             {
+                if (string.IsNullOrEmpty(r.Category) || string.IsNullOrEmpty(r.Pattern))
+                    continue;
+
                 // 1. Vérification du Pattern (Description)
-                if (!string.IsNullOrEmpty(r.Pattern))
-                {
-                    if (string.IsNullOrEmpty(op.Description) || 
-                        !op.Description.Contains(r.Pattern, StringComparison.OrdinalIgnoreCase))
-                        continue;
-                }
+                if (string.IsNullOrEmpty(op.Description) ||
+                    !op.Description.Contains(r.Pattern, StringComparison.OrdinalIgnoreCase))
+                    continue;
 
                 // 2. Vérification des Montants (Min / Max)
                 if (r.MinAmount.HasValue && op.Montant < (double)r.MinAmount.Value)
