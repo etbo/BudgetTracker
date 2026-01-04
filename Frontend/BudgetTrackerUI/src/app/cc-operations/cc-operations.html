@@ -17,6 +17,8 @@
         </mat-select>
       </mat-form-field>
 
+      <app-date-filter></app-date-filter>
+
       <mat-form-field appearance="outline" class="flex-grow">
         <mat-label>Rechercher</mat-label>
         <input matInput [(ngModel)]="searchString" (input)="onQuickFilterChanged()">

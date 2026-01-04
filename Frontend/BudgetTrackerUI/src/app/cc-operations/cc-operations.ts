@@ -26,6 +26,8 @@ import { MatCardModule } from '@angular/material/card';
 import { filtersService, FilterState } from '../services/filters.service';
 import { HttpClient } from '@angular/common/http';
 
+import { DateFilter } from '../date-filter/date-filter'; // Ajuste le chemin
+
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 /* --- Renderer pour le bouton de validation des suggestions --- */
@@ -58,7 +60,8 @@ export class SaveButtonRenderer implements ICellRendererAngularComp {
   imports: [
     CommonModule, FormsModule, AgGridModule,
     MatSelectModule, MatInputModule, MatButtonModule,
-    MatIconModule, MatProgressSpinnerModule, MatCardModule
+    MatIconModule, MatProgressSpinnerModule, MatCardModule,
+    DateFilter
   ],
   templateUrl: './cc-operations.html',
   styleUrls: ['./cc-operations.scss']
