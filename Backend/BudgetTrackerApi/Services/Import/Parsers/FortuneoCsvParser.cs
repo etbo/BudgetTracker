@@ -26,20 +26,23 @@ public class FortuneoCsvParser : IBanqueParser
 
             var values = line.Split(';');
 
-            // Verfication that the parsing is not null to provide the right value to Date
-            var DateIso = DateTimeHelper.ToIsoString(values[0]);
-
-            if (string.IsNullOrWhiteSpace(DateIso))
-                throw new FormatException("La colonne Date est vide dans le CSV.");
+            // Parsing de la date :
+            if (!DateTime.TryParseExact(values[0], "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None,
+                out DateTime parsedDate))
+            {
+                throw new FormatException("Echec du parsing des dates");
+            }
 
             var operation = new CcOperation
             {
-                Date = DateIso, // Sur que ce n'est pas null
+                Date = parsedDate, // Sur que ce n'est pas null
                 Description = values[2],
                 Montant = double.Parse(string.IsNullOrWhiteSpace(values[3]) ? "0" : values[3]) + double.Parse(string.IsNullOrWhiteSpace(values[4]) ? "0" : values[4]),
                 Banque = "Fortuneo",
                 Comment = "",
-                DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+                DateImport = DateTime.UtcNow,
             };
 
             // Récupération du Hash de base pour cette ligne

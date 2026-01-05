@@ -11,7 +11,7 @@ public class CreditAgricoleExcelParser : IBanqueParser
     {
         if (ctx.FileStream == null)
             throw new ArgumentException("Le flux du fichier Excel est null.");
-        
+
         var ListOperations = new List<CcOperation>();
 
         // Pour un usage non commercial personnel
@@ -25,11 +25,11 @@ public class CreditAgricoleExcelParser : IBanqueParser
 
         var sheet = workbook.Worksheets[0]; // première feuille
 
-        var i=1;
+        var i = 1;
 
         // Détection des lignes à extraire
         while (true)
-        {            
+        {
             if (sheet.Cells[i, 1].Text == "Date")
             {
                 Console.WriteLine($"Début des données trouvé (en-tête ligne{i})");
@@ -52,19 +52,22 @@ public class CreditAgricoleExcelParser : IBanqueParser
             else
             {
                 // Verfication that the parsing is not null to provide the right value to Date
-                var DateIso = DateTimeHelper.ToIsoString(sheet.Cells[i, 1].Text);
-
-                if (string.IsNullOrWhiteSpace(DateIso))
-                    throw new FormatException("La colonne Date est vide dans le CSV.");
+                if (!DateTime.TryParseExact(sheet.Cells[i, 1].Text, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out DateTime parsedDate))
+                {
+                    throw new FormatException("Echec du parsing des dates");
+                }
 
                 var operation = new CcOperation
                 {
-                    Date = DateIso,
+                    Date = parsedDate,
                     Description = sheet.Cells[i, 2].Text,
                     Montant = double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 4].Text) ? "0" : sheet.Cells[i, 4].Text) - double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 3].Text) ? "0" : sheet.Cells[i, 3].Text),
                     Banque = "CA",
                     Comment = "",
-                    DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+                    DateImport = DateTime.UtcNow,
                 };
 
                 // Récupération du Hash de base pour cette ligne

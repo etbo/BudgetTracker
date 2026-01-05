@@ -4,6 +4,7 @@ using BudgetTrackerApp.Data.Helpers;
 using BudgetTrackerApp.Services.Import;
 using BudgetTrackerApp.Models;
 using CsvHelper;
+using SQLitePCL;
 
 public class GsheetsCsvParser : IBanqueParser
 {
@@ -37,21 +38,22 @@ public class GsheetsCsvParser : IBanqueParser
 
         foreach (var row in rows)
         {
-            // Verfication that the parsing is not null to provide the right value to Date
-            var DateIso = DateTimeHelper.ToIsoString(row.Date);
-
-            if (string.IsNullOrWhiteSpace(DateIso))
-                throw new FormatException("La colonne Date est vide dans le CSV.");
-
+            if (!DateTime.TryParseExact(row.Date, "dd/MM/yyyy",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out DateTime parsedDate))
+            {
+                throw new FormatException("Echec du parsing des dates");
+            }
             var operation = new CcOperation
             {
-                Date = DateIso,
+                Date = parsedDate,
                 Description = row.Description,
                 Montant = (double)row.Montant,
                 Categorie = row.Type,
                 Banque = row.Banque,
                 Comment = row.Commentaires,
-                DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+                DateImport = DateTime.UtcNow,
             };
 
             // Récupération du Hash de base pour cette ligne

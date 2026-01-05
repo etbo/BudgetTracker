@@ -7,8 +7,8 @@ namespace BudgetTrackerApp.DTOs
         int NombreOperationsLus,
         int NombreOperationsAjoutees,
         string? Parser,
-        string? DateMin,
-        string? DateMax,
+        DateTime? DateMin,
+        DateTime? DateMax,
         double TempsDeTraitementMs
     );
 }

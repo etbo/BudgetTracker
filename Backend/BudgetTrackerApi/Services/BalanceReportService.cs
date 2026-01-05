@@ -38,21 +38,9 @@ namespace BudgetTrackerApp.Services
 
             // Étape 2 : Préparer les données
             var dailyBalances = new SortedDictionary<DateTime, double>();
-            
-            // Note: La date est stockée en string, il faut la parser
-            const string DateFormat = "yyyy-MM-dd"; 
 
             var orderedOperations = operations
-                .Where(o => DateTime.TryParseExact(
-                    o.Date, 
-                    DateFormat, 
-                    CultureInfo.InvariantCulture, 
-                    DateTimeStyles.None, 
-                    out _))
-                .OrderBy(o => DateTime.ParseExact(
-                    o.Date, 
-                    DateFormat, 
-                    CultureInfo.InvariantCulture))
+                .OrderBy(o => o.Date)
                 .ToList();
 
             Console.WriteLine($"orderedOperations = {orderedOperations.Count()}");
@@ -61,21 +49,12 @@ namespace BudgetTrackerApp.Services
 
             foreach (var op in orderedOperations)
             {
-                // Parser la date au format yyyyMMdd
-                if (DateTime.TryParseExact(
-                    op.Date, 
-                    DateFormat, 
-                    CultureInfo.InvariantCulture, 
-                    DateTimeStyles.None, 
-                    out DateTime date))
-                {
-                    // Ajouter le montant à la balance cumulée
-                    currentBalance += op.Montant;
+                // Ajouter le montant à la balance cumulée
+                currentBalance += op.Montant;
 
-                    // Si une opération a déjà eu lieu à cette date, on met à jour la balance finale de la journée.
-                    // Sinon, on ajoute un nouveau point.
-                    dailyBalances[date] = currentBalance;
-                }
+                // Si une opération a déjà eu lieu à cette date, on met à jour la balance finale de la journée.
+                // Sinon, on ajoute un nouveau point.
+                dailyBalances[op.Date] = currentBalance;
             }
 
             // Étape 4 : Conversion en liste pour le graphique

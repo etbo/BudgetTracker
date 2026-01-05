@@ -48,14 +48,12 @@ namespace BudgetTrackerApp.Services
                     continue;
 
                 // 3. Vérification des Dates (Min / Max)
-                if (!string.IsNullOrEmpty(op.Date) && DateTime.TryParse(op.Date, out DateTime opDate))
-                {
-                    if (r.MinDate.HasValue && opDate < r.MinDate.Value)
-                        continue;
 
-                    if (r.MaxDate.HasValue && opDate > r.MaxDate.Value)
-                        continue;
-                }
+                if (r.MinDate.HasValue && op.Date < r.MinDate.Value)
+                    continue;
+
+                if (r.MaxDate.HasValue && op.Date > r.MaxDate.Value)
+                    continue;
 
                 // Si on arrive ici, c'est que la règle matche !
                 return r.Category;

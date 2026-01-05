@@ -64,7 +64,7 @@ namespace BudgetTrackerApp.Services
             catch (Exception e)
             {
                 Console.WriteLine($"erreor : {e.Message}");
-                return new ImportResultDto(file.FileName, false, e.Message, 0, 0, null, null, null, 0);
+                return new ImportResultDto(file.FileName, false, e.Message, 0, 0, null, DateTime.Now, DateTime.Now, 0);
             }
         }
     }

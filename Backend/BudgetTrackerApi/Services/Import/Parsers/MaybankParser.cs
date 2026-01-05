@@ -41,30 +41,32 @@ public class MaybankCsvParser : IBanqueParser
 
         foreach (var row in rows)
         {
-            // Verfication that the parsing is not null to provide the right value to Date
-            var DateIso = DateTimeHelper.ToIsoString(row.Date);
-
-            if (string.IsNullOrWhiteSpace(DateIso))
-                throw new FormatException("La colonne Date est vide dans le CSV.");
+            if (!DateTime.TryParseExact(row.Date, "yyyy-MM-dd",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out DateTime parsedDate))
+            {
+                throw new FormatException("Echec du parsing des dates");
+            }
 
             // Calcul montant
             double MontantReel = 0;
 
             double TauxChangeMyrToEur = 0.208;
-            
+
             if (row.Flow.Contains("Withdrawal"))
-                MontantReel = (double) -row.Montant * TauxChangeMyrToEur;
+                MontantReel = (double)-row.Montant * TauxChangeMyrToEur;
             else
-                MontantReel = (double) row.Montant * TauxChangeMyrToEur;
-            
+                MontantReel = (double)row.Montant * TauxChangeMyrToEur;
+
 
             var operation = new CcOperation
             {
-                Date = DateIso,
+                Date = parsedDate,
                 Description = row.Description,
                 Montant = MontantReel,
                 Banque = "Maybank",
-                DateImport = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+                DateImport = DateTime.UtcNow,
             };
 
             // Récupération du Hash de base pour cette ligne
