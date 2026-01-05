@@ -1,14 +1,12 @@
-<div class="filter-banner mat-elevation-z2">
-  <mat-form-field appearance="outline">
-    <mat-date-range-input [rangePicker]="picker">
-      <input matStartDate [(ngModel)]="startDate" placeholder="Début">
-      <input matEndDate [(ngModel)]="endDate" placeholder="Fin" (dateChange)="onDateChange()">
-    </mat-date-range-input>
-    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-date-range-picker #picker></mat-date-range-picker>
-  </mat-form-field>
+<mat-form-field appearance="outline" class="hide-subscript">
+  <mat-date-range-input [rangePicker]="picker">
+    <input matStartDate [(ngModel)]="startDate" placeholder="Début">
+    <input matEndDate [(ngModel)]="endDate" placeholder="Fin" (dateChange)="onDateChange()">
+  </mat-date-range-input>
+  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+  <mat-date-range-picker #picker></mat-date-range-picker>
+</mat-form-field>
 
-  <button mat-stroked-button color="warn" (click)="reset()">
-    <mat-icon>refresh</mat-icon> Réinitialiser
-  </button>
-</div>
+<button mat-icon-button color="warn" (click)="reset()" matTooltip="Réinitialiser">
+  <mat-icon>refresh</mat-icon>
+</button>

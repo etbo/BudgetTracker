@@ -25,6 +25,7 @@ import { RulesService } from '../services/rules.service';
 import { CcOperation } from '../models/operation-cc.model';
 import { filtersService } from '../services/filters.service';
 import { DateFilter } from '../date-filter/date-filter';
+import { customDateFormatter } from '../shared/utils/grid-utils';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -76,7 +77,7 @@ export class CcOperations implements OnInit {
   defaultColDef = { resizable: true, sortable: true, filter: true };
 
   columnDefs: any[] = [
-    { headerName: 'Date', field: 'date', width: 110, sort: 'desc' },
+    { headerName: 'Date', field: 'date', width: 130, sort: 'desc', valueFormatter: customDateFormatter},
     { headerName: 'Description', field: 'description', flex: 2 },
     {
       headerName: 'Montant',

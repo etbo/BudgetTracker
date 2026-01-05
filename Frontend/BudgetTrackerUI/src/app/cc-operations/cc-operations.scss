@@ -20,3 +20,34 @@
   display: flex;
   align-items: center;
 }
+
+// Supprime l'espace réservé aux messages d'erreur pour un alignement compact
+::ng-deep .hide-subscript .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+// Assure que tous les champs ont la même hauteur de ligne
+mat-form-field {
+  margin-bottom: -1.25em; // Ajustement selon le thème pour compenser le retrait du subscript
+}
+
+// On force le conteneur à ignorer les espaces réservés d'Angular Material
+.filter-header-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important; // Garde les labels alignés
+  width: 100%;
+
+  // Cible le dernier élément (la recherche) pour le pousser
+  & > mat-form-field:last-child, 
+  & > div:last-child {
+    margin-left: auto !important;
+  }
+}
+
+// Crucial : Angular traite les composants personnalisés comme des éléments "inline" 
+// ce qui casse souvent le flex. On le force en bloc flexible.
+app-date-filter {
+  display: flex;
+  align-items: center;
+}

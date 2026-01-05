@@ -5,9 +5,10 @@
 
   <mat-card-content style="padding-top: 20px;">
 
-    <div class="flex flex-wrap items-center gap-4 mb-4">
+    <div class="filter-header-container gap-4 mb-6">
+
       <mat-form-field appearance="outline" class="w-[200px]">
-        <mat-label>Période d'affichage</mat-label>
+        <mat-label>Période</mat-label>
         <mat-select [(ngModel)]="currentMode" (selectionChange)="onModeChange()">
           <mat-option value="last">Dernier import</mat-option>
           <mat-option value="all">Toutes les opérations</mat-option>
@@ -17,11 +18,12 @@
 
       <app-date-filter *ngIf="currentMode === 'custom'"></app-date-filter>
 
-      <mat-form-field appearance="outline" class="flex-grow">
+      <mat-form-field appearance="outline" class="w-[300px]">
         <mat-label>Rechercher...</mat-label>
         <input matInput [(ngModel)]="searchString" (input)="onQuickFilterChanged()">
         <mat-icon matSuffix>search</mat-icon>
       </mat-form-field>
+
     </div>
 
     <div class="mb-6">
@@ -49,20 +51,10 @@
     </div>
 
     <div class="grid-wrapper" [class.hidden]="isLoading()">
-      <ag-grid-angular 
-        style="width: 100%;" 
-        class="ag-theme-alpine" 
-        [rowData]="resultatOperations()"
-        [defaultColDef]="defaultColDef" 
-        [columnDefs]="columnDefs" 
-        [domLayout]="'autoHeight'" 
-        [context]="gridContext"
-        [getRowId]="getRowId" 
-        [pagination]="true" 
-        [paginationPageSize]="50"
-        [paginationPageSizeSelector]="[20, 50, 100]" 
-        (gridReady)="onGridReady($event)"
-        (cellValueChanged)="onCellValueChanged($event)">
+      <ag-grid-angular style="width: 100%;" class="ag-theme-alpine" [rowData]="resultatOperations()"
+        [defaultColDef]="defaultColDef" [columnDefs]="columnDefs" [domLayout]="'autoHeight'" [context]="gridContext"
+        [getRowId]="getRowId" [pagination]="true" [paginationPageSize]="50" [paginationPageSizeSelector]="[20, 50, 100]"
+        (gridReady)="onGridReady($event)" (cellValueChanged)="onCellValueChanged($event)">
       </ag-grid-angular>
     </div>
 
