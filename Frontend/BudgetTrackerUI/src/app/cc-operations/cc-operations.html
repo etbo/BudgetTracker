@@ -5,37 +5,66 @@
 
   <mat-card-content style="padding-top: 20px;">
 
-    <div class="grid-wrapper">
-      <mat-form-field appearance="outline">
-        <mat-label>Filtre</mat-label>
-        <mat-select [(ngModel)]="filterType" (selectionChange)="refresh()">
-          <mat-option value="AllOps">Toutes les opérations</mat-option>
-          <mat-option value="A">Type manquant</mat-option>
-          <mat-option value="B">Chèques</mat-option>
-          <mat-option value="C">Dernier import</mat-option>
-          <mat-option value="D">Erreur catégorie</mat-option>
+    <div class="flex flex-wrap items-center gap-4 mb-4">
+      <mat-form-field appearance="outline" class="w-[200px]">
+        <mat-label>Période d'affichage</mat-label>
+        <mat-select [(ngModel)]="currentMode" (selectionChange)="onModeChange()">
+          <mat-option value="Last">Dernier import</mat-option>
+          <mat-option value="All">Toutes les opérations</mat-option>
+          <mat-option value="Custom">Dates personnalisées</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <app-date-filter></app-date-filter>
+      <app-date-filter *ngIf="currentMode === 'custom'"></app-date-filter>
 
       <mat-form-field appearance="outline" class="flex-grow">
-        <mat-label>Rechercher</mat-label>
+        <mat-label>Rechercher...</mat-label>
         <input matInput [(ngModel)]="searchString" (input)="onQuickFilterChanged()">
         <mat-icon matSuffix>search</mat-icon>
       </mat-form-field>
+    </div>
 
-      <div *ngIf="isLoading()" class="flex flex-col items-center p-10">
-        <mat-spinner diameter="40"></mat-spinner>
-        <p class="mt-4">Chargement...</p>
-      </div>
+    <div class="mb-6">
+      <mat-chip-listbox multiple>
+        <mat-chip-option [selected]="filterMissingCat" (click)="toggleExtraFilter('missing')" color="accent">
+          <mat-icon matChipAvatar>quiz</mat-icon>
+          Catégories manquantes
+        </mat-chip-option>
 
-      <ag-grid-angular style="width: 100%;" class="ag-theme-alpine" [rowData]="resultatOperations()"
-        [defaultColDef]="defaultColDef" [columnDefs]="columnDefs" [domLayout]="'autoHeight'" [context]="gridContext"
-        [getRowId]="getRowId" [pagination]="true" [paginationPageSize]="100"
-        [paginationPageSizeSelector]="[20, 50, 100]" (gridReady)="onGridReady($event)"
+        <mat-chip-option [selected]="filterMissingCat" (click)="toggleExtraFilter('suggested')" color="accent">
+          <mat-icon matChipAvatar>category</mat-icon>
+          Catégories suggérées
+        </mat-chip-option>
+
+        <mat-chip-option [selected]="filterOnlyCheques" (click)="toggleExtraFilter('cheque')" color="accent">
+          <mat-icon matChipAvatar>payments</mat-icon>
+          Chèques
+        </mat-chip-option>
+      </mat-chip-listbox>
+    </div>
+
+    <div *ngIf="isLoading()" class="flex flex-col items-center p-10">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p class="mt-4 text-gray-500">Récupération des opérations...</p>
+    </div>
+
+    <div class="grid-wrapper" [class.hidden]="isLoading()">
+      <ag-grid-angular 
+        style="width: 100%;" 
+        class="ag-theme-alpine" 
+        [rowData]="resultatOperations()"
+        [defaultColDef]="defaultColDef" 
+        [columnDefs]="columnDefs" 
+        [domLayout]="'autoHeight'" 
+        [context]="gridContext"
+        [getRowId]="getRowId" 
+        [pagination]="true" 
+        [paginationPageSize]="100"
+        [paginationPageSizeSelector]="[20, 50, 100]" 
+        (gridReady)="onGridReady($event)"
         (cellValueChanged)="onCellValueChanged($event)">
       </ag-grid-angular>
     </div>
+
   </mat-card-content>
 </mat-card>

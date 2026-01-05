@@ -1,9 +1,9 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
-import { AgGridModule } from 'ag-grid-angular';
-import { ICellRendererAngularComp } from 'ag-grid-angular';
+import { AgGridModule, ICellRendererAngularComp } from 'ag-grid-angular';
 import {
   ModuleRegistry,
   AllCommunityModule,
@@ -17,20 +17,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 
 import { OperationsService } from '../services/operations.service';
 import { RulesService } from '../services/rules.service';
 import { CcOperation } from '../models/operation-cc.model';
-import { MatCardModule } from '@angular/material/card';
-
-import { filtersService, FilterState } from '../services/filters.service';
-import { HttpClient } from '@angular/common/http';
-
-import { DateFilter } from '../date-filter/date-filter'; // Ajuste le chemin
+import { filtersService } from '../services/filters.service';
+import { DateFilter } from '../date-filter/date-filter';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-/* --- Renderer pour le bouton de validation des suggestions --- */
 @Component({
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
@@ -45,13 +42,8 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 export class SaveButtonRenderer implements ICellRendererAngularComp {
   params: any;
   agInit(params: any): void { this.params = params; }
-  refresh(params: any): boolean {
-    this.params = params;
-    return true;
-  }
-  onSave() {
-    this.params.context.componentParent.save(this.params.data);
-  }
+  refresh(params: any): boolean { this.params = params; return true; }
+  onSave() { this.params.context.componentParent.save(this.params.data); }
 }
 
 @Component({
@@ -60,7 +52,7 @@ export class SaveButtonRenderer implements ICellRendererAngularComp {
   imports: [
     CommonModule, FormsModule, AgGridModule,
     MatSelectModule, MatInputModule, MatButtonModule,
-    MatIconModule, MatProgressSpinnerModule, MatCardModule,
+    MatIconModule, MatProgressSpinnerModule, MatCardModule, MatChipsModule,
     DateFilter
   ],
   templateUrl: './cc-operations.html',
@@ -69,14 +61,18 @@ export class SaveButtonRenderer implements ICellRendererAngularComp {
 export class CcOperations implements OnInit {
   private gridApi!: GridApi;
 
+  // État des données
   resultatOperations = signal<CcOperation[]>([]);
   isLoading = signal(false);
-  filterType = 'C';
+
+  // Filtres (Synchronisés avec l'URL via ngOnInit)
+  currentMode = 'C';
   searchString = '';
+  filterMissingCat = false;
+  filterOnlyCheques = false;
+  filterSuggestedCat = false;
+
   gridContext = { componentParent: this };
-
-  operations: any[] = [];
-
   defaultColDef = { resizable: true, sortable: true, filter: true };
 
   columnDefs: any[] = [
@@ -99,79 +95,113 @@ export class CcOperations implements OnInit {
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: { values: [] },
       width: 180,
-      cellClassRules: {
-        'bg-yellow-100 italic': (p: any) => p.data.isModified // Jaune si suggestion backend
-      }
+      cellClassRules: { 'bg-yellow-100 italic': (p: any) => p.data.isModified }
     },
     {
       headerName: '',
       width: 60,
       cellRenderer: SaveButtonRenderer,
       sortable: false, filter: false,
-      cellClassRules: {
-        'bg-yellow-100-bis': (p: any) => p.data.isModified // Jaune si suggestion backend
-      }
+      cellClassRules: { 'bg-yellow-100-bis': (p: any) => p.data.isModified }
     },
     { headerName: 'Comment', field: 'Comment', editable: true, flex: 1 },
     { headerName: 'Banque', field: 'banque', width: 120, cellClass: 'text-gray-400 text-sm' }
   ];
 
-  constructor(private opService: OperationsService, private rulesService: RulesService, private http: HttpClient) { }
+  constructor(
+    private opService: OperationsService,
+    private rulesService: RulesService,
+    private http: HttpClient
+  ) { }
 
   ngOnInit() {
-    // 1. Charger les données au démarrage avec les filtres présents dans l'URL
-    this.refreshData(filtersService.getFilters());
+    // 1. Initialisation de l'état depuis l'URL au chargement de la page
+    const initFilters = filtersService.getFilters();
+    this.currentMode = initFilters.view || 'C';
+    this.filterMissingCat = !!initFilters.missingCat;
+    this.filterOnlyCheques = !!initFilters.onlyCheques;
 
-    // 2. Écouter les changements futurs
+    // 2. Écouteur unique : Toute modification d'URL déclenche le rechargement
     window.addEventListener('filterChanged', (event: any) => {
-            this.refreshData(event.detail);
-        });
+      const f = event.detail;
+      this.currentMode = f.view || 'C';
+      this.filterMissingCat = !!f.missingCat;
+      this.filterOnlyCheques = !!f.onlyCheques;
+      
+      this.loadData(); 
+    });
 
+    // 3. Charger les catégories pour l'éditeur AG Grid
     this.rulesService.getCcCategories().subscribe(cats => {
       const catCol = this.columnDefs.find(c => c.field === 'categorie');
       if (catCol) {
         catCol.cellEditorParams = { values: ['', ...cats.map(c => c.name)] };
       }
     });
-    this.refresh();
+
+    // 4. Lancement du premier chargement
+    this.loadData();
   }
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
   }
 
-  refresh() {
+  loadData() {
     this.isLoading.set(true);
-    this.opService.getOperations(this.filterType).subscribe({
+    const f = filtersService.getFilters();
+
+    // Construction de l'URL pour le Backend C#
+    let url = `http://localhost:5000/api/operations?mode=${this.currentMode}`;
+
+    if (this.filterMissingCat) url += `&missingCat=true`;
+    if (this.filterOnlyCheques) url += `&onlyCheques=true`;
+    if (this.filterSuggestedCat) url += `&suggestedCat=true`;
+
+    // On n'envoie les dates que si le mode est 'custom'
+    if (this.currentMode === 'custom' && f.start && f.end) {
+      url += `&startDate=${f.start}&endDate=${f.end}`;
+    }
+
+    this.http.get<CcOperation[]>(url).subscribe({
       next: (data) => {
         this.resultatOperations.set(data);
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: (err) => {
+        console.error("Erreur API:", err);
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  // Actions utilisateur (mettent à jour l'URL, l'event listener fait le reste)
+  onModeChange() {
+    filtersService.updateFilters({ view: this.currentMode });
+  }
+
+  toggleExtraFilter(type: 'missing' | 'suggested' | 'cheque') {
+    if (type === 'missing') this.filterMissingCat = !this.filterMissingCat;
+    if (type === 'cheque') this.filterOnlyCheques = !this.filterOnlyCheques;
+    if (type === 'suggested') this.filterSuggestedCat = !this.filterSuggestedCat;
+
+    filtersService.updateFilters({
+      missingCat: this.filterMissingCat,
+      suggestedCat: this.filterSuggestedCat,
+      onlyCheques: this.filterOnlyCheques,
+      view: this.currentMode
     });
   }
 
   save(op: CcOperation) {
     this.opService.updateOperation(op).subscribe({
       next: () => {
-        // 1. On met à jour l'objet localement
         op.isModified = false;
-
         this.gridApi.applyTransaction({ update: [op] });
-
-        // 2. On déclenche la mise à jour immuable du signal
-        // Cela crée une nouvelle référence de tableau, AG Grid détecte le changement
         this.resultatOperations.update(currentOps => [...currentOps]);
-
-        // Note : Pas besoin de refreshCells ou de Transactions ici, 
-        // la nouvelle référence du signal s'en occupe via le binding [rowData]
       },
-      error: (err) => {
-        console.error("Erreur lors de la sauvegarde :", err);
-        // Optionnel : ajouter une notification d'erreur ici
-      }
-    }
-    );
+      error: (err) => console.error("Erreur sauvegarde:", err)
+    });
   }
 
   onCellValueChanged(event: any) {
@@ -179,25 +209,9 @@ export class CcOperations implements OnInit {
     const op = event.data;
 
     if (field === 'Comment') {
-      // SCÉNARIO A : On modifie le Comment
-      // On crée un objet temporaire avec uniquement l'ID et le nouveau Comment
-      const partialUpdate = {
-        id: op.id,
-        Comment: event.newValue
-      } as CcOperation;
-
-      this.opService.updateOperation(partialUpdate).subscribe({
-        next: () => {
-          // On ne touche pas à isModified ! 
-          // La disquette doit rester si elle était là.
-          console.log('Comment sauvegardé');
-        }
-      });
-    }
-    else if (field === 'categorie') {
-      // SCÉNARIO B : On modifie manuellement la catégorie
-      // Ici, on considère que l'utilisateur a fait un choix, on peut soit auto-save,
-      // soit simplement marquer isModified pour faire apparaître la disquette.
+      const partialUpdate = { id: op.id, Comment: event.newValue } as CcOperation;
+      this.opService.updateOperation(partialUpdate).subscribe();
+    } else if (field === 'categorie') {
       op.isModified = false;
       this.save(op);
     }
@@ -207,22 +221,5 @@ export class CcOperations implements OnInit {
     this.gridApi.setGridOption('quickFilterText', this.searchString);
   }
 
-  // Pour s'assurer que AG Grid suit bien les objets (Remplacez 'id' par votre clé primaire)
   getRowId = (params: any) => params.data.id.toString();
-
-  refreshData(filters: FilterState) {
-        // On construit l'URL avec les paramètres de filtrage
-        let url = `http://localhost:5000/api/operations?`;
-        
-        if (filters.start) url += `&startDate=${filters.start}`;
-        if (filters.end) url += `&endDate=${filters.end}`;
-
-        this.http.get<any[]>(url).subscribe({
-            next: (data) => {
-                this.operations = data;
-                console.log("Données filtrées reçues :", data);
-            },
-            error: (err) => console.error("Erreur lors du chargement", err)
-        });
-    }
 }
