@@ -20,6 +20,8 @@ public class FortuneoCsvParser : IBanqueParser
         // Instancie le hashContext qui mémorisera les Hash de cet import en particulier
         var hashContext = new ImportHashContext();
 
+        var CurrentDateTime = DateTime.UtcNow;
+
         while ((line = reader.ReadLine()) != null)
         {
             if (header) { header = false; continue; }
@@ -42,7 +44,7 @@ public class FortuneoCsvParser : IBanqueParser
                 Montant = double.Parse(string.IsNullOrWhiteSpace(values[3]) ? "0" : values[3]) + double.Parse(string.IsNullOrWhiteSpace(values[4]) ? "0" : values[4]),
                 Banque = "Fortuneo",
                 Comment = "",
-                DateImport = DateTime.UtcNow,
+                DateImport = CurrentDateTime,
             };
 
             // Récupération du Hash de base pour cette ligne

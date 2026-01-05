@@ -38,6 +38,7 @@ public class MaybankCsvParser : IBanqueParser
         // Instancie le hashContext qui mémorisera les Hash de cet import en particulier
         var hashContext = new ImportHashContext();
 
+        var CurrentDateTime = DateTime.UtcNow;
 
         foreach (var row in rows)
         {
@@ -66,7 +67,7 @@ public class MaybankCsvParser : IBanqueParser
                 Description = row.Description,
                 Montant = MontantReel,
                 Banque = "Maybank",
-                DateImport = DateTime.UtcNow,
+                DateImport = CurrentDateTime,
             };
 
             // Récupération du Hash de base pour cette ligne

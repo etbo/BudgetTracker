@@ -13,10 +13,12 @@ export const filtersService = {
   // 1. Lire l'URL et transformer en objet propre
   getFilters(): FilterState {
     const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+
     return {
       start: params.get('start') || undefined,
       end: params.get('end') || undefined,
-      view: params.get('view') || undefined,
+      view: view || 'last',
       missingCat: params.get('missingCat') === 'true',
       suggestedCat: params.get('suggestedCat') === 'true',
       onlyCheques: params.get('onlyCheques') === 'true'

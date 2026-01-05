@@ -27,6 +27,8 @@ public class OperationsController : ControllerBase
     [FromQuery] DateTime? startDate = null,
     [FromQuery] DateTime? endDate = null)
     {
+        Console.WriteLine($"test");
+        
         IQueryable<CcOperation> query = _db.CcOperations;
 
         // --- 1. Filtre de base (Période / Mode) ---

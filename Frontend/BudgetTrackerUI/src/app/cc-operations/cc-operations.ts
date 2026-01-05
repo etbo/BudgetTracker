@@ -66,7 +66,7 @@ export class CcOperations implements OnInit {
   isLoading = signal(false);
 
   // Filtres (Synchronisés avec l'URL via ngOnInit)
-  currentMode = 'C';
+  currentMode = 'last';
   searchString = '';
   filterMissingCat = false;
   filterOnlyCheques = false;
@@ -117,18 +117,25 @@ export class CcOperations implements OnInit {
   ngOnInit() {
     // 1. Initialisation de l'état depuis l'URL au chargement de la page
     const initFilters = filtersService.getFilters();
-    this.currentMode = initFilters.view || 'C';
+    this.currentMode = initFilters.view || 'last';
     this.filterMissingCat = !!initFilters.missingCat;
     this.filterOnlyCheques = !!initFilters.onlyCheques;
+    this.filterSuggestedCat = !!initFilters.suggestedCat;
+
+    // Forçage de l'initialisation de l'URL
+    if (!window.location.search) {
+      this.syncUrl();
+    }
 
     // 2. Écouteur unique : Toute modification d'URL déclenche le rechargement
     window.addEventListener('filterChanged', (event: any) => {
       const f = event.detail;
-      this.currentMode = f.view || 'C';
+      this.currentMode = f.view || 'last';
       this.filterMissingCat = !!f.missingCat;
       this.filterOnlyCheques = !!f.onlyCheques;
-      
-      this.loadData(); 
+      this.filterSuggestedCat = !!f.suggestedCat;
+
+      this.loadData();
     });
 
     // 3. Charger les catégories pour l'éditeur AG Grid
@@ -152,7 +159,7 @@ export class CcOperations implements OnInit {
     const f = filtersService.getFilters();
 
     // Construction de l'URL pour le Backend C#
-    let url = `http://localhost:5000/api/operations?mode=${this.currentMode}`;
+    let url = `http://localhost:5011/api/operations?mode=${this.currentMode}`;
 
     if (this.filterMissingCat) url += `&missingCat=true`;
     if (this.filterOnlyCheques) url += `&onlyCheques=true`;
@@ -222,4 +229,13 @@ export class CcOperations implements OnInit {
   }
 
   getRowId = (params: any) => params.data.id.toString();
+
+  syncUrl() {
+    filtersService.updateFilters({
+      view: this.currentMode,
+      missingCat: this.filterMissingCat,
+      onlyCheques: this.filterOnlyCheques,
+      suggestedCat: this.filterSuggestedCat
+    });
+  }
 }

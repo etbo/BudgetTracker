@@ -9,9 +9,9 @@
       <mat-form-field appearance="outline" class="w-[200px]">
         <mat-label>Période d'affichage</mat-label>
         <mat-select [(ngModel)]="currentMode" (selectionChange)="onModeChange()">
-          <mat-option value="Last">Dernier import</mat-option>
-          <mat-option value="All">Toutes les opérations</mat-option>
-          <mat-option value="Custom">Dates personnalisées</mat-option>
+          <mat-option value="last">Dernier import</mat-option>
+          <mat-option value="all">Toutes les opérations</mat-option>
+          <mat-option value="custom">Dates personnalisées</mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -31,7 +31,7 @@
           Catégories manquantes
         </mat-chip-option>
 
-        <mat-chip-option [selected]="filterMissingCat" (click)="toggleExtraFilter('suggested')" color="accent">
+        <mat-chip-option [selected]="filterSuggestedCat" (click)="toggleExtraFilter('suggested')" color="accent">
           <mat-icon matChipAvatar>category</mat-icon>
           Catégories suggérées
         </mat-chip-option>
@@ -44,7 +44,7 @@
     </div>
 
     <div *ngIf="isLoading()" class="flex flex-col items-center p-10">
-      <mat-spinner diameter="40"></mat-spinner>
+      <mat-spinner diameter="100"></mat-spinner>
       <p class="mt-4 text-gray-500">Récupération des opérations...</p>
     </div>
 
@@ -59,7 +59,7 @@
         [context]="gridContext"
         [getRowId]="getRowId" 
         [pagination]="true" 
-        [paginationPageSize]="100"
+        [paginationPageSize]="50"
         [paginationPageSizeSelector]="[20, 50, 100]" 
         (gridReady)="onGridReady($event)"
         (cellValueChanged)="onCellValueChanged($event)">

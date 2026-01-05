@@ -34,7 +34,7 @@ public class GsheetsCsvParser : IBanqueParser
         // Instancie le hashContext qui mémorisera les Hash de cet import en particulier
         var hashContext = new ImportHashContext();
 
-        Console.WriteLine($"test");
+        var CurrentDateTime = DateTime.UtcNow;
 
         foreach (var row in rows)
         {
@@ -53,7 +53,7 @@ public class GsheetsCsvParser : IBanqueParser
                 Categorie = row.Type,
                 Banque = row.Banque,
                 Comment = row.Commentaires,
-                DateImport = DateTime.UtcNow,
+                DateImport = CurrentDateTime,
             };
 
             // Récupération du Hash de base pour cette ligne
