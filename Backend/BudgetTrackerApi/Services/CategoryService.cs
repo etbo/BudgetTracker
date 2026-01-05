@@ -1,4 +1,4 @@
-using BudgetTrackerApp.Data;
+using BudgetTrackerApi.Data;
 using Microsoft.EntityFrameworkCore;
 
 public class CategoryService

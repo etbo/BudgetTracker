@@ -1,6 +1,6 @@
 // Services/DatabaseSelectorService.cs
 
-namespace BudgetTrackerApp.Services
+namespace BudgetTrackerApi.Services
 {
     public class DatabaseSelectorService
     {

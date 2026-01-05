@@ -1,12 +1,12 @@
-using BudgetTrackerApp.Data;
-using BudgetTrackerApp.Models;
+using BudgetTrackerApi.Data;
+using BudgetTrackerApi.Models;
 using Microsoft.EntityFrameworkCore;
-using BudgetTrackerApp.DTOs;
+using BudgetTrackerApi.DTOs;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace BudgetTrackerApp.Services
+namespace BudgetTrackerApi.Services
 {
     public class FinanceService
     {

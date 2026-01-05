@@ -1,9 +1,9 @@
 using System.Globalization;
-using BudgetTrackerApp.Data;
-using BudgetTrackerApp.Models;
+using BudgetTrackerApi.Data;
+using BudgetTrackerApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BudgetTrackerApp.Services
+namespace BudgetTrackerApi.Services
 {
     public interface IPeaService
     {

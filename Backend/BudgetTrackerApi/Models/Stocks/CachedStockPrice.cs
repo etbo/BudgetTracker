@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BudgetTrackerApp.Models
+namespace BudgetTrackerApi.Models
 {
     // Cette table stockera un prix unitaire pour une date donnée
     public class PeaCachedStockPrice

@@ -1,6 +1,6 @@
-namespace BudgetTrackerApp.CsvMappings
+namespace BudgetTrackerApi.CsvMappings
 {
-    using BudgetTrackerApp.Models;
+    using BudgetTrackerApi.Models;
     using CsvHelper.Configuration;
 
     public sealed class TransactionMaybankCsvMap : ClassMap<TransactionMaybankCsv>

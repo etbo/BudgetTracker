@@ -1,7 +1,7 @@
 using System;
-using BudgetTrackerApp.Models;
+using BudgetTrackerApi.Models;
 
-namespace BudgetTrackerApp.Data.Helpers
+namespace BudgetTrackerApi.Data.Helpers
 {
     public static class OperationExtensions
     {

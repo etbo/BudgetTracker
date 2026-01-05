@@ -2,7 +2,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace BudgetTrackerApp.Models
+namespace BudgetTrackerApi.Models
 {
     // Utilisé pour mapper le champ "Monthly Time Series" principal
     public class AlphaVantageMonthly

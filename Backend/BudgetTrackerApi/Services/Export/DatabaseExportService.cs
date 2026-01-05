@@ -1,6 +1,6 @@
 using System.IO.Compression;
 
-namespace BudgetTrackerApp.Services.Export
+namespace BudgetTrackerApi.Services.Export
 {
     public class DatabaseExportService
     {

@@ -1,5 +1,5 @@
-using BudgetTrackerApp.Data;
-using BudgetTrackerApp.Models;
+using BudgetTrackerApi.Data;
+using BudgetTrackerApi.Models;
 
 public interface IBanqueParser
 {

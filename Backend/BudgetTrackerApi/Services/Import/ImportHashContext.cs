@@ -1,4 +1,4 @@
-namespace BudgetTrackerApp.Services.Import
+namespace BudgetTrackerApi.Services.Import
 {
     public class ImportHashContext
     {

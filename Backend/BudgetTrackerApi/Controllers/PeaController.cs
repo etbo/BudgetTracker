@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using BudgetTrackerApp.Services;
-using BudgetTrackerApp.Data;
-using BudgetTrackerApp.Models;
+using BudgetTrackerApi.Services;
+using BudgetTrackerApi.Data;
+using BudgetTrackerApi.Models;
 using Microsoft.EntityFrameworkCore; // Adapte selon tes namespaces
 
 [ApiController]

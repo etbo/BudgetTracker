@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using BudgetTrackerApp.Services; // Adapte selon tes namespaces
+using BudgetTrackerApi.Services; // Adapte selon tes namespaces
 
 [ApiController]
 [Route("api/[controller]")]

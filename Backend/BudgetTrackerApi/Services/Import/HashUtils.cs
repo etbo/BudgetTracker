@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace BudgetTrackerApp.Services.Import
+namespace BudgetTrackerApi.Services.Import
 {
     public static class HashUtils
     {

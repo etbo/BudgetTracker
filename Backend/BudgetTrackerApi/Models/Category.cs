@@ -1,4 +1,4 @@
-namespace BudgetTrackerApp.Data
+namespace BudgetTrackerApi.Data
 {
     public class CcCategory
     {

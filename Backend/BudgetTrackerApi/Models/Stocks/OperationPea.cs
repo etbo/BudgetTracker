@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace BudgetTrackerApp.Models
+namespace BudgetTrackerApi.Models
 {
     public class PeaOperation
     {

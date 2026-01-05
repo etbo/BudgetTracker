@@ -1,8 +1,8 @@
-using BudgetTrackerApp.Data;
-using BudgetTrackerApp.Models;
+using BudgetTrackerApi.Data;
+using BudgetTrackerApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BudgetTrackerApp.Services
+namespace BudgetTrackerApi.Services
 {
     // L'interface définit ce que le service sait faire
     public interface IRuleService

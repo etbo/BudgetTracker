@@ -1,9 +1,9 @@
-using BudgetTrackerApp.Models;
-using BudgetTrackerApp.Services;
+using BudgetTrackerApi.Models;
+using BudgetTrackerApi.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
-namespace BudgetTrackerApp.Data
+namespace BudgetTrackerApi.Data
 {
       public class AppDbContext : DbContext
       {

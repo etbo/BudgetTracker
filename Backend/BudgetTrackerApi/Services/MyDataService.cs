@@ -1,4 +1,4 @@
-namespace BudgetTrackerApp.Services
+namespace BudgetTrackerApi.Services
 {
     public class MyDataService
     {

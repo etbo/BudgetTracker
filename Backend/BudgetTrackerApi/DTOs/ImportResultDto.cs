@@ -1,4 +1,4 @@
-namespace BudgetTrackerApp.DTOs
+namespace BudgetTrackerApi.DTOs
 {
     public record ImportResultDto(
         string NomDuFichier,

@@ -1,11 +1,11 @@
-// Fichier : BudgetTrackerApp/Services/Data/BankService.cs (ou Services/BankService.cs)
+// Fichier : BudgetTrackerApi/Services/Data/BankService.cs (ou Services/BankService.cs)
 
-using BudgetTrackerApp.Data;
-using BudgetTrackerApp.Models;
+using BudgetTrackerApi.Data;
+using BudgetTrackerApi.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
-namespace BudgetTrackerApp.Services
+namespace BudgetTrackerApi.Services
 {
     public class BalanceReportService
     {

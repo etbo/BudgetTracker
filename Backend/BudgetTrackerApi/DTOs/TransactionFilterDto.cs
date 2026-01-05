@@ -1,4 +1,4 @@
-namespace BudgetTrackerApp.DTOs
+namespace BudgetTrackerApi.DTOs
 {
     public class TransactionFilter
     {

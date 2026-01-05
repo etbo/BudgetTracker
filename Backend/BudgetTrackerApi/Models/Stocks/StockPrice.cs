@@ -1,6 +1,6 @@
 // Fichier : MonProjetBlazor/Models/StockPrice.cs
 
-namespace BudgetTrackerApp.Models // Votre namespace du projet
+namespace BudgetTrackerApi.Models // Votre namespace du projet
 {
     public class StockPrice
     {

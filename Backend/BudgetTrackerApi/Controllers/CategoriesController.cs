@@ -1,4 +1,4 @@
-using BudgetTrackerApp.Data;
+using BudgetTrackerApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

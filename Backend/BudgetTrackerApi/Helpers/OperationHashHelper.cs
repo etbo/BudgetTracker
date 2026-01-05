@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 
-namespace BudgetTrackerApp.Data.Helpers
+namespace BudgetTrackerApi.Data.Helpers
 {
     public static class OperationHashHelper
     {

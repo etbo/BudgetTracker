@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using BudgetTrackerApp.Services;
-using BudgetTrackerApp.Models;
+using BudgetTrackerApi.Services;
+using BudgetTrackerApi.Models;
 
-namespace BudgetTrackerApp.Controllers
+namespace BudgetTrackerApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")] // Ceci devient /api/finance

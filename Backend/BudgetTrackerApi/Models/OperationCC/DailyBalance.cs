@@ -1,4 +1,4 @@
-namespace BudgetTrackerApp.Models
+namespace BudgetTrackerApi.Models
 {
     public class DailyBalance
     {

@@ -1,9 +1,9 @@
 using System.Globalization;
-using BudgetTrackerApp.CsvMappings;
-using BudgetTrackerApp.Data;
-using BudgetTrackerApp.Data.Helpers;
-using BudgetTrackerApp.Services.Import;
-using BudgetTrackerApp.Models;
+using BudgetTrackerApi.CsvMappings;
+using BudgetTrackerApi.Data;
+using BudgetTrackerApi.Data.Helpers;
+using BudgetTrackerApi.Services.Import;
+using BudgetTrackerApi.Models;
 using CsvHelper;
 
 public class MaybankCsvParser : IBanqueParser
