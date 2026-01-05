@@ -77,7 +77,7 @@ export class CcOperations implements OnInit {
   defaultColDef = { resizable: true, sortable: true, filter: true };
 
   columnDefs: any[] = [
-    { headerName: 'Date', field: 'date', width: 130, sort: 'desc', valueFormatter: customDateFormatter},
+    { headerName: 'Date', field: 'date', width: 130, sort: 'desc', valueFormatter: customDateFormatter },
     { headerName: 'Description', field: 'description', flex: 2 },
     {
       headerName: 'Montant',
@@ -159,19 +159,8 @@ export class CcOperations implements OnInit {
     this.isLoading.set(true);
     const f = filtersService.getFilters();
 
-    // Construction de l'URL pour le Backend C#
-    let url = `http://localhost:5011/api/operations?mode=${this.currentMode}`;
-
-    if (this.filterMissingCat) url += `&missingCat=true`;
-    if (this.filterOnlyCheques) url += `&onlyCheques=true`;
-    if (this.filterSuggestedCat) url += `&suggestedCat=true`;
-
-    // On n'envoie les dates que si le mode est 'custom'
-    if (this.currentMode === 'custom' && f.start && f.end) {
-      url += `&startDate=${f.start}&endDate=${f.end}`;
-    }
-
-    this.http.get<CcOperation[]>(url).subscribe({
+    // On passe par le service plutôt que par this.http.get(...)
+    this.opService.getOperations(f).subscribe({
       next: (data) => {
         this.resultatOperations.set(data);
         this.isLoading.set(false);

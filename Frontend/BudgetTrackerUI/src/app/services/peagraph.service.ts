@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CumulPea } from '../models/cumul-pea.model';
+import { environment } from '../../environments/environment';
 
 export interface UpdateResult {
   ticker: string;
@@ -11,7 +12,7 @@ export interface UpdateResult {
 
 @Injectable({ providedIn: 'root' })
 export class PeaGraphService {
-  private apiUrl = 'http://localhost:5011/api/PeaGraph';
+  private apiUrl = `${environment.apiUrl}/PeaGraph`;
 
   constructor(private http: HttpClient) {}
 
@@ -22,7 +23,6 @@ export class PeaGraphService {
 
   // --- Méthode pour la page graphique (PeaWallet) ---
   getCalculerCumul(): Observable<CumulPea[]> {
-    // Cette méthode appelle l'URL : http://localhost:5011/api/pea/cumul
     return this.http.get<CumulPea[]>(`${this.apiUrl}/cumul`);
   }
 }

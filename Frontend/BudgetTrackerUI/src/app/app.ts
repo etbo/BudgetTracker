@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { NavMenuComponent } from './nav-menu/nav-menu';
 
 import { filtersService } from './services/filters.service';
+import { ExportService } from './services/export.service';
 
 @Component({
   selector: 'app-root',
@@ -34,6 +35,8 @@ export class AppComponent {
   // On ne garde que la logique de l'interface (UI)
   public isDrawerOpen = true;
   public isDarkMode = false;
+
+  constructor(private exportService: ExportService) {}
 
   toggleDrawer() {
     this.isDrawerOpen = !this.isDrawerOpen;
@@ -59,5 +62,9 @@ export class AppComponent {
 
   resetFilters() {
     filtersService.reset();
+  }
+
+  onExportDatabase() {
+    this.exportService.downloadDatabaseBackup();
   }
 }

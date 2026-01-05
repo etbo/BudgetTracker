@@ -5,6 +5,12 @@
     </button>
     <span class="app-brand">BudgetTracker</span>
     <span class="spacer"></span>
+    <button mat-icon-button 
+          color="accent" 
+          (click)="onExportDatabase()" 
+          matTooltip="Sauvegarder la base de données (ZIP)">
+    <mat-icon>save_alt</mat-icon>
+  </button>
   </mat-toolbar>
 
   <mat-sidenav-container class="sidenav-container">

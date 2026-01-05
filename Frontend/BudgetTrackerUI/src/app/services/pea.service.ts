@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { PeaOperation } from '../models/operation-pea.model';
 import { CumulPea } from '../models/cumul-pea.model'; // <--- Ajoute cet import
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PeaService {
-  private apiUrl = 'http://localhost:5011/api/pea';
+  private apiUrl = `${environment.apiUrl}/pea`;
 
   constructor(private http: HttpClient) { }
 

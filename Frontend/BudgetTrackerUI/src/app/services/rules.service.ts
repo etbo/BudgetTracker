@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CcCategoryRule, CcCategory } from '../models/category-rule.model';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class RulesService {
-  private apiUrl = 'http://localhost:5011/api/rules';
+  private apiUrl = `${environment.apiUrl}/rules`;
 
   constructor(private http: HttpClient) { }
 
