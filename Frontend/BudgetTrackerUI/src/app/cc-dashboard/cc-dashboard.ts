@@ -14,7 +14,7 @@ export class CcDashboard implements OnInit {
   public chartOptions: any;
   public isLoading = signal(true);
 
-  constructor(private balanceService: BalanceService) {}
+  constructor(private balanceService: BalanceService) { }
 
   ngOnInit() {
     this.balanceService.getEvolution().subscribe({
@@ -30,40 +30,47 @@ export class CcDashboard implements OnInit {
   }
 
   setupChart(data: any[]) {
+    // On s'assure que les données sont triées par date
+    const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
     this.chartOptions = {
       series: [{
-        name: "Solde cumulé",
-        data: data.map(d => d.cumulatedBalance)
+        name: "Solde (€)",
+        data: sortedData.map(d => ({
+          x: new Date(d.date).getTime(),
+          y: Number(d.cumulatedBalance.toFixed(2))
+        }))
       }],
-      chart: { 
-        type: "line", 
-        height: 450,
-        toolbar: { show: true },
-        zoom: { enabled: true }
+      chart: {
+        type: "area",
+        height: 600,
+        zoom: { type: 'x', enabled: true, autoScaleYaxis: true },
+        toolbar: { show: true }
+      },
+      // FORCE LE MASQUAGE ICI
+      dataLabels: {
+        enabled: false
+      },
+      // Supprime les petits cercles sur chaque point qui saturent le graph
+      markers: {
+        size: 0,
+        hover: { size: 5 }
       },
       xaxis: {
-        type: 'category',
-        CcCategories: data.map(d => new Date(d.date).toLocaleDateString('fr-FR')),
-        title: { text: 'Date' }
+        type: 'datetime',
+        labels: {
+          datetimeUTC: false,
+          format: 'dd/MM/yyyy' // Format plus court pour l'axe
+        },
+        tickAmount: 8 // Limite le nombre de dates affichées sur l'axe X
       },
       yaxis: {
         labels: {
-          formatter: (val: number) => val.toFixed(2) + " €"
-        },
-        title: { text: 'Montant' }
-      },
-      stroke: { curve: "smooth", width: 3 },
-      colors: ["#594ae2"], // Le violet de votre thème MudBlazor
-      title: { 
-        text: "Évolution du compte courant", 
-        align: "center" 
-      },
-      grid: {
-        row: {
-          colors: ["#f3f3f3", "transparent"],
-          opacity: 0.5
+          formatter: (val: number) => Math.round(val).toLocaleString('fr-FR') + " €"
         }
-      }
+      },
+      stroke: { width: 2 },
+      colors: ["#594ae2"]
     };
   }
 }
