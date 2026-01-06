@@ -54,20 +54,25 @@ public class CcDashboardController : ControllerBase
     }
 
     [HttpGet("expenses-by-category")]
-    public async Task<IActionResult> GetExpensesByCategory()
+    public async Task<IActionResult> GetExpensesByCategory([FromQuery] DateTime? start, [FromQuery] DateTime? end)
     {
-        var expenses = await _db.CcOperations
-            .Where(o => o.Montant < 0) // On ne prend que les dépenses
-            .GroupBy(o => o.Categorie ?? "Sans catégorie") // Gestion des nuls
+        var query = _db.CcOperations.AsQueryable();
+
+        if (start.HasValue && end.HasValue)
+        {
+            query = query.Where(o => o.Date >= start && o.Date <= end);
+        }
+
+        var expenses = await query
+            .Where(o => o.Montant < 0)
+            .GroupBy(o => o.Categorie ?? "Sans catégorie")
             .Select(g => new
             {
                 Category = g.Key,
-                Total = Math.Abs(g.Sum(o => o.Montant)) // Valeur absolue pour le graph
+                Total = Math.Abs(g.Sum(o => o.Montant))
             })
             .OrderByDescending(x => x.Total)
             .ToListAsync();
-
-        Console.WriteLine($"expenses = {expenses.Count}");
 
         return Ok(expenses);
     }

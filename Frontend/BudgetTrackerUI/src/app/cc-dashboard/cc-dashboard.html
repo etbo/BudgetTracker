@@ -1,5 +1,6 @@
 <div style="padding: 20px;">
-  <app-cc-evolution-chart [data]="evolutionData()"></app-cc-evolution-chart>
+  <app-date-filter></app-date-filter>
+  <app-cc-evolution-chart [data]="evolutionData()" (periodChanged)="onPeriodZoomed($event)"></app-cc-evolution-chart>
   <app-pie-chart [data]="categoryData()"></app-pie-chart>
 
 </div>

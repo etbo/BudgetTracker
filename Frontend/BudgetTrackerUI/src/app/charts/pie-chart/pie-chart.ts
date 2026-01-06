@@ -14,7 +14,6 @@ export class PieChart implements OnChanges {
   public chartOptions: any;
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('Données reçues par le Pie:', this.data);
     if (changes['data'] && this.data && this.data.length > 0) {
       const validData = this.data.filter(d => d.total > 0);
       if (validData.length > 0) {
