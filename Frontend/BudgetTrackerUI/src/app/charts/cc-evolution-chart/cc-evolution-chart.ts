@@ -15,11 +15,11 @@ export class CcEvolutionChart implements OnChanges {
   // Cette fonction se déclenche dès que [data] change côté parent
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] && this.data.length > 0) {
-      this.updateChart();
+      this.setupChart();
     }
   }
 
-  private updateChart() {
+  private setupChart() {
     this.chartOptions = {
       series: [{
         name: "Solde (€)",

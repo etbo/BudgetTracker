@@ -52,4 +52,23 @@ public class CcDashboardController : ControllerBase
 
         return Ok(dailyEvolution);
     }
+
+    [HttpGet("expenses-by-category")]
+    public async Task<IActionResult> GetExpensesByCategory()
+    {
+        var expenses = await _db.CcOperations
+            .Where(o => o.Montant < 0) // On ne prend que les dépenses
+            .GroupBy(o => o.Categorie ?? "Sans catégorie") // Gestion des nuls
+            .Select(g => new
+            {
+                Category = g.Key,
+                Total = Math.Abs(g.Sum(o => o.Montant)) // Valeur absolue pour le graph
+            })
+            .OrderByDescending(x => x.Total)
+            .ToListAsync();
+
+        Console.WriteLine($"expenses = {expenses.Count}");
+
+        return Ok(expenses);
+    }
 }

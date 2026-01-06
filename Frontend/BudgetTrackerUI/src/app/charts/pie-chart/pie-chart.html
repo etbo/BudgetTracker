@@ -1,0 +1,16 @@
+<div style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+  @if (chartOptions) {
+    <apx-chart
+      [series]="chartOptions.series"
+      [chart]="chartOptions.chart"
+      [labels]="chartOptions.labels"
+      [plotOptions]="chartOptions.plotOptions"
+      [title]="chartOptions.title"
+      [legend]="chartOptions.legend"
+      [colors]="chartOptions.colors"
+      [grid]="chartOptions.grid">
+    </apx-chart>
+  } @else {
+    <p>Analyse des catégories...</p>
+  }
+</div>
