@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -24,11 +24,12 @@ import { OperationsService } from '../services/operations.service';
 import { RulesService } from '../services/rules.service';
 import { CcOperation } from '../models/operation-cc.model';
 import { filtersService } from '../services/filters.service';
-import { DateFilter } from '../date-filter/date-filter';
+import { DateFilter } from '../date-filter/date-filter'; // Vérifie le chemin exact
 import { customDateFormatter } from '../shared/utils/grid-utils';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+// --- Rendu du bouton Sauvegarder (Restauré) ---
 @Component({
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
@@ -59,14 +60,14 @@ export class SaveButtonRenderer implements ICellRendererAngularComp {
   templateUrl: './cc-operations.html',
   styleUrls: ['./cc-operations.scss']
 })
-export class CcOperations implements OnInit {
+export class CcOperations implements OnInit, OnDestroy {
   private gridApi!: GridApi;
 
   // État des données
   resultatOperations = signal<CcOperation[]>([]);
   isLoading = signal(false);
 
-  // Filtres (Synchronisés avec l'URL via ngOnInit)
+  // État des filtres
   currentMode = 'last';
   searchString = '';
   filterMissingCat = false;
@@ -76,6 +77,7 @@ export class CcOperations implements OnInit {
   gridContext = { componentParent: this };
   defaultColDef = { resizable: true, sortable: true, filter: true };
 
+  // --- Configuration des colonnes (Restaurée à l'identique) ---
   columnDefs: any[] = [
     { headerName: 'Date', field: 'date', width: 130, sort: 'desc', valueFormatter: customDateFormatter },
     { headerName: 'Description', field: 'description', flex: 2 },
@@ -96,7 +98,10 @@ export class CcOperations implements OnInit {
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: { values: [] },
       width: 180,
-      cellClassRules: { 'bg-yellow-100 italic': (p: any) => p.data.isModified }
+      cellClassRules: { 
+        'bg-yellow-100 italic': (p: any) => p.data.isModified,
+        'bg-blue-50': (p: any) => p.data.isSuggested // Ajout si tu as un flag suggestion
+      }
     },
     {
       headerName: '',
@@ -109,6 +114,15 @@ export class CcOperations implements OnInit {
     { headerName: 'Banque', field: 'banque', width: 120, cellClass: 'text-gray-400 text-sm' }
   ];
 
+  private filterListener = (event: any) => {
+    const f = event.detail;
+    this.currentMode = f.view || 'last';
+    this.filterMissingCat = !!f.missingCat;
+    this.filterOnlyCheques = !!f.onlyCheques;
+    this.filterSuggestedCat = !!f.suggestedCat;
+    this.loadData();
+  };
+
   constructor(
     private opService: OperationsService,
     private rulesService: RulesService,
@@ -116,39 +130,32 @@ export class CcOperations implements OnInit {
   ) { }
 
   ngOnInit() {
-    // 1. Initialisation de l'état depuis l'URL au chargement de la page
     const initFilters = filtersService.getFilters();
     this.currentMode = initFilters.view || 'last';
     this.filterMissingCat = !!initFilters.missingCat;
     this.filterOnlyCheques = !!initFilters.onlyCheques;
     this.filterSuggestedCat = !!initFilters.suggestedCat;
 
-    // Forçage de l'initialisation de l'URL
     if (!window.location.search) {
       this.syncUrl();
     }
 
-    // 2. Écouteur unique : Toute modification d'URL déclenche le rechargement
-    window.addEventListener('filterChanged', (event: any) => {
-      const f = event.detail;
-      this.currentMode = f.view || 'last';
-      this.filterMissingCat = !!f.missingCat;
-      this.filterOnlyCheques = !!f.onlyCheques;
-      this.filterSuggestedCat = !!f.suggestedCat;
+    window.addEventListener('filterChanged', this.filterListener);
 
-      this.loadData();
-    });
-
-    // 3. Charger les catégories pour l'éditeur AG Grid
+    // Chargement des catégories pour le select de la grille
     this.rulesService.getCcCategories().subscribe(cats => {
       const catCol = this.columnDefs.find(c => c.field === 'categorie');
       if (catCol) {
         catCol.cellEditorParams = { values: ['', ...cats.map(c => c.name)] };
+        this.gridApi?.setGridOption('columnDefs', [...this.columnDefs]);
       }
     });
 
-    // 4. Lancement du premier chargement
     this.loadData();
+  }
+
+  ngOnDestroy() {
+    window.removeEventListener('filterChanged', this.filterListener);
   }
 
   onGridReady(params: GridReadyEvent) {
@@ -158,8 +165,6 @@ export class CcOperations implements OnInit {
   loadData() {
     this.isLoading.set(true);
     const f = filtersService.getFilters();
-
-    // On passe par le service plutôt que par this.http.get(...)
     this.opService.getOperations(f).subscribe({
       next: (data) => {
         this.resultatOperations.set(data);
@@ -172,22 +177,28 @@ export class CcOperations implements OnInit {
     });
   }
 
-  // Actions utilisateur (mettent à jour l'URL, l'event listener fait le reste)
-  onModeChange() {
-    filtersService.updateFilters({ view: this.currentMode });
+  // --- Actions provenant du nouveau DateFilter ---
+  onFilterChanged(event: { start: string, end: string }) {
+    let view = 'custom';
+    if (event.start === 'last') view = 'last';
+    else if (!event.start) view = 'all';
+
+    filtersService.updateFilters({
+      start: event.start === 'last' ? undefined : event.start,
+      end: event.end === 'last' ? undefined : event.end,
+      view: view
+    });
   }
 
   toggleExtraFilter(type: 'missing' | 'suggested' | 'cheque') {
-    if (type === 'missing') this.filterMissingCat = !this.filterMissingCat;
-    if (type === 'cheque') this.filterOnlyCheques = !this.filterOnlyCheques;
-    if (type === 'suggested') this.filterSuggestedCat = !this.filterSuggestedCat;
+    const f = filtersService.getFilters();
+    const update: any = { view: this.currentMode };
+    
+    if (type === 'missing') update.missingCat = !f.missingCat;
+    if (type === 'suggested') update.suggestedCat = !f.suggestedCat;
+    if (type === 'cheque') update.onlyCheques = !f.onlyCheques;
 
-    filtersService.updateFilters({
-      missingCat: this.filterMissingCat,
-      suggestedCat: this.filterSuggestedCat,
-      onlyCheques: this.filterOnlyCheques,
-      view: this.currentMode
-    });
+    filtersService.updateFilters(update);
   }
 
   save(op: CcOperation) {
@@ -195,6 +206,7 @@ export class CcOperations implements OnInit {
       next: () => {
         op.isModified = false;
         this.gridApi.applyTransaction({ update: [op] });
+        // On force le rafraîchissement du signal pour l'UI
         this.resultatOperations.update(currentOps => [...currentOps]);
       },
       error: (err) => console.error("Erreur sauvegarde:", err)
@@ -209,7 +221,7 @@ export class CcOperations implements OnInit {
       const partialUpdate = { id: op.id, Comment: event.newValue } as CcOperation;
       this.opService.updateOperation(partialUpdate).subscribe();
     } else if (field === 'categorie') {
-      op.isModified = false;
+      op.isModified = false; // On considère que le select valide direct ou tu peux mettre à true
       this.save(op);
     }
   }
@@ -227,5 +239,9 @@ export class CcOperations implements OnInit {
       onlyCheques: this.filterOnlyCheques,
       suggestedCat: this.filterSuggestedCat
     });
+  }
+
+  onImport() {
+    // Logique d'import à implémenter
   }
 }

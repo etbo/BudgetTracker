@@ -7,16 +7,9 @@
 
     <div class="filter-header-container gap-4 mb-6">
 
-      <mat-form-field appearance="outline" class="w-[200px]">
-        <mat-label>Période</mat-label>
-        <mat-select [(ngModel)]="currentMode" (selectionChange)="onModeChange()">
-          <mat-option value="last">Dernier import</mat-option>
-          <mat-option value="all">Toutes les opérations</mat-option>
-          <mat-option value="custom">Dates personnalisées</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <app-date-filter *ngIf="currentMode === 'custom'"></app-date-filter>
+      <app-date-filter mode="detailed" [showLastImportOption]="true"
+        (filterChanged)="onFilterChanged($event)" (importClicked)="onImport()">
+      </app-date-filter>
 
       <mat-form-field appearance="outline" class="w-[300px]">
         <mat-label>Rechercher...</mat-label>
