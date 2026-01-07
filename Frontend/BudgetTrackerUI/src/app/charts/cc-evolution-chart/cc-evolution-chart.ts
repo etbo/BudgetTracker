@@ -27,7 +27,7 @@ export class CcEvolutionChart implements OnChanges {
         name: "Solde (€)",
         data: this.data.map(d => ({
           x: new Date(d.date).getTime(),
-          y: Number(d.cumulatedBalance.toFixed(2))
+          y: Number((d.cumulatedBalance ?? 0).toFixed(2))
         }))
       }],
       chart: {

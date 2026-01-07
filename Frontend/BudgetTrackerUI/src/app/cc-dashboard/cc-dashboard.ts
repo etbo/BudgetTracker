@@ -10,6 +10,7 @@ import { CcOperationsList } from '../cc-operations-list/cc-operations-list';
 import { FilterState, filtersService } from '../services/filters.service'; // Import nécessaire
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-cc-dashboard',
@@ -21,7 +22,8 @@ import { MatIconModule } from '@angular/material/icon';
     DateFilter,
     CcOperationsList,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatChipsModule
   ],
   templateUrl: './cc-dashboard.html',
   styleUrl: './cc-dashboard.scss'
@@ -38,72 +40,67 @@ export class CcDashboard implements OnInit {
   constructor(private balanceService: BalanceService) { }
 
   ngOnInit() {
+    // Charge les données initiales
     this.loadAllData();
 
-    // On écoute aussi les changements de filtres globaux (puces du haut)
-    // pour réinitialiser le zoom si l'utilisateur change de période globale
-    window.addEventListener('filterChanged', () => {
-      this.resetZoom();
-      this.loadAllData();
-    });
+  }
+
+  private refreshFromGlobal() {
+    // Une version légère qui ne fait que rafraîchir sans redéclencher d'événements
+    this.loadAllData();
   }
 
   private loadAllData() {
     this.isLoading.set(true);
-    const filters = filtersService.getFilters();
 
-    // On définit des dates par défaut si filters.start ou end sont undefined
-    // Par exemple, une plage très large ou la date du jour
-    const startDate = filters.start || '1900-01-01';
-    const endDate = filters.end || '2099-12-31';
-
+    // 1. Evolution (Déjà OK)
     this.balanceService.getEvolution().subscribe(data => {
-      // Le filtre est maintenant sécurisé
-      const filteredData = data.filter(item => {
-        return item.date >= startDate && item.date <= endDate;
-      });
-
-      this.evolutionData.set(filteredData);
+      this.evolutionData.set(data);
       this.isLoading.set(false);
     });
 
-    // Pour l'API, on passe aussi les dates sécurisées
-    this.balanceService.getExpensesByCategory(startDate, endDate).subscribe(res => {
+    // 2. Pie Chart (Appelle maintenant le backend filtré)
+    this.balanceService.getExpensesByCategory().subscribe(res => {
       this.categoryData.set(res);
     });
+
+    // 3. Update les filtres pour le tableau
+    this.zoomFilters.set({ ...filtersService.getFilters() });
   }
 
   onPeriodZoomed(event: { min: number, max: number }) {
-    // Si min et max sont à 0, c'est un reset du zoom
     if (event.min === 0 && event.max === 0) {
       this.resetZoom();
       return;
     }
 
-    // Formatage en YYYY-MM-DD pour le service et la grille
     const startStr = new Date(event.min).toISOString().split('T')[0];
     const endStr = new Date(event.max).toISOString().split('T')[0];
 
-    // 1. Mise à jour du Pie Chart
-    this.balanceService.getExpensesByCategory(startStr, endStr).subscribe(data => {
-      this.categoryData.set(data);
-    });
-
-    // 2. Mise à jour de la liste des opérations via l'Input
-    this.zoomFilters.set({
+    // 1. On met à jour le service global pour que le prochain appel service.getExpensesByCategory() 
+    // utilise ces nouvelles dates automatiquement
+    filtersService.updateFilters({
       ...filtersService.getFilters(),
       start: startStr,
       end: endStr,
       view: 'custom'
     });
+
+    // 2. On appelle simplement loadAllData() qui va rafraîchir le Pie Chart et l'Evolution
+    // avec les filtres que nous venons de mettre à jour.
+    this.loadAllData();
   }
 
   resetZoom() {
-    this.zoomFilters.set(undefined);
-    const filters = filtersService.getFilters();
-    this.balanceService.getExpensesByCategory(filters.start, filters.end).subscribe(data => {
-      this.categoryData.set(data);
+    // On remet la vue par défaut (ex: last6) via le service
+    filtersService.updateFilters({
+      ...filtersService.getFilters(),
+      view: 'last6', // Ou ta valeur par défaut
+      // Note: Le service calculera automatiquement les dates start/end pour last6
     });
+
+    this.zoomFilters.set(undefined);
+    this.loadAllData();
   }
 
   onGlobalFilterChanged(event: { start: string, end: string, view: string }) {
@@ -118,6 +115,36 @@ export class CcDashboard implements OnInit {
     this.resetZoom();
 
     // 3. On recharge les données des graphiques pour cette nouvelle période globale
+    this.loadAllData();
+  }
+
+  isCategoryExcluded(cat: string): boolean {
+    return filtersService.getFilters().excludedCategories?.includes(cat) ?? false;
+  }
+
+  toggleCategoryExclusion(cat: string) {
+    const currentFilters = filtersService.getFilters();
+    let excluded = [...(currentFilters.excludedCategories || [])];
+
+    if (excluded.includes(cat)) {
+      excluded = excluded.filter(c => c !== cat);
+    } else {
+      excluded.push(cat);
+    }
+
+    // On crée un nouvel objet complet
+    const newFilters: FilterState = {
+      ...currentFilters,
+      excludedCategories: excluded
+    };
+
+    // On met à jour le service
+    filtersService.updateFilters(newFilters);
+
+    // LOG DE CONTRÔLE : Vérifie si le service a bien enregistré
+    console.log('Nouveaux filtres dans le service:', filtersService.getFilters());
+
+    // On recharge
     this.loadAllData();
   }
 }

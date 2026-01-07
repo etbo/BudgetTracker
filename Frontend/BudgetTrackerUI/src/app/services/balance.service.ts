@@ -4,6 +4,7 @@ import { DailyBalance } from '../models/daily-balance.model';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs/internal/Observable';
 import { CategoryBalance } from '../models/category-balance.model';
+import { filtersService } from './filters.service';
 
 @Injectable({ providedIn: 'root' })
 export class BalanceService {
@@ -11,18 +12,29 @@ export class BalanceService {
 
   constructor(private http: HttpClient) { }
 
-  getEvolution() {
-    return this.http.get<DailyBalance[]>(`${this.apiUrl}/evolution`);
-  }
-
-  getExpensesByCategory(startDate?: string, endDate?: string): Observable<CategoryBalance[]> {
+  getEvolution(): Observable<DailyBalance[]> {
+    const filters = filtersService.getFilters();
     let params = new HttpParams();
 
-    console.log('startDate:', startDate);
-    console.log('endDate:', endDate);
+    if (filters.start) params = params.set('start', filters.start);
+    if (filters.end) params = params.set('end', filters.end);
 
-    if (startDate && endDate) {
-      params = params.set('start', startDate).set('end', endDate);
+    // On envoie une seule string : "Neutre,Investissement"
+    if (filters.excludedCategories && filters.excludedCategories.length > 0) {
+      params = params.set('excludedCategories', filters.excludedCategories.join(','));
+    }
+
+    return this.http.get<DailyBalance[]>(`${this.apiUrl}/evolution`, { params });
+  }
+
+  getExpensesByCategory(): Observable<CategoryBalance[]> {
+    const filters = filtersService.getFilters();
+    let params = new HttpParams();
+
+    if (filters.start) params = params.set('start', filters.start);
+    if (filters.end) params = params.set('end', filters.end);
+    if (filters.excludedCategories?.length) {
+      params = params.set('excludedCategories', filters.excludedCategories.join(','));
     }
 
     return this.http.get<CategoryBalance[]>(`${this.apiUrl}/expenses-by-category`, { params });

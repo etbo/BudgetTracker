@@ -16,6 +16,7 @@
             [getRowId]="getRowId" 
             [pagination]="true" 
             [paginationPageSize]="pageSize" 
+            [paginationPageSizeSelector]="[10, 20, 50, 100]"
             (gridReady)="onGridReady($event)" 
             (cellValueChanged)="onCellValueChanged($event)">
         </ag-grid-angular>

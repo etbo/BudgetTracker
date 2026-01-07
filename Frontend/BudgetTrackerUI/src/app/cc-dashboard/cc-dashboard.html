@@ -1,5 +1,21 @@
 <div style="padding: 20px;">
   <app-date-filter [showLastImportOption]="false" (filterChanged)="onGlobalFilterChanged($event)"></app-date-filter>
+
+  <mat-chip-listbox multiple>
+    <mat-chip-option 
+      [selected]="isCategoryExcluded('Neutre')" 
+      (click)="toggleCategoryExclusion('Neutre')"
+      color="warn">
+      Ignorer Neutre
+    </mat-chip-option>
+    <mat-chip-option 
+      [selected]="isCategoryExcluded('Investissement')" 
+      (click)="toggleCategoryExclusion('Investissement')"
+      color="warn">
+      Ignorer Investissements
+    </mat-chip-option>
+  </mat-chip-listbox>
+
   <app-cc-evolution-chart [data]="evolutionData()" (periodChanged)="onPeriodZoomed($event)"></app-cc-evolution-chart>
   <app-pie-chart [data]="categoryData()"></app-pie-chart>
   <app-cc-operations-list [customFilters]="zoomFilters()" [pageSize]="10"

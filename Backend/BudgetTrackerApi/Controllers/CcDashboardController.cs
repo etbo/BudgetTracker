@@ -15,65 +15,84 @@ public class CcDashboardController : ControllerBase
 
 
     [HttpGet("evolution")]
-    public async Task<IActionResult> GetEvolution()
+    public async Task<IActionResult> GetEvolution(
+    [FromQuery] DateTime? start,
+    [FromQuery] DateTime? end,
+    [FromQuery] string? excludedCategories)
     {
-        // 1. Récupérer les opérations triées
-        var operations = await _db.CcOperations
-            .OrderBy(o => o.Date)
-            .Select(o => new { o.Date, o.Montant })
-            .ToListAsync();
-
-        if (!operations.Any()) return Ok(new List<object>());
-
-        // 2. Calculer le solde cumulé pour chaque opération
-        double runningBalance = 0;
-        var allPoints = operations.Select(o =>
+        try
         {
-            runningBalance += o.Montant;
-            return new
-            {
-                // On garde seulement la partie Date (sans l'heure) pour le regroupement
-                Day = o.Date.Date,
-                Balance = runningBalance
-            };
-        }).ToList();
+            var query = _db.CcOperations.AsQueryable();
 
-        // 3. Ne garder que le DERNIER point de chaque journée
-        var dailyEvolution = allPoints
-            .GroupBy(p => p.Day)
-            .Select(g => new
-            {
-                Date = g.Key,
-                // On prend le dernier élément du groupe (le solde final du jour)
-                CumulatedBalance = g.Last().Balance
-            })
-            .OrderBy(p => p.Date)
-            .ToList();
+            // 1. Filtres
+            if (start.HasValue) query = query.Where(op => op.Date >= start.Value);
+            if (end.HasValue) query = query.Where(op => op.Date <= end.Value);
 
-        return Ok(dailyEvolution);
+            if (!string.IsNullOrEmpty(excludedCategories))
+            {
+                var excludedList = excludedCategories.Split(',').ToList();
+                query = query.Where(op => !excludedList.Contains(op.Categorie));
+            }
+
+            // 2. Groupement par date (ne retourne que les dates avec data)
+            var dailyTotals = await query
+                .GroupBy(op => op.Date.Date)
+                .Select(g => new { Date = g.Key, DailyAmount = g.Sum(x => x.Montant) })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
+
+            // 3. Calcul du cumulé
+            double runningTotal = 0;
+            var finalResult = dailyTotals.Select(d =>
+            {
+                runningTotal += d.DailyAmount;
+                return new
+                {
+                    date = d.Date.ToString("yyyy-MM-dd"), // Format propre pour JS
+                    cumulatedBalance = runningTotal       // Nom exact attendu par le chart
+                };
+            }).ToList();
+
+            return Ok(finalResult); // On renvoie bien le résultat transformé
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
     [HttpGet("expenses-by-category")]
-    public async Task<IActionResult> GetExpensesByCategory([FromQuery] DateTime? start, [FromQuery] DateTime? end)
+    public async Task<IActionResult> GetExpensesByCategory(
+        [FromQuery] DateTime? start,
+        [FromQuery] DateTime? end,
+        [FromQuery] string? excludedCategories)
     {
-        var query = _db.CcOperations.AsQueryable();
-
-        if (start.HasValue && end.HasValue)
         {
-            query = query.Where(o => o.Date >= start && o.Date <= end);
-        }
+            var query = _db.CcOperations.AsQueryable();
 
-        var expenses = await query
-            .Where(o => o.Montant < 0)
-            .GroupBy(o => o.Categorie ?? "Sans catégorie")
-            .Select(g => new
+            if (start.HasValue && end.HasValue)
             {
-                Category = g.Key,
-                Total = Math.Abs(g.Sum(o => o.Montant))
-            })
-            .OrderByDescending(x => x.Total)
-            .ToListAsync();
+                query = query.Where(o => o.Date >= start && o.Date <= end);
+            }
 
-        return Ok(expenses);
+            if (!string.IsNullOrEmpty(excludedCategories))
+            {
+                var excludedList = excludedCategories.Split(',').ToList();
+                query = query.Where(op => !excludedList.Contains(op.Categorie));
+            }
+
+            var expenses = await query
+                .Where(o => o.Montant < 0)
+                .GroupBy(o => o.Categorie ?? "Sans catégorie")
+                .Select(g => new
+                {
+                    Category = g.Key,
+                    Total = Math.Abs(g.Sum(o => o.Montant))
+                })
+                .OrderByDescending(x => x.Total)
+                .ToListAsync();
+
+            return Ok(expenses);
+        }
     }
 }

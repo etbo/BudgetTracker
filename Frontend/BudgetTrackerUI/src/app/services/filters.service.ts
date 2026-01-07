@@ -4,6 +4,7 @@ export interface FilterState {
   start?: string;
   end?: string;
   view?: string;
+  excludedCategories?: string[];
   missingCat?: boolean;
   suggestedCat?: boolean;
   onlyCheques?: boolean;
@@ -14,11 +15,13 @@ export const filtersService = {
   getFilters(): FilterState {
     const params = new URLSearchParams(window.location.search);
     const view = params.get('view');
+    const excludedRaw = params.get('excludedCategories');
 
     return {
       start: params.get('start') || undefined,
       end: params.get('end') || undefined,
       view: view || 'last',
+      excludedCategories: excludedRaw ? excludedRaw.split(',') : [],
       missingCat: params.get('missingCat') === 'true',
       suggestedCat: params.get('suggestedCat') === 'true',
       onlyCheques: params.get('onlyCheques') === 'true'
@@ -28,37 +31,28 @@ export const filtersService = {
   // 2. Mettre à jour l'URL intelligemment
   updateFilters(newState: FilterState) {
     const params = new URLSearchParams(window.location.search);
-    
-    // On récupère l'état actuel et on fusionne avec les changements
     const current = { ...this.getFilters(), ...newState };
 
-    // On supprime les dates UNIQUEMENT si on est en mode 'last' (import) ou 'all'
-    // On les GARDE pour 'custom', 'last3', 'last6', 'last12', etc.
     if (current.view === 'last' || current.view === 'all') {
       current.start = undefined;
       current.end = undefined;
     }
 
-    // On applique tout l'objet à l'URL
     Object.entries(current).forEach(([key, value]) => {
       if (value === true) {
-        // Pour les booléens (Chips de filtres supplémentaires)
         params.set(key, 'true');
-      } else if (value && typeof value === 'string') {
-        // Pour les strings (view, dates start/end)
+      } else if (typeof value === 'string' && value) {
         params.set(key, value);
+      } else if (Array.isArray(value) && value.length > 0) {
+        // --- AJOUT ICI : Gestion du tableau ---
+        params.set(key, value.join(','));
       } else {
-        // Si c'est false, undefined ou null -> On dégage de l'URL
         params.delete(key);
       }
     });
 
-    // Mise à jour de la barre d'adresse sans recharger la page
     const newPath = params.toString() ? '?' + params.toString() : '';
-    const newUrl = window.location.pathname + newPath;
-    window.history.pushState(null, '', newUrl);
-
-    // Notification globale pour que les composants (CcOperations) se rafraîchissent
+    window.history.pushState(null, '', window.location.pathname + newPath);
     window.dispatchEvent(new CustomEvent('filterChanged', { detail: current }));
   },
 

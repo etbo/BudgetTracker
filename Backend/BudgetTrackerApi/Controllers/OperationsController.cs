@@ -25,10 +25,11 @@ public class OperationsController : ControllerBase
     [FromQuery] bool onlyCheques = false,
     [FromQuery] bool suggestedCat = false,
     [FromQuery] DateTime? startDate = null,
-    [FromQuery] DateTime? endDate = null)
+    [FromQuery] DateTime? endDate = null,
+    [FromQuery] string? excludedCategories= null)
     {
-        
-        IQueryable<CcOperation> query = _db.CcOperations;
+
+        var query = _db.CcOperations.AsQueryable();
 
         // --- 1. Filtre de base (Période / Mode) ---
         if (mode == "last")
@@ -56,6 +57,12 @@ public class OperationsController : ControllerBase
         {
             query = query.Where(op => op.Description != null &&
                 (op.Description.ToUpper().Contains("CHEQUE") || op.Description.ToUpper().Contains("CHQ")));
+        }
+
+        if (!string.IsNullOrEmpty(excludedCategories))
+        {
+            var excludedList = excludedCategories.Split(',').ToList();
+            query = query.Where(op => !excludedList.Contains(op.Categorie));
         }
 
         // --- 3. Exécution de la requête ---
