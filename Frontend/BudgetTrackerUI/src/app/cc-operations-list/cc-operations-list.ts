@@ -157,6 +157,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
       field: 'categorie',
       editable: true,
       cellEditor: 'agSelectCellEditor',
+      singleClickEdit: true,
       cellEditorParams: { values: [] },
       width: 180,
       cellClassRules: {
