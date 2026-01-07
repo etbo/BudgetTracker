@@ -79,7 +79,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   showSaveAll = signal(false); // Signal pour piloter l'affichage du bouton global
 
   gridContext = { componentParent: this };
-  defaultColDef = { resizable: true, sortable: true, filter: true };
+  defaultColDef = { resizable: true, sortable: true, filter: true, enableCellTextSelection: true, ensureDomOrder: true };
 
   columnDefs: any[] = [
     { headerName: 'Date', field: 'date', width: 130, valueFormatter: customDateFormatter },

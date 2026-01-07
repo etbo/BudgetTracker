@@ -51,3 +51,9 @@ app-date-filter {
   display: flex;
   align-items: center;
 }
+
+::ng-deep .ag-cell {
+  // Autorise la sélection au niveau du navigateur
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
