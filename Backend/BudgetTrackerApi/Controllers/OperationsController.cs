@@ -62,7 +62,7 @@ public class OperationsController : ControllerBase
         if (!string.IsNullOrEmpty(excludedCategories))
         {
             var excludedList = excludedCategories.Split(',').ToList();
-            query = query.Where(op => !excludedList.Contains(op.Categorie));
+            query = query.Where(op => op.Categorie == null || !excludedList.Contains(op.Categorie));
         }
 
         // --- 3. Exécution de la requête ---

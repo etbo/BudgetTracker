@@ -31,7 +31,7 @@ public class CcDashboardController : ControllerBase
             if (!string.IsNullOrEmpty(excludedCategories))
             {
                 var excludedList = excludedCategories.Split(',').ToList();
-                query = query.Where(op => !excludedList.Contains(op.Categorie));
+                query = query.Where(op => op.Categorie == null || !excludedList.Contains(op.Categorie));
             }
 
             // 2. Groupement par date (ne retourne que les dates avec data)
@@ -78,7 +78,7 @@ public class CcDashboardController : ControllerBase
             if (!string.IsNullOrEmpty(excludedCategories))
             {
                 var excludedList = excludedCategories.Split(',').ToList();
-                query = query.Where(op => !excludedList.Contains(op.Categorie));
+                query = query.Where(op => op.Categorie == null || !excludedList.Contains(op.Categorie));
             }
 
             var expenses = await query
