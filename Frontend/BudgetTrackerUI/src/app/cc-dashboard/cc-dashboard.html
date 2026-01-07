@@ -19,6 +19,6 @@
   <app-cc-evolution-chart [data]="evolutionData()" (periodChanged)="onPeriodZoomed($event)"></app-cc-evolution-chart>
   <app-pie-chart [data]="categoryData()"></app-pie-chart>
   <app-cc-operations-list [customFilters]="zoomFilters()" [pageSize]="10"
-    domLayout="autoHeight" sortColumn="montant"></app-cc-operations-list>
+    domLayout="autoHeight" sortColumn="montant" [noSaveAllSuggestedButton]="true"></app-cc-operations-list>
 
 </div>
