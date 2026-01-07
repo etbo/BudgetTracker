@@ -5,18 +5,18 @@
 
   <mat-card-content style="padding-top: 20px;">
 
-    <div class="filter-header-container gap-4 mb-6">
-
-      <app-date-filter [showLastImportOption]="true" (filterChanged)="onFilterChanged($event)"
+    <div class="flex flex-wrap items-center gap-4 mb-6">
+      <app-date-filter 
+        [showLastImportOption]="true" 
+        (filterChanged)="onFilterChanged($event)"
         (importClicked)="onImport()">
       </app-date-filter>
 
       <mat-form-field appearance="outline" class="w-[300px]">
         <mat-label>Rechercher...</mat-label>
-        <input matInput [(ngModel)]="searchString" (input)="onQuickFilterChanged()">
+        <input matInput [(ngModel)]="searchString">
         <mat-icon matSuffix>search</mat-icon>
       </mat-form-field>
-
     </div>
 
     <div class="mb-6">
@@ -38,18 +38,10 @@
       </mat-chip-listbox>
     </div>
 
-    <div *ngIf="isLoading()" class="flex flex-col items-center p-10">
-      <mat-spinner diameter="100"></mat-spinner>
-      <p class="mt-4 text-gray-500">Récupération des opérations...</p>
-    </div>
-
-    <div class="grid-wrapper" [class.hidden]="isLoading()">
-      <ag-grid-angular style="width: 100%;" class="ag-theme-alpine" [rowData]="resultatOperations()"
-        [defaultColDef]="defaultColDef" [columnDefs]="columnDefs" [domLayout]="'autoHeight'" [context]="gridContext"
-        [getRowId]="getRowId" [pagination]="true" [paginationPageSize]="50" [paginationPageSizeSelector]="[20, 50, 100]"
-        (gridReady)="onGridReady($event)" (cellValueChanged)="onCellValueChanged($event)">
-      </ag-grid-angular>
-    </div>
+    <app-cc-operations-list 
+      [pageSize]="50" 
+      domLayout="autoHeight">
+    </app-cc-operations-list>
 
   </mat-card-content>
 </mat-card>

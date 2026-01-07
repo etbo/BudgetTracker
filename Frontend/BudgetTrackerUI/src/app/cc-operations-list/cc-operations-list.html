@@ -1,0 +1,23 @@
+<div class="operations-container">
+    <div *ngIf="isLoading()" class="flex flex-col items-center justify-center p-10 bg-white rounded-lg shadow-sm">
+        <mat-spinner diameter="60"></mat-spinner>
+        <p class="mt-4 text-gray-500 font-medium">Mise à jour des opérations...</p>
+    </div>
+
+    <div class="grid-wrapper" [class.hidden]="isLoading()">
+        <ag-grid-angular 
+            style="width: 100%;" 
+            class="ag-theme-alpine shadow-sm" 
+            [rowData]="resultatOperations()"
+            [defaultColDef]="defaultColDef" 
+            [columnDefs]="columnDefs" 
+            [domLayout]="domLayout" 
+            [context]="gridContext"
+            [getRowId]="getRowId" 
+            [pagination]="true" 
+            [paginationPageSize]="pageSize" 
+            (gridReady)="onGridReady($event)" 
+            (cellValueChanged)="onCellValueChanged($event)">
+        </ag-grid-angular>
+    </div>
+</div>

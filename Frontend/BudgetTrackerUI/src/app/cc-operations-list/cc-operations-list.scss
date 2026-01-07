@@ -1,0 +1,53 @@
+::ng-deep .ag-root-wrapper {
+  --ag-checkbox-checked-background-color: #3f51b5 !important;
+  --ag-input-focus-border-color: #3f51b5 !important;
+  
+  .text-red-600 { color: #dc2626; font-weight: 600; }
+  .text-green-600 { color: #16a34a; font-weight: 600; }
+  
+  .bg-yellow-100 { 
+    background-color: #fef9c3 !important; 
+    border-left: 3px solid #eab308 !important;
+  }
+
+  .bg-yellow-100-no-border { 
+    background-color: #fef9c3 !important;
+    padding: 0px;
+  }
+}
+
+.ag-cell {
+  display: flex;
+  align-items: center;
+}
+
+// Supprime l'espace réservé aux messages d'erreur pour un alignement compact
+::ng-deep .hide-subscript .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+// Assure que tous les champs ont la même hauteur de ligne
+mat-form-field {
+  margin-bottom: -1.25em; // Ajustement selon le thème pour compenser le retrait du subscript
+}
+
+// On force le conteneur à ignorer les espaces réservés d'Angular Material
+.filter-header-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important; // Garde les labels alignés
+  width: 100%;
+
+  // Cible le dernier élément (la recherche) pour le pousser
+  & > mat-form-field:last-child, 
+  & > div:last-child {
+    margin-left: auto !important;
+  }
+}
+
+// Crucial : Angular traite les composants personnalisés comme des éléments "inline" 
+// ce qui casse souvent le flex. On le force en bloc flexible.
+app-date-filter {
+  display: flex;
+  align-items: center;
+}
