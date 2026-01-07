@@ -27,7 +27,6 @@ public class OperationsController : ControllerBase
     [FromQuery] DateTime? startDate = null,
     [FromQuery] DateTime? endDate = null)
     {
-        Console.WriteLine($"test");
         
         IQueryable<CcOperation> query = _db.CcOperations;
 
@@ -41,7 +40,7 @@ public class OperationsController : ControllerBase
                 query = query.Where(op => op.DateImport == lastDate);
             }
         }
-        else if (mode == "custom" && startDate.HasValue && endDate.HasValue)
+        else if (startDate.HasValue && endDate.HasValue)
         {
             query = query.Where(op => op.Date >= startDate.Value && op.Date <= endDate.Value);
         }

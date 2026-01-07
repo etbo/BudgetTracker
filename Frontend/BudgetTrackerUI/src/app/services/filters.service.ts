@@ -32,9 +32,9 @@ export const filtersService = {
     // On récupère l'état actuel et on fusionne avec les changements
     const current = { ...this.getFilters(), ...newState };
 
-    // --- LOGIQUE DE NETTOYAGE ---
-    // Si on n'est pas en mode 'custom', on force la suppression des dates
-    if (current.view !== 'custom') {
+    // On supprime les dates UNIQUEMENT si on est en mode 'last' (import) ou 'all'
+    // On les GARDE pour 'custom', 'last3', 'last6', 'last12', etc.
+    if (current.view === 'last' || current.view === 'all') {
       current.start = undefined;
       current.end = undefined;
     }
@@ -42,10 +42,10 @@ export const filtersService = {
     // On applique tout l'objet à l'URL
     Object.entries(current).forEach(([key, value]) => {
       if (value === true) {
-        // Pour les booléens (Chips)
+        // Pour les booléens (Chips de filtres supplémentaires)
         params.set(key, 'true');
       } else if (value && typeof value === 'string') {
-        // Pour les strings (view, dates)
+        // Pour les strings (view, dates start/end)
         params.set(key, value);
       } else {
         // Si c'est false, undefined ou null -> On dégage de l'URL
@@ -53,16 +53,17 @@ export const filtersService = {
       }
     });
 
-    // Mise à jour de la barre d'adresse
-    const newUrl = window.location.pathname + '?' + params.toString();
+    // Mise à jour de la barre d'adresse sans recharger la page
+    const newPath = params.toString() ? '?' + params.toString() : '';
+    const newUrl = window.location.pathname + newPath;
     window.history.pushState(null, '', newUrl);
 
-    // Notification globale pour que les composants se rafraîchissent
+    // Notification globale pour que les composants (CcOperations) se rafraîchissent
     window.dispatchEvent(new CustomEvent('filterChanged', { detail: current }));
   },
 
   reset() {
     window.history.pushState(null, '', window.location.pathname);
-    window.dispatchEvent(new CustomEvent('filterChanged', { detail: {} }));
+    window.dispatchEvent(new CustomEvent('filterChanged', { detail: { view: 'last' } }));
   }
 };

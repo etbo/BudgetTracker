@@ -7,8 +7,8 @@
 
     <div class="filter-header-container gap-4 mb-6">
 
-      <app-date-filter mode="detailed" [showLastImportOption]="true"
-        (filterChanged)="onFilterChanged($event)" (importClicked)="onImport()">
+      <app-date-filter [showLastImportOption]="true" (filterChanged)="onFilterChanged($event)"
+        (importClicked)="onImport()">
       </app-date-filter>
 
       <mat-form-field appearance="outline" class="w-[300px]">

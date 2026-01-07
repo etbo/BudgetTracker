@@ -1,40 +1,45 @@
-<!-- <mat-form-field appearance="outline" class="hide-subscript">
-  <mat-date-range-input [rangePicker]="picker">
-    <input matStartDate [(ngModel)]="startDate" placeholder="Début">
-    <input matEndDate [(ngModel)]="endDate" placeholder="Fin" (dateChange)="onDateChange()">
-  </mat-date-range-input>
-  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-  <mat-date-range-picker #picker></mat-date-range-picker>
-</mat-form-field>
-
-<button mat-icon-button color="warn" (click)="reset()" matTooltip="Réinitialiser">
-  <mat-icon>refresh</mat-icon>
-</button> -->
-
 <div class="filter-wrapper">
-  <mat-chip-listbox (change)="onChipChange($event)" [value]="currentMode">
-    
-    @if (showLastImportOption) {
-      <mat-chip-option value="last">Dernier import</mat-chip-option>
-    }
-
-    <mat-chip-option value="all">Toutes les opérations</mat-chip-option>
-    <mat-chip-option value="last3">3 derniers mois</mat-chip-option>
-    <mat-chip-option value="last6">6 derniers mois</mat-chip-option>
-    <mat-chip-option value="last12">12 derniers mois</mat-chip-option>
-    <mat-chip-option value="custom">Personnalisé...</mat-chip-option>
+  <mat-chip-listbox>
+    <mat-chip-option [selected]="currentView === 'last'"
+      (selectionChange)="$event.source.selected = true; onViewChange('last')">
+      Dernier import
+    </mat-chip-option>
+    <mat-chip-option [selected]="currentView === 'all'"
+      (selectionChange)="$event.source.selected = true; onViewChange('all')">
+      Toutes
+    </mat-chip-option>
+    <mat-chip-option [selected]="currentView === 'last3'"
+      (selectionChange)="$event.source.selected = true; onViewChange('last3')">
+      3 mois
+    </mat-chip-option>
+    <mat-chip-option [selected]="currentView === 'last6'"
+      (selectionChange)="$event.source.selected = true; onViewChange('last6')">
+      6 mois
+    </mat-chip-option>
+    <mat-chip-option [selected]="currentView === 'last12'"
+      (selectionChange)="$event.source.selected = true; onViewChange('last12')">
+      12 mois
+    </mat-chip-option>
+    <mat-chip-option [selected]="currentView === 'custom'"
+      (selectionChange)="$event.source.selected = true; onViewChange('custom')">
+      Personnalisé
+    </mat-chip-option>
   </mat-chip-listbox>
 
-  @if (currentMode === 'custom') {
-    <div class="custom-dates">
-      <mat-form-field appearance="outline">
-        <mat-label>Début</mat-label>
-        <input matInput type="date" [(ngModel)]="startDate" (change)="emitCustom()">
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Fin</mat-label>
-        <input matInput type="date" [(ngModel)]="endDate" (change)="emitCustom()">
-      </mat-form-field>
-    </div>
+  @if (currentView === 'custom') {
+  <div class="custom-dates">
+    <mat-form-field appearance="outline">
+      <mat-label>Début</mat-label>
+      <input matInput [matDatepicker]="pickerStart" [(ngModel)]="startDate" (dateChange)="emitCustom()">
+      <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
+      <mat-datepicker #pickerStart></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Fin</mat-label>
+      <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="endDate" (dateChange)="emitCustom()">
+      <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+      <mat-datepicker #pickerEnd></mat-datepicker>
+    </mat-form-field>
+  </div>
   }
 </div>

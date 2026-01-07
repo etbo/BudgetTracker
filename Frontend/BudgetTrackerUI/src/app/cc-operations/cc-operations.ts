@@ -98,7 +98,7 @@ export class CcOperations implements OnInit, OnDestroy {
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: { values: [] },
       width: 180,
-      cellClassRules: { 
+      cellClassRules: {
         'bg-yellow-100 italic': (p: any) => p.data.isModified,
         'bg-blue-50': (p: any) => p.data.isSuggested // Ajout si tu as un flag suggestion
       }
@@ -178,22 +178,18 @@ export class CcOperations implements OnInit, OnDestroy {
   }
 
   // --- Actions provenant du nouveau DateFilter ---
-  onFilterChanged(event: { start: string, end: string }) {
-    let view = 'custom';
-    if (event.start === 'last') view = 'last';
-    else if (!event.start) view = 'all';
-
+  onFilterChanged(event: { start: string, end: string, view: string }) {
     filtersService.updateFilters({
-      start: event.start === 'last' ? undefined : event.start,
-      end: event.end === 'last' ? undefined : event.end,
-      view: view
+      start: event.start,
+      end: event.end,
+      view: event.view
     });
   }
 
   toggleExtraFilter(type: 'missing' | 'suggested' | 'cheque') {
     const f = filtersService.getFilters();
     const update: any = { view: this.currentMode };
-    
+
     if (type === 'missing') update.missingCat = !f.missingCat;
     if (type === 'suggested') update.suggestedCat = !f.suggestedCat;
     if (type === 'cheque') update.onlyCheques = !f.onlyCheques;
