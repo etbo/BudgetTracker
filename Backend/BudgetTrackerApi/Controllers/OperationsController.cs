@@ -26,7 +26,7 @@ public class OperationsController : ControllerBase
     [FromQuery] bool suggestedCat = false,
     [FromQuery] DateTime? startDate = null,
     [FromQuery] DateTime? endDate = null,
-    [FromQuery] string? excludedCategories= null)
+    [FromQuery] string? excludedCategories = null)
     {
 
         var query = _db.CcOperations.AsQueryable();
@@ -101,5 +101,24 @@ public class OperationsController : ControllerBase
 
         await _db.SaveChangesAsync();
         return NoContent();
+    }
+
+    [HttpPost("suggest")]
+    public async Task<IActionResult> SuggestCategory([FromBody] CcOperation op)
+    {
+        if (op == null) return BadRequest();
+        
+        // 1. Récupérer toutes les règles en base
+        var rules = await _db.CcCategoryRules.ToListAsync();
+
+        // 2. Utiliser ton service existant
+        string suggestedCat = _ruleService.GetAutoCategory(op, rules);
+
+        // 3. Répondre au frontend
+        return Ok(new
+        {
+            categorie = suggestedCat,
+            isSuggested = !string.IsNullOrEmpty(suggestedCat)
+        });
     }
 }

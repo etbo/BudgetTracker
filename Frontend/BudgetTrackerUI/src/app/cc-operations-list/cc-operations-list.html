@@ -4,21 +4,26 @@
         <p class="mt-4 text-gray-500 font-medium">Mise à jour des opérations...</p>
     </div>
 
+    <button mat-flat-button color="primary" *ngIf="showSaveAll()" (click)="saveAllSuggested()" [disabled]="isLoading()">
+      <mat-icon>done_all</mat-icon>
+      Sauvegarder toutes les suggestions affichées
+    </button>
+
     <div class="grid-wrapper" [class.hidden]="isLoading()">
-        <ag-grid-angular 
-            style="width: 100%;" 
-            class="ag-theme-alpine shadow-sm" 
-            [rowData]="resultatOperations()"
+        <ag-grid-angular style="width: 100%;" class="ag-theme-alpine shadow-sm" 
+        [rowData]="resultatOperations()"
             [defaultColDef]="defaultColDef" 
             [columnDefs]="columnDefs" 
             [domLayout]="domLayout" 
             [context]="gridContext"
             [getRowId]="getRowId" 
             [pagination]="true" 
-            [paginationPageSize]="pageSize" 
-            [paginationPageSizeSelector]="[10, 20, 50, 100]"
-            (gridReady)="onGridReady($event)" 
-            (cellValueChanged)="onCellValueChanged($event)">
+            [paginationPageSize]="pageSize"
+            [paginationPageSizeSelector]="[10, 20, 50, 100]" 
+            (gridReady)="onGridReady($event)"
+            (cellValueChanged)="onCellValueChanged($event)"
+            (modelUpdated)="onModelUpdated()"
+            (filterChanged)="onFilterChanged()">
         </ag-grid-angular>
     </div>
 </div>

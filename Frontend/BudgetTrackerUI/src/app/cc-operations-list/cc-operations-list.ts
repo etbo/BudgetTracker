@@ -15,6 +15,7 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { OperationsService } from '../services/operations.service';
 import { RulesService } from '../services/rules.service';
@@ -24,7 +25,22 @@ import { customDateFormatter } from '../shared/utils/grid-utils';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-// --- Renderer pour le bouton de sauvegarde ---
+@Component({
+  standalone: true,
+  imports: [MatDialogModule, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title>Confirmer la sauvegarde</h2>
+    <mat-dialog-content>
+      Voulez-vous sauvegarder les catégories suggérées pour les opérations actuellement affichées ?
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Annuler</button>
+      <button mat-raised-button color="primary" [mat-dialog-close]="true">Confirmer</button>
+    </mat-dialog-actions>
+  `
+})
+export class ConfirmDialogComponent { }
+
 @Component({
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatIconModule],
@@ -46,22 +62,21 @@ export class SaveButtonRenderer implements ICellRendererAngularComp {
 @Component({
   selector: 'app-cc-operations-list',
   standalone: true,
-  imports: [CommonModule, AgGridModule, MatProgressSpinnerModule, FormsModule],
+  imports: [CommonModule, AgGridModule, MatProgressSpinnerModule, FormsModule, MatIconModule, MatButtonModule],
   templateUrl: './cc-operations-list.html',
   styleUrl: './cc-operations-list.scss',
 })
 export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   private gridApi!: GridApi;
 
-  // --- Paramètres de configuration (Inputs) ---
-  @Input() customFilters?: FilterState; // Si présent, ignore le service global (ex: Zoom Dashboard)
+  @Input() customFilters?: FilterState;
   @Input() pageSize: number = 50;
   @Input() domLayout: 'autoHeight' | 'normal' = 'autoHeight';
   @Input() sortColumn: string = 'date';
 
-  // État des données
   resultatOperations = signal<CcOperation[]>([]);
   isLoading = signal(false);
+  showSaveAll = signal(false); // Signal pour piloter l'affichage du bouton global
 
   gridContext = { componentParent: this };
   defaultColDef = { resizable: true, sortable: true, filter: true };
@@ -106,7 +121,6 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   ];
 
   private filterListener = (event: any) => {
-    // On ne recharge via le service global que si on n'est pas en mode "filtres forcés" (Input)
     if (!this.customFilters) {
       this.loadData(event.detail);
     }
@@ -114,14 +128,12 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
 
   constructor(
     private opService: OperationsService,
-    private rulesService: RulesService
+    private rulesService: RulesService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
-    // Écoute les changements globaux (URL/Chips)
     window.addEventListener('filterChanged', this.filterListener);
-
-    // Initialisation des catégories
     this.rulesService.getCcCategories().subscribe(cats => {
       const catCol = this.columnDefs.find(c => c.field === 'categorie');
       if (catCol) {
@@ -129,47 +141,45 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
         this.gridApi?.setGridOption('columnDefs', [...this.columnDefs]);
       }
     });
-
-    // Premier chargement
     this.loadData(this.customFilters || filtersService.getFilters());
-
-    this.applySorting();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Si l'Input customFilters change (ex: Zoom Dashboard), on recharge
     if (changes['customFilters'] && this.customFilters) {
       this.loadData(this.customFilters);
-
-      if (changes['sortColumn'] || changes['sortDirection']) {
-        this.applySorting();
-      }
+    }
+    if (changes['sortColumn'] || changes['sortDirection']) {
+      this.applySorting();
     }
   }
 
-  private applySorting() {
-    this.columnDefs = this.columnDefs.map(col => {
-      // On réinitialise le tri sur toutes les colonnes
-      const newCol = { ...col, sort: null };
-      // On applique le tri uniquement sur la colonne demandée
-      if (col.field === this.sortColumn) {
-        newCol.sort = 'asc';
-      }
-      return newCol;
+  // --- Gestion de la visibilité du bouton global ---
+  updateSaveAllVisibility() {
+    if (!this.gridApi) return;
+    let found = false;
+    this.gridApi.forEachNodeAfterFilter((node) => {
+      if (node.data?.isModified) found = true;
     });
-
-    // Si la grille est déjà prête, on lui pousse les nouvelles defs
-    if (this.gridApi) {
-      this.gridApi.setGridOption('columnDefs', this.columnDefs);
-    }
+    this.showSaveAll.set(found);
   }
 
-  ngOnDestroy() {
-    window.removeEventListener('filterChanged', this.filterListener);
-  }
+  onFilterChanged() { this.updateSaveAllVisibility(); }
+  onModelUpdated() { this.updateSaveAllVisibility(); }
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+    this.applySorting();
+    this.updateSaveAllVisibility();
+  }
+
+  private applySorting() {
+    this.columnDefs = this.columnDefs.map(col => ({
+      ...col,
+      sort: col.field === this.sortColumn ? 'asc' : null
+    }));
+    if (this.gridApi) {
+      this.gridApi.setGridOption('columnDefs', this.columnDefs);
+    }
   }
 
   loadData(f: FilterState) {
@@ -188,7 +198,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
       next: () => {
         op.isModified = false;
         this.gridApi.applyTransaction({ update: [op] });
-        this.resultatOperations.update(current => [...current]);
+        this.updateSaveAllVisibility();
       }
     });
   }
@@ -197,11 +207,75 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     const field = event.colDef.field;
     const op = event.data;
 
-    if (field === 'Comment') {
-      this.opService.updateOperation({ id: op.id, Comment: event.newValue } as CcOperation).subscribe();
-    } else if (field === 'categorie') {
-      this.save(op);
+    if (field === 'categorie') {
+      const newValue = event.newValue?.trim();
+
+      if (!newValue || newValue === '') {
+        // 1. SUPPRESSION RÉELLE : On met à jour la base avec null
+        this.opService.updateOperation({ ...op, categorie: null }).subscribe({
+          next: () => {
+            // 2. RECHERCHE DE SUGGESTION : Une fois que c'est vide en base, on cherche une règle
+            this.opService.getSuggestion(op).subscribe(res => {
+              if (res.isSuggested) {
+                op.categorie = res.categorie;
+                op.isSuggested = true;
+                op.isModified = true; // S'affiche en jaune pour indiquer la proposition
+              } else {
+                op.categorie = null;
+                op.isSuggested = false;
+                op.isModified = false;
+              }
+
+              // Mise à jour de l'affichage AG Grid
+              this.gridApi.applyTransaction({ update: [op] });
+              this.updateSaveAllVisibility();
+            });
+          },
+          error: (err) => console.error("Erreur lors de la suppression :", err)
+        });
+      } else {
+        // Choix manuel : sauvegarde directe
+        op.isModified = false;
+        op.isSuggested = false;
+        this.save(op);
+      }
     }
+    else if (field === 'Comment') {
+      this.opService.updateOperation({ id: op.id, Comment: event.newValue } as CcOperation).subscribe();
+    }
+  }
+
+  saveAllSuggested() {
+    const operationsToSave: CcOperation[] = [];
+    this.gridApi.forEachNodeAfterFilter((node) => {
+      if (node.data.isModified) operationsToSave.push(node.data);
+    });
+
+    if (operationsToSave.length === 0) return;
+
+    this.dialog.open(ConfirmDialogComponent).afterClosed().subscribe(result => {
+      if (result === true) this.executeBulkSave(operationsToSave);
+    });
+  }
+
+  private executeBulkSave(operationsToSave: CcOperation[]) {
+    this.isLoading.set(true);
+    import('rxjs').then(({ forkJoin }) => {
+      const requests = operationsToSave.map(op => this.opService.updateOperation(op));
+      forkJoin(requests).subscribe({
+        next: () => {
+          operationsToSave.forEach(op => op.isModified = false);
+          this.gridApi.applyTransaction({ update: operationsToSave });
+          this.updateSaveAllVisibility();
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false)
+      });
+    });
+  }
+
+  ngOnDestroy() {
+    window.removeEventListener('filterChanged', this.filterListener);
   }
 
   getRowId = (params: any) => params.data.id.toString();

@@ -21,7 +21,7 @@ export class OperationsService {
     if (filters.start) {
       params = params.set('startDate', filters.start);
     }
-    
+
     if (filters.end) {
       params = params.set('endDate', filters.end);
     }
@@ -36,5 +36,13 @@ export class OperationsService {
 
   updateOperation(op: CcOperation) {
     return this.http.put(`${this.apiUrl}/${op.id}`, op);
+  }
+
+  getSuggestion(op: CcOperation): Observable<{ categorie: string, isSuggested: boolean }> {
+    // On appelle l'endpoint [HttpPost("suggest")] de ton contrôleur C#
+    return this.http.post<{ categorie: string, isSuggested: boolean }>(
+      `${this.apiUrl}/suggest`,
+      op
+    );
   }
 }
