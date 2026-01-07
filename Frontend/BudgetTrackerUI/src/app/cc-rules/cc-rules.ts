@@ -182,7 +182,7 @@ export class CcRules implements OnInit {
   }
 
   addRule() {
-    const newRule: Partial<CcCategoryRule> = { isUsed: true, pattern: '', category: '', minAmount: 0, maxAmount: 0 };
+    const newRule: Partial<CcCategoryRule> = { isUsed: true, pattern: '', category: '', minAmount: null, maxAmount: null };
     this.rulesService.create(newRule).subscribe(saved => {
       this.rules.update(list => [...list, saved]);
     });

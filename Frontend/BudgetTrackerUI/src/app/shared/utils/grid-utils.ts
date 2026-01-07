@@ -15,11 +15,16 @@ export const currencyFormatter = (params: ValueFormatterParams): string => {
  * Parseur pour convertir la saisie texte en nombre
  * Gère les virgules et les espaces
  */
-export const amountParser = (params: ValueParserParams): number => {
-  if (params.newValue === null || params.newValue === '') return 0;
-  // Remplace la virgule par un point et supprime les espaces
+export const amountParser = (params: any): number | null => {
+  // Si vide ou null, on renvoie null pour la DB
+  if (params.newValue === null || params.newValue === undefined || params.newValue === '') {
+    return null;
+  }
+
   const cleaned = params.newValue.toString().replace(',', '.').replace(/\s/g, '');
-  return parseFloat(cleaned);
+  const parsed = parseFloat(cleaned);
+
+  return isNaN(parsed) ? null : parsed;
 };
 
 export const customDateFormatter = (params: ValueFormatterParams): string => {
@@ -55,6 +60,6 @@ export const localDateSetter = (params: ValueSetterParams): boolean => {
 
   // On force l'heure à midi (format ISO 8601 compréhensible par .NET)
   params.data[params.colDef.field!] = `${datePart}T12:00:00`;
-  
+
   return true;
 };

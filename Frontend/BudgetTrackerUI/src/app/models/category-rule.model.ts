@@ -2,8 +2,8 @@ export interface CcCategoryRule {
   id: number;
   isUsed: boolean;
   pattern: string;
-  minAmount?: number;
-  maxAmount?: number;
+  minAmount?: number | null;
+  maxAmount?: number | null;
   minDate?: string;
   maxDate?: string;
   Comment: string;
