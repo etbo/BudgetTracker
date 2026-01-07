@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, Input, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, Input, signal, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -15,13 +15,16 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { OperationsService } from '../services/operations.service';
 import { RulesService } from '../services/rules.service';
 import { CcOperation } from '../models/operation-cc.model';
 import { FilterState, filtersService } from '../services/filters.service';
 import { customDateFormatter } from '../shared/utils/grid-utils';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -60,6 +63,56 @@ export class SaveButtonRenderer implements ICellRendererAngularComp {
 }
 
 @Component({
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title>Créer une règle automatique</h2>
+    <mat-dialog-content class="flex flex-col gap-4 pt-4">
+      
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Mot-clé détecté</mat-label>
+        <input matInput [(ngModel)]="data.keyword" cdkFocusInitial>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Catégorie à associer</mat-label>
+        <mat-select [(ngModel)]="data.category">
+          <mat-option *ngFor="let cat of categories" [value]="cat.name">
+            {{cat.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Annuler</button>
+      <button mat-raised-button color="primary" [mat-dialog-close]="data" [disabled]="!data.keyword || !data.category">
+        Enregistrer la règle
+      </button>
+    </mat-dialog-actions>
+  `,
+  styles: [`
+  .w-full { width: 100%; margin-top: 20px}
+`]
+})
+export class CreateRuleDialog {
+  categories: any[] = [];
+
+  constructor(
+    public dialogRef: MatDialogRef<CreateRuleDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: { keyword: string, category: string },
+    private rulesService: RulesService
+  ) {
+    // On charge les catégories pour le menu déroulant
+    this.rulesService.getCcCategories().subscribe(cats => this.categories = cats);
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+}
+
+@Component({
   selector: 'app-cc-operations-list',
   standalone: true,
   imports: [CommonModule, AgGridModule, MatProgressSpinnerModule, FormsModule, MatIconModule, MatButtonModule],
@@ -79,7 +132,12 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   showSaveAll = signal(false); // Signal pour piloter l'affichage du bouton global
 
   gridContext = { componentParent: this };
-  defaultColDef = { resizable: true, sortable: true, filter: true, enableCellTextSelection: true, ensureDomOrder: true };
+  defaultColDef = {
+    resizable: true, sortable: true, filter: true,
+    filterParams: {
+      buttons: ['clear']
+    }
+  };
 
   columnDefs: any[] = [
     { headerName: 'Date', field: 'date', width: 130, valueFormatter: customDateFormatter },
@@ -279,4 +337,40 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   }
 
   getRowId = (params: any) => params.data.id.toString();
+
+  onCellContextMenu(event: any) {
+    // On cible uniquement la colonne Description
+    if (event.column.getColId() !== 'description') return;
+
+    // Empêche le menu contextuel du navigateur
+    event.event.preventDefault();
+
+    const description = event.value;
+    const currentCategory = event.data.categorie;
+
+    const dialogRef = this.dialog.open(CreateRuleDialog, {
+      width: '800px',
+      maxWidth: '90vw',
+      data: {
+        keyword: description,
+        category: currentCategory
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // On utilise ta méthode 'create' déjà existante dans RulesService
+        this.rulesService.create({
+          pattern: result.keyword,
+          category: result.category,
+          isUsed: true
+        }).subscribe({
+          next: () => {
+            // Recharger les données pour appliquer la nouvelle règle partout
+            this.loadData(this.customFilters || filtersService.getFilters());
+          }
+        });
+      }
+    });
+  }
 }
