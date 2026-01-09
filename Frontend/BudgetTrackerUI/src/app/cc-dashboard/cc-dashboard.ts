@@ -14,6 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { CcOperation } from '../models/operation-cc.model';
 import { OperationsService } from '../services/operations.service';
+import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
+import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 
 @Component({
   selector: 'app-cc-dashboard',
@@ -27,6 +29,14 @@ import { OperationsService } from '../services/operations.service';
     CcOperationsList,
     MatButtonModule,
     MatIconModule,
+    MatExpansionPanelTitle,
+    MatExpansionPanelHeader,
+    MatExpansionPanel,
+    MatCardSubtitle,
+    MatCardHeader,
+    MatCardTitle,
+    MatCard,
+    MatAccordion,
     MatChipsModule
   ],
   templateUrl: './cc-dashboard.html',
@@ -52,6 +62,21 @@ export class CcDashboard implements OnInit {
       }));
   });
 
+  // Calcul pour total revenus, total dépenses et la balance : 
+  public totalRevenues = computed(() => {
+    return this.categoryData()
+      .filter(item => item.total > 0)
+      .reduce((acc, item) => acc + item.total, 0);
+  });
+
+  public totalExpenses = computed(() => {
+    return Math.abs(this.categoryData()
+      .filter(item => item.total < 0)
+      .reduce((acc, item) => acc + item.total, 0));
+  });
+
+  public balance = computed(() => this.totalRevenues() - this.totalExpenses());
+
   public onlyRevenuesData = computed(() => {
     return this.categoryData().filter(item => item.total > 0);
   });
@@ -73,7 +98,7 @@ export class CcDashboard implements OnInit {
     this.loadAllData();
   }
 
-  private loadAllData() {
+  public loadAllData() {
     this.isLoading.set(true);
 
     // 1. Evolution (Déjà OK)

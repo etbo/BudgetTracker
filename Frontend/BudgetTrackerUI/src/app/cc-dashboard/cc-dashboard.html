@@ -2,25 +2,93 @@
   <app-date-filter [showLastImportOption]="false" (filterChanged)="onGlobalFilterChanged($event)"></app-date-filter>
 
   <mat-chip-listbox multiple>
-    <mat-chip-option 
-      [selected]="isCategoryExcluded('Neutre')" 
-      (click)="toggleCategoryExclusion('Neutre')"
-      color="warn">
+    <mat-chip-option [selected]="isCategoryExcluded('Neutre')" (click)="toggleCategoryExclusion('Neutre')" color="warn">
       Ignorer Neutre
     </mat-chip-option>
-    <mat-chip-option 
-      [selected]="isCategoryExcluded('Investissement')" 
-      (click)="toggleCategoryExclusion('Investissement')"
-      color="warn">
+    <mat-chip-option [selected]="isCategoryExcluded('Investissement')"
+      (click)="toggleCategoryExclusion('Investissement')" color="warn">
       Ignorer Investissements
     </mat-chip-option>
   </mat-chip-listbox>
 
-  <app-cc-evolution-chart [data]="evolutionData()" (periodChanged)="onPeriodZoomed($event)"></app-cc-evolution-chart>
-  <app-treemap-color [data]="categoryData()"></app-treemap-color>
-  <app-pie-chart chartTitle="Dépenses" [data]="onlyExpensesData()"></app-pie-chart>
-  <app-pie-chart chartTitle="Revenus" [data]="onlyRevenuesData()"></app-pie-chart>
-  <app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="10"
-    domLayout="autoHeight" sortColumn="montant" [noSaveAllSuggestedButton]="true"></app-cc-operations-list>
+
+
+  <mat-accordion class="example-headers-align" multi>
+
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title> Bilan financier </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="pt-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+
+            <mat-card class="summary-card revenue-border">
+              <mat-card-header>
+                <mat-card-subtitle>Recettes</mat-card-subtitle>
+                <mat-card-title class="text-green-600">
+                  {{ totalRevenues() | number:'1.2-2' }} €
+                </mat-card-title>
+              </mat-card-header>
+            </mat-card>
+
+            <mat-card class="summary-card expense-border">
+              <mat-card-header>
+                <mat-card-subtitle>Dépenses</mat-card-subtitle>
+                <mat-card-title class="text-red-600">
+                  {{ totalExpenses() | number:'1.2-2' }} €
+                </mat-card-title>
+              </mat-card-header>
+            </mat-card>
+
+            <mat-card class="summary-card" [ngClass]="balance() >= 0 ? 'balance-positive' : 'balance-negative'">
+              <mat-card-header>
+                <mat-card-subtitle>Solde période</mat-card-subtitle>
+                <mat-card-title [ngClass]="balance() >= 0 ? 'text-blue-600' : 'text-orange-600'">
+                  {{ balance() | number:'1.2-2' }} €
+                </mat-card-title>
+              </mat-card-header>
+            </mat-card>
+
+          </div>
+        </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title> Graphique </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="flex flex-col gap-6 pt-4">
+        <app-cc-evolution-chart [data]="evolutionData()" (periodChanged)="onPeriodZoomed($event)">
+        </app-cc-evolution-chart>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title> Treemap </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="flex flex-col gap-6 pt-4">
+        <app-treemap-color [data]="categoryData()"></app-treemap-color>
+        <app-pie-chart chartTitle="Dépenses" [data]="onlyExpensesData()"></app-pie-chart>
+        <app-pie-chart chartTitle="Revenus" [data]="onlyRevenuesData()"></app-pie-chart>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title> Liste opérations </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="pt-4">
+        <app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="10"
+          domLayout="autoHeight" sortColumn="montant" [noSaveAllSuggestedButton]="true">
+        </app-cc-operations-list>
+      </div>
+    </mat-expansion-panel>
+
+  </mat-accordion>
 
 </div>
