@@ -11,9 +11,11 @@ import { CategoryBalance } from '../../models/category-balance.model';
 export class PieChart implements OnChanges {
 
   @Input() data: CategoryBalance[] = [];
+  @Input() chartTitle: string = '';
   public chartOptions: any;
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log("this.data.length", this.data.length);
     if (changes['data'] && this.data && this.data.length > 0) {
       const validData = this.data.filter(d => d.total > 0);
       if (validData.length > 0) {
@@ -46,7 +48,7 @@ export class PieChart implements OnChanges {
               show: true,
               total: {
                 show: true,
-                label: 'Total Dépenses',
+                label: 'Total',
                 formatter: () => {
                   const total = this.data.reduce((a, b) => a + b.total, 0);
                   return total.toLocaleString('fr-FR') + " €";
@@ -59,7 +61,7 @@ export class PieChart implements OnChanges {
       grid: {
         padding: { bottom: -80 } // Réduit l'espace vide sous le demi-cercle
       },
-      title: { text: "Dépenses par catégorie", align: 'center' },
+      title: { text: this.chartTitle, align: 'center' },
       colors: ["#594ae2", "#ff4081", "#3f51b5", "#00bcd4", "#4caf50"]
     };
   }

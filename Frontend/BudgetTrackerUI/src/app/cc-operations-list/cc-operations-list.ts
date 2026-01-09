@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, Input, signal, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, Input, signal, Inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -127,8 +127,11 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   @Input() domLayout: 'autoHeight' | 'normal' = 'autoHeight';
   @Input() sortColumn: string = 'date';
   @Input() noSaveAllSuggestedButton: boolean = false;
+  @Input() operations: CcOperation[] = [];
 
-  resultatOperations = signal<CcOperation[]>([]);
+  // Faire remonter le besoin de refresh après une modification
+  @Output() refresh = new EventEmitter<void>();
+
   isLoading = signal(false);
   showSaveAll = signal(false); // Signal pour piloter l'affichage du bouton global
 
@@ -181,9 +184,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   ];
 
   private filterListener = (event: any) => {
-    if (!this.customFilters) {
-      this.loadData(event.detail);
-    }
+    this.refresh.emit();
   };
 
   constructor(
@@ -194,6 +195,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit() {
     window.addEventListener('filterChanged', this.filterListener);
+
     this.rulesService.getCcCategories().subscribe(cats => {
       const catCol = this.columnDefs.find(c => c.field === 'categorie');
       if (catCol) {
@@ -201,12 +203,11 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
         this.gridApi?.setGridOption('columnDefs', [...this.columnDefs]);
       }
     });
-    this.loadData(this.customFilters || filtersService.getFilters());
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['customFilters'] && this.customFilters) {
-      this.loadData(this.customFilters);
+      this.refresh.emit();
     }
     if (changes['sortColumn'] || changes['sortDirection']) {
       this.applySorting();
@@ -241,17 +242,6 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     if (this.gridApi) {
       this.gridApi.setGridOption('columnDefs', this.columnDefs);
     }
-  }
-
-  loadData(f: FilterState) {
-    this.isLoading.set(true);
-    this.opService.getOperations(f).subscribe({
-      next: (data) => {
-        this.resultatOperations.set(data);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false)
-    });
   }
 
   save(op: CcOperation) {
@@ -369,8 +359,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
           isUsed: true
         }).subscribe({
           next: () => {
-            // Recharger les données pour appliquer la nouvelle règle partout
-            this.loadData(this.customFilters || filtersService.getFilters());
+            this.refresh.emit();
           }
         });
       }

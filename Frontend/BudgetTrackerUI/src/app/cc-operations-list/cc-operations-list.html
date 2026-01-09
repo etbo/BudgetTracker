@@ -12,7 +12,7 @@
     <div class="grid-wrapper" [class.hidden]="isLoading()">
         <ag-grid-angular style="width: 100%;" class="ag-theme-alpine shadow-sm" 
         [preventDefaultOnContextMenu]="true"
-        [rowData]="resultatOperations()"
+        [rowData]="operations"
             [defaultColDef]="defaultColDef" 
             [columnDefs]="columnDefs" 
             [domLayout]="domLayout" 

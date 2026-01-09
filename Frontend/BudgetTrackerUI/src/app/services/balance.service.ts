@@ -27,7 +27,7 @@ export class BalanceService {
     return this.http.get<DailyBalance[]>(`${this.apiUrl}/evolution`, { params });
   }
 
-  getExpensesByCategory(): Observable<CategoryBalance[]> {
+  getAllCategoryBalances(): Observable<CategoryBalance[]> {
     const filters = filtersService.getFilters();
     let params = new HttpParams();
 
@@ -37,6 +37,6 @@ export class BalanceService {
       params = params.set('excludedCategories', filters.excludedCategories.join(','));
     }
 
-    return this.http.get<CategoryBalance[]>(`${this.apiUrl}/expenses-by-category`, { params });
+    return this.http.get<CategoryBalance[]>(`${this.apiUrl}/total-by-category`, { params });
   }
 }

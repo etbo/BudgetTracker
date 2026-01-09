@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { CcOperation } from '../models/operation-cc.model';
 import { environment } from '../../environments/environment';
-import { FilterState } from './filters.service';
+import { filtersService, FilterState } from './filters.service';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -11,7 +11,9 @@ export class OperationsService {
 
   constructor(private http: HttpClient) { }
 
-  getOperations(filters: FilterState): Observable<CcOperation[]> {
+  getOperations(): Observable<CcOperation[]> {
+    const filters = filtersService.getFilters();
+    
     let params = new HttpParams()
       .set('mode', filters.view || 'last')
       .set('missingCat', !!filters.missingCat)

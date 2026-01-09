@@ -61,7 +61,7 @@ public class CcDashboardController : ControllerBase
         }
     }
 
-    [HttpGet("expenses-by-category")]
+    [HttpGet("total-by-category")]
     public async Task<IActionResult> GetExpensesByCategory(
         [FromQuery] DateTime? start,
         [FromQuery] DateTime? end,
@@ -81,18 +81,18 @@ public class CcDashboardController : ControllerBase
                 query = query.Where(op => op.Categorie == null || !excludedList.Contains(op.Categorie));
             }
 
-            var expenses = await query
-                .Where(o => o.Montant < 0)
+            var totalByCategory = await query
+                // .Where(o => o.Montant < 0)
                 .GroupBy(o => o.Categorie ?? "Sans catégorie")
                 .Select(g => new
                 {
                     Category = g.Key,
-                    Total = Math.Abs(g.Sum(o => o.Montant))
+                    Total = g.Sum(o => o.Montant)
                 })
                 .OrderByDescending(x => x.Total)
                 .ToListAsync();
 
-            return Ok(expenses);
+            return Ok(totalByCategory);
         }
     }
 }

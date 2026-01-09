@@ -1,8 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BalanceService } from '../services/balance.service';
 import { CcEvolutionChart } from '../charts/cc-evolution-chart/cc-evolution-chart';
 import { PieChart } from '../charts/pie-chart/pie-chart';
+import { TreemapColor } from '../charts/treemap-color/treemap-color';
 import { DailyBalance } from '../models/daily-balance.model';
 import { CategoryBalance } from '../models/category-balance.model';
 import { DateFilter } from '../date-filter/date-filter';
@@ -11,6 +12,8 @@ import { FilterState, filtersService } from '../services/filters.service'; // Im
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { CcOperation } from '../models/operation-cc.model';
+import { OperationsService } from '../services/operations.service';
 
 @Component({
   selector: 'app-cc-dashboard',
@@ -19,6 +22,7 @@ import { MatChipsModule } from '@angular/material/chips';
     CommonModule,
     CcEvolutionChart,
     PieChart,
+    TreemapColor,
     DateFilter,
     CcOperationsList,
     MatButtonModule,
@@ -34,10 +38,29 @@ export class CcDashboard implements OnInit {
   public categoryData = signal<CategoryBalance[]>([]);
   public isLoading = signal(true);
 
+  operations = signal<CcOperation[]>([]);
+
   // Variable pour piloter la grille au zoom
   public zoomFilters = signal<FilterState | undefined>(undefined);
 
-  constructor(private balanceService: BalanceService) { }
+  public onlyExpensesData = computed(() => {
+    return this.categoryData()
+      .filter(item => item.total < 0) // 1. On ne garde que les dépenses
+      .map(item => ({
+        ...item,                   // 2. On garde toutes les propriétés (category, etc.)
+        total: Math.abs(item.total) // 3. On remplace le total par sa valeur absolue
+      }));
+  });
+
+  public onlyRevenuesData = computed(() => {
+    return this.categoryData().filter(item => item.total > 0);
+  });
+
+  constructor(
+    private balanceService: BalanceService,
+    private operationsService: OperationsService
+
+  ) { }
 
   ngOnInit() {
     // Charge les données initiales
@@ -59,9 +82,13 @@ export class CcDashboard implements OnInit {
       this.isLoading.set(false);
     });
 
-    // 2. Pie Chart (Appelle maintenant le backend filtré)
-    this.balanceService.getExpensesByCategory().subscribe(res => {
-      this.categoryData.set(res);
+    // 2. Valeurs par catégories (backend)
+    this.balanceService.getAllCategoryBalances().subscribe(data => {
+      this.categoryData.set(data);
+    });
+
+    this.operationsService.getOperations().subscribe(data => {
+      this.operations.set(data);
     });
 
     // 3. Update les filtres pour le tableau
