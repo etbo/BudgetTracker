@@ -3,7 +3,7 @@ import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
 import { ColDef, GridReadyEvent, CellValueChangedEvent, GridApi, ValueFormatterParams } from 'ag-grid-community';
 import { SavingsService } from '../services/savings.service';
 import { SavingStatement } from '../models/saving-account.model';
-import { customDateFormatter } from '../shared/utils/grid-utils';
+import { customDateFormatter, localDateSetter } from '../shared/utils/grid-utils';
 
 @Component({
   selector: 'app-savings-statement',
@@ -40,30 +40,13 @@ export class SavingsStatement implements OnInit {
         field: 'date',
         headerName: 'Date',
         editable: true,
+        cellDataType: false,
         cellEditor: 'agDateCellEditor',
-        cellEditorParams: {
-          // Force le sélecteur natif (plus simple, pas d'heure)
-          useBrowserDatePicker: true,
-          // On peut aussi spécifier min/max si besoin
-        },
-
-        // 2. TON FORMATEUR (Affichage dans la grille)
         valueFormatter: customDateFormatter,
-
-        // 3. CONFIGURATION DU FILTRE (Barre flottante)
-        filter: 'agDateColumnFilter',
-        filterParams: {
-          browserDatePicker: true,
-          // Supprime les heures lors de la comparaison
-          comparator: (filterLocalDateAtMidnight: Date, cellValue: string) => {
-            if (!cellValue) return 0;
-            const cellDate = new Date(cellValue);
-            cellDate.setHours(0, 0, 0, 0); // On ignore l'heure
-
-            if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) return 0;
-            if (cellDate < filterLocalDateAtMidnight) return -1;
-            return 1;
-          }
+        valueSetter: localDateSetter,
+        filter: 'agTextColumnFilter',
+        filterValueGetter: params => {
+          return customDateFormatter({ value: params.data.date } as any);
         },
       },
       {
