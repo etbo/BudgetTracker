@@ -126,7 +126,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   @Input() pageSize: number = 50;
   @Input() domLayout: 'autoHeight' | 'normal' = 'autoHeight';
   @Input() sortColumn: string = 'date';
-  @Input() noSaveAllSuggestedButton: boolean = false;
+  @Input() SaveAllSuggestedButton: boolean = true;
   @Input() operations: CcOperation[] = [];
 
   // Faire remonter le besoin de refresh après une modification
@@ -217,7 +217,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   // --- Gestion de la visibilité du bouton global ---
   updateSaveAllVisibility() {
     if (!this.gridApi) return;
-    if (this.noSaveAllSuggestedButton) return;
+    if (!this.SaveAllSuggestedButton) return;
     let found = false;
     this.gridApi.forEachNodeAfterFilter((node) => {
       if (node.data?.isModified) found = true;

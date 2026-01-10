@@ -38,9 +38,8 @@
       </mat-chip-listbox>
     </div>
 
-    <app-cc-operations-list 
-      [pageSize]="50" 
-      domLayout="autoHeight">
+    <app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="50"
+          domLayout="autoHeight" sortColumn="montant" [SaveAllSuggestedButton]="true">
     </app-cc-operations-list>
 
   </mat-card-content>
