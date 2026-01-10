@@ -42,4 +42,32 @@ public class SavingAccountsController : ControllerBase
         await _db.SaveChangesAsync();
         return Ok(statement);
     }
+
+    [HttpPost("api/Statements")]
+    public async Task<ActionResult<SavingStatement>> PostStatement(SavingStatement statement)
+    {
+        _db.SavingStatements.Add(statement);
+        await _db.SaveChangesAsync();
+        return Ok(statement);
+    }
+
+    [HttpPut("{accountId}/statements/{id}")]
+    public async Task<IActionResult> UpdateStatement(int accountId, int id, SavingStatement statement)
+    {
+        if (id != statement.Id) return BadRequest();
+
+        _db.Entry(statement).State = EntityState.Modified;
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!_db.SavingStatements.Any(e => e.Id == id)) return NotFound();
+            else throw;
+        }
+
+        return NoContent();
+    }
 }

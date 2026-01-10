@@ -20,6 +20,6 @@ namespace BudgetTrackerApi.Models.Savings
         // Pour EF Core, on marque la navigation property comme 'null!' 
         // car elle sera remplie par EF lors des jointures (Lazy/Eager loading)
         [JsonIgnore]
-        public virtual SavingAccount Account { get; set; } = null!;
+        public virtual SavingAccount? Account { get; set; } = null!;
     }
 }

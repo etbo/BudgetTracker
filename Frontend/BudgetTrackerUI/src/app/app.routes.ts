@@ -7,6 +7,7 @@ import { CcCategories } from './cc-categories/cc-categories';
 import { PeaDashboard } from './pea-dashboard/pea-dashboard';
 import { CcRules } from './cc-rules/cc-rules';
 import { Home } from './home/home';
+import { SavingsStatement } from './savings-statement/savings-statement';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -21,6 +22,9 @@ export const routes: Routes = [
   // pea
   { path: 'pea-input', component: PeaOperations },
   { path: 'pea-dashboard', component: PeaDashboard },
+
+  // savings
+  { path: 'savings-statement', component: SavingsStatement },
   
   // Redirection si l'URL est inconnue
   { path: '**', redirectTo: '' }
