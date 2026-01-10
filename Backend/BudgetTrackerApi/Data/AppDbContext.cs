@@ -1,4 +1,5 @@
 using BudgetTrackerApi.Models;
+using BudgetTrackerApi.Models.Savings;
 using BudgetTrackerApi.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
@@ -33,6 +34,8 @@ namespace BudgetTrackerApi.Data
             public DbSet<CcCategory> CcCategories { get; set; } = null!;
             public DbSet<PeaOperation> PeaOperations { get; set; } = null!;
             public DbSet<PeaCachedStockPrice> PeaCachedStockPrices { get; set; } = null!;
+            public DbSet<SavingAccount> SavingAccounts { get; set; } = null!;
+            public DbSet<SavingStatement> SavingStatements { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -197,6 +200,12 @@ namespace BudgetTrackerApi.Data
                         new CcCategoryRule { Id = 101, IsUsed = true, Pattern = "L'ARTISANE LE MANS", Category = "Santé", Comment = "" },
                         new CcCategoryRule { Id = 102, IsUsed = true, Pattern = "TIDAL Malmo", Category = "Loisir", Comment = "" }
                         );
+
+                  modelBuilder.Entity<SavingStatement>()
+                        .HasOne(s => s.Account)
+                        .WithMany(a => a.Statements)
+                        .HasForeignKey(s => s.SavingAccountId)
+                        .OnDelete(DeleteBehavior.Cascade);
             }
 
             /// <summary>
