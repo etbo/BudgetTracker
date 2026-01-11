@@ -66,7 +66,7 @@ export class CcDashboard implements OnInit {
 
   public onlyRevenuesData = computed(() => {
     return this.categoryData()
-      .filter(item => item.expenses > 0)
+      .filter(item => item.incomes > 0)
       .map(item => ({
         category: item.category,
         total: Math.abs(item.incomes)
