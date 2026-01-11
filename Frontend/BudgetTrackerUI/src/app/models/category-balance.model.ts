@@ -1,4 +1,5 @@
 export interface CategoryBalance {
   category: string;
-  total: number;
+  expenses: number;
+  incomes: number;
 }

@@ -1,99 +1,55 @@
-import { Component, Input, OnChanges, ViewChild, SimpleChanges } from '@angular/core';
-import { NgApexchartsModule, ChartComponent } from "ng-apexcharts";
-import { CategoryBalance } from '../../models/category-balance.model';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { NgApexchartsModule } from "ng-apexcharts";
 
 @Component({
   selector: 'app-treemap-color',
   standalone: true,
   imports: [NgApexchartsModule],
-  templateUrl: './treemap-color.html',
-  styleUrl: './treemap-color.scss',
+  templateUrl: './treemap-color.html'
 })
 export class TreemapColor implements OnChanges {
-  // On utilise désormais "data" qui contient déjà les totaux par catégorie
-  @Input() data: CategoryBalance[] = [];
-  @ViewChild("chart") chart!: ChartComponent;
+  // Le parent donne directement les séries prêtes
+  @Input() expenses: { category: string, total: number }[] = [];
+  @Input() revenues: { category: string, total: number }[] = [];
 
-  public chartOptions: any = {
-    series: [],
-    chart: {
-      type: "treemap",
-      height: 350,
-      toolbar: { show: false }
-    },
-    // Index 0: Recettes (Vert), Index 1: Dépenses (Rouge)
-    colors: ['#22c55e', '#ef4444'],
-    title: { text: "Flux financiers par catégorie" },
-    dataLabels: {
-      enabled: true,
-      style: { fontSize: '12px', fontWeight: 'bold' }
-    },
-    plotOptions: {
-      treemap: {
-        enableShades: false,
-        distributed: false // Important pour que chaque série garde sa couleur unie
-      }
-    },
-    tooltip: {
-      y: {
-        formatter: (val: number, { seriesIndex, dataPointIndex, w }: any) => {
-          // On récupère la valeur réelle (négative ou positive) stockée dans l'objet
-          const originalValue = w.config.series[seriesIndex].data[dataPointIndex].actualValue;
-          return originalValue.toLocaleString() + " €";
-        }
-      }
-    }
-  };
+  public chartOptions: any;
 
   ngOnChanges(changes: SimpleChanges) {
-    // On surveille le changement de l'input "data"
-    if (changes['data'] && this.data) {
-      this.updateChart();
+    // Si l'un des deux inputs change, on reconstruit les options
+    if (changes['expenses'] || changes['revenues']) {
+      this.initChart();
     }
   }
 
-  private updateChart() {
-    if (!this.data || this.data.length === 0) return;
+  private initChart() {
+    const series = [];
+    const colors = [];
 
-    const revenuesData = this.data
-      .filter(c => c.total > 0)
-      .map(c => ({
-        x: c.category,
-        y: c.total,
-        actualValue: c.total
-      }));
-
-    const expensesData = this.data
-      .filter(c => c.total < 0)
-      .map(c => ({
-        x: c.category,
-        y: Math.abs(c.total),
-        actualValue: c.total
-      }));
-
-    // On construit les séries dynamiquement
-    const finalSeries = [];
-
-    if (revenuesData.length > 0) {
-      finalSeries.push({ name: 'Recettes', data: revenuesData });
+    if (this.revenues.length > 0) {
+      series.push({
+        name: 'Recettes',
+        data: this.revenues.map(r => ({ x: r.category, y: r.total }))
+      });
+      colors.push('#22c55e');
     }
 
-    if (expensesData.length > 0) {
-      finalSeries.push({ name: 'Dépenses', data: expensesData });
+    if (this.expenses.length > 0) {
+      series.push({
+        name: 'Dépenses',
+        data: this.expenses.map(e => ({ x: e.category, y: e.total }))
+      });
+      colors.push('#ef4444');
     }
 
-    // Si on n'a rien à afficher, on arrête là
-    if (finalSeries.length === 0) return;
-
-    this.chartOptions.series = finalSeries;
-
-    // Mise à jour manuelle des couleurs pour correspondre au nombre de séries présentes
-    this.chartOptions.colors = [];
-    if (revenuesData.length > 0) this.chartOptions.colors.push('#22c55e');
-    if (expensesData.length > 0) this.chartOptions.colors.push('#ef4444');
-
-    if (this.chart) {
-      this.chart.updateOptions(this.chartOptions);
-    }
+    this.chartOptions = {
+      series: series,
+      colors: colors,
+      chart: { type: "treemap", height: 350, toolbar: { show: false } },
+      plotOptions: { treemap: { distributed: false, enableShades: false } },
+      dataLabels: { enabled: true },
+      tooltip: {
+        y: { formatter: (val: number) => val.toLocaleString() + " €" }
+      }
+    };
   }
 }

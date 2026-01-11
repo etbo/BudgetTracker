@@ -81,9 +81,13 @@
       </mat-expansion-panel-header>
 
       <div class="flex flex-col gap-6 pt-4">
-        <app-treemap-color [data]="categoryData()"></app-treemap-color>
-        <app-pie-chart chartTitle="Dépenses" [data]="onlyExpensesData()"></app-pie-chart>
-        <app-pie-chart chartTitle="Revenus" [data]="onlyRevenuesData()"></app-pie-chart>
+        <app-treemap-color [expenses]="onlyExpensesData()" [revenues]="onlyRevenuesData()">
+        </app-treemap-color>
+        <app-pie-chart [chartTitle]="'Répartition Dépenses'" [data]="expensesForPie()">
+        </app-pie-chart>
+
+        <app-pie-chart [chartTitle]="'Répartition Revenus'" [data]="revenuesForPie()">
+        </app-pie-chart>
       </div>
     </mat-expansion-panel>
 

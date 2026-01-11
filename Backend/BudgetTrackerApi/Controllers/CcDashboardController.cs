@@ -82,14 +82,15 @@ public class CcDashboardController : ControllerBase
             }
 
             var totalByCategory = await query
-                // .Where(o => o.Montant < 0)
                 .GroupBy(o => o.Categorie ?? "Sans catégorie")
                 .Select(g => new
                 {
                     Category = g.Key,
-                    Total = g.Sum(o => o.Montant)
+                    // Somme des montants négatifs (Dépenses)
+                    Expenses = g.Where(o => o.Montant < 0).Sum(o => o.Montant),
+                    // Somme des montants positifs (Revenus)
+                    Incomes = g.Where(o => o.Montant > 0).Sum(o => o.Montant)
                 })
-                .OrderByDescending(x => x.Total)
                 .ToListAsync();
 
             return Ok(totalByCategory);

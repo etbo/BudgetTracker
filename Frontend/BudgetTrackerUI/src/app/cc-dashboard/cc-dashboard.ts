@@ -57,30 +57,50 @@ export class CcDashboard implements OnInit {
 
   public onlyExpensesData = computed(() => {
     return this.categoryData()
-      .filter(item => item.total < 0) // 1. On ne garde que les dépenses
+      .filter(item => item.expenses < 0)
       .map(item => ({
-        ...item,                   // 2. On garde toutes les propriétés (category, etc.)
-        total: Math.abs(item.total) // 3. On remplace le total par sa valeur absolue
+        category: item.category,
+        total: Math.abs(item.expenses)
       }));
   });
 
-  // Calcul pour total revenus, total dépenses et la balance : 
+  public onlyRevenuesData = computed(() => {
+    return this.categoryData()
+      .filter(item => item.expenses > 0)
+      .map(item => ({
+        category: item.category,
+        total: Math.abs(item.incomes)
+      }));
+  });
+
   public totalRevenues = computed(() => {
     return this.categoryData()
-      .filter(item => item.total > 0)
-      .reduce((acc, item) => acc + item.total, 0);
+      // On additionne le champ 'incomes' de CHAQUE catégorie
+      .reduce((acc, item) => acc + (item.incomes || 0), 0);
   });
 
   public totalExpenses = computed(() => {
-    return Math.abs(this.categoryData()
-      .filter(item => item.total < 0)
-      .reduce((acc, item) => acc + item.total, 0));
+    return this.categoryData()
+      // On additionne le champ 'incomes' de CHAQUE catégorie
+      .reduce((acc, item) => acc + (item.expenses || 0), 0);
   });
 
-  public balance = computed(() => this.totalRevenues() - this.totalExpenses());
+  public balance = computed(() => this.totalRevenues() + this.totalExpenses());
 
-  public onlyRevenuesData = computed(() => {
-    return this.categoryData().filter(item => item.total > 0);
+  public expensesForPie = computed(() => {
+    return this.onlyExpensesData().map(d => ({
+      label: d.category,
+      value: d.total // Déjà en Math.abs() via onlyExpensesData
+    }));
+  });
+
+  public revenuesForPie = computed(() => {
+    return this.categoryData()
+      .filter(d => d.incomes > 0)
+      .map(d => ({
+        label: d.category,
+        value: d.incomes
+      }));
   });
 
   constructor(
