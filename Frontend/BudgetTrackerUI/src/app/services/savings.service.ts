@@ -66,4 +66,15 @@ export class SavingsService {
         }
     }
 
+    updateAccount(account: any): Observable<any> {
+        return this.http.put(`${this.apiUrl}/accounts/${account.id}`, account).pipe(
+            tap(() => {
+                // Mise à jour du signal local pour que toutes les pages (List et Statements) soient à jour
+                this.accounts.update(currentAccounts =>
+                    currentAccounts.map(a => a.id === account.id ? account : a)
+                );
+            })
+        );
+    }
+
 }

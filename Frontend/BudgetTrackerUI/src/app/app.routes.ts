@@ -8,6 +8,7 @@ import { PeaDashboard } from './pea-dashboard/pea-dashboard';
 import { CcRules } from './cc-rules/cc-rules';
 import { Home } from './home/home';
 import { SavingsStatement } from './savings-statement/savings-statement';
+import { SavingsAccountList } from './savings-account-list/savings-account-list';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -25,6 +26,7 @@ export const routes: Routes = [
 
   // savings
   { path: 'savings-statement', component: SavingsStatement },
+  { path: 'savings-account-list', component: SavingsAccountList },
   
   // Redirection si l'URL est inconnue
   { path: '**', redirectTo: '' }

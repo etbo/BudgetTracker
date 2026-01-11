@@ -70,4 +70,24 @@ public class SavingAccountsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPut("accounts/{id}")]
+    public async Task<IActionResult> UpdateAccount(int id, SavingAccount account)
+    {
+        if (id != account.Id) return BadRequest();
+
+        _db.Entry(account).State = EntityState.Modified;
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!_db.SavingAccounts.Any(e => e.Id == id)) return NotFound();
+            throw;
+        }
+
+        return NoContent();
+    }
 }
