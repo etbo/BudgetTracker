@@ -1,0 +1,21 @@
+<div class="chart-container bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+  @if (chartOptions) {
+    <apx-chart
+      [series]="chartOptions.series"
+      [chart]="chartOptions.chart"
+      [labels]="chartOptions.labels"
+      [stroke]="chartOptions.stroke"
+      [colors]="chartOptions.colors"
+      [yaxis]="chartOptions.yaxis"
+      [tooltip]="chartOptions.tooltip"
+      [plotOptions]="chartOptions.plotOptions"
+      [dataLabels]="chartOptions.dataLabels"
+      [legend]="chartOptions.legend"
+      [xaxis]="chartOptions.xaxis">
+    </apx-chart>
+  } @else {
+    <div class="flex items-center justify-center h-[350px] text-gray-400">
+      Chargement du graphique...
+    </div>
+  }
+</div>

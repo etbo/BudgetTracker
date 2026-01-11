@@ -18,40 +18,50 @@
     <mat-expansion-panel [expanded]="true">
       <mat-expansion-panel-header>
         <mat-panel-title> Bilan financier </mat-panel-title>
-        </mat-expansion-panel-header>
+      </mat-expansion-panel-header>
 
-        <div class="pt-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+      <div class="pt-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
 
-            <mat-card class="summary-card revenue-border">
-              <mat-card-header>
-                <mat-card-subtitle>Recettes</mat-card-subtitle>
-                <mat-card-title class="text-green-600">
-                  {{ totalRevenues() | number:'1.2-2' }} €
-                </mat-card-title>
-              </mat-card-header>
-            </mat-card>
+          <mat-card class="summary-card revenue-border">
+            <mat-card-header>
+              <mat-card-subtitle>Recettes</mat-card-subtitle>
+              <mat-card-title class="text-green-600">
+                {{ totalRevenues() | number:'1.2-2' }} €
+              </mat-card-title>
+            </mat-card-header>
+          </mat-card>
 
-            <mat-card class="summary-card expense-border">
-              <mat-card-header>
-                <mat-card-subtitle>Dépenses</mat-card-subtitle>
-                <mat-card-title class="text-red-600">
-                  {{ totalExpenses() | number:'1.2-2' }} €
-                </mat-card-title>
-              </mat-card-header>
-            </mat-card>
+          <mat-card class="summary-card expense-border">
+            <mat-card-header>
+              <mat-card-subtitle>Dépenses</mat-card-subtitle>
+              <mat-card-title class="text-red-600">
+                {{ totalExpenses() | number:'1.2-2' }} €
+              </mat-card-title>
+            </mat-card-header>
+          </mat-card>
 
-            <mat-card class="summary-card" [ngClass]="balance() >= 0 ? 'balance-positive' : 'balance-negative'">
-              <mat-card-header>
-                <mat-card-subtitle>Solde période</mat-card-subtitle>
-                <mat-card-title [ngClass]="balance() >= 0 ? 'text-blue-600' : 'text-orange-600'">
-                  {{ balance() | number:'1.2-2' }} €
-                </mat-card-title>
-              </mat-card-header>
-            </mat-card>
+          <mat-card class="summary-card" [ngClass]="balance() >= 0 ? 'balance-positive' : 'balance-negative'">
+            <mat-card-header>
+              <mat-card-subtitle>Solde période</mat-card-subtitle>
+              <mat-card-title [ngClass]="balance() >= 0 ? 'text-blue-600' : 'text-orange-600'">
+                {{ balance() | number:'1.2-2' }} €
+              </mat-card-title>
+            </mat-card-header>
+          </mat-card>
 
-          </div>
         </div>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title> Bilan mensuel </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="pt-4">
+        <app-cc-monthly-summary [operations]="operations()"></app-cc-monthly-summary>
+      </div>
     </mat-expansion-panel>
 
     <mat-expansion-panel [expanded]="false">
@@ -88,6 +98,7 @@
         </app-cc-operations-list>
       </div>
     </mat-expansion-panel>
+
 
   </mat-accordion>
 

@@ -4,6 +4,7 @@ import { BalanceService } from '../services/balance.service';
 import { CcEvolutionChart } from '../charts/cc-evolution-chart/cc-evolution-chart';
 import { PieChart } from '../charts/pie-chart/pie-chart';
 import { TreemapColor } from '../charts/treemap-color/treemap-color';
+import { CcMonthlySummary } from '../charts/cc-monthly-summary/cc-monthly-summary';
 import { DailyBalance } from '../models/daily-balance.model';
 import { CategoryBalance } from '../models/category-balance.model';
 import { DateFilter } from '../date-filter/date-filter';
@@ -25,6 +26,7 @@ import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/
     CcEvolutionChart,
     PieChart,
     TreemapColor,
+    CcMonthlySummary,
     DateFilter,
     CcOperationsList,
     MatButtonModule,
@@ -192,9 +194,6 @@ export class CcDashboard implements OnInit {
 
     // On met à jour le service
     filtersService.updateFilters(newFilters);
-
-    // LOG DE CONTRÔLE : Vérifie si le service a bien enregistré
-    console.log('Nouveaux filtres dans le service:', filtersService.getFilters());
 
     // On recharge
     this.loadAllData();
