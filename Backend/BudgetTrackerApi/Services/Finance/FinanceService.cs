@@ -116,6 +116,12 @@ namespace BudgetTrackerApi.Services
             if (string.IsNullOrEmpty(jsonContent))
                 return new UpdateStocksValuesResult(UpdateStatus.Failed, $"Nombre de requêtes maximum quotidiennes atteint");
 
+            if (jsonContent.Contains("Error Message"))
+            {
+                // On peut même essayer d'extraire le message exact si on veut être précis
+                return new UpdateStocksValuesResult(UpdateStatus.Failed, "Symbole boursier invalide ou introuvable sur Alpha Vantage.");
+            }
+
             if (jsonContent.Contains("API rate limit"))
             {
                 return new UpdateStocksValuesResult(UpdateStatus.Failed, $"Nombre de requêtes maximum quotidiennes atteint");
