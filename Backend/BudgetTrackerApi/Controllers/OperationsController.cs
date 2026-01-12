@@ -81,6 +81,24 @@ public class OperationsController : ControllerBase
             }
         }
 
+        // On charge toutes les catégories en mémoire une seule fois
+        var categoryMapping = await _db.CcCategories
+            .ToDictionaryAsync(c => c.Name, c => c.Type);
+
+        foreach (var op in results)
+        {
+            if (!string.IsNullOrEmpty(op.Categorie) && categoryMapping.TryGetValue(op.Categorie, out var macro))
+            {
+                op.MacroCategory = macro; // "Obligatoire", "Loisir", etc.
+            }
+            else
+            {
+                op.MacroCategory = "Inconnu";
+            }
+        }
+
+        // --- 6. Récupération et affectation de la MacroCategory ---
+
         // --- 5. Filtre "Suggestions" (uniquement celles qui ont été modifiées par les règles) ---
         if (suggestedCat)
         {
@@ -107,7 +125,7 @@ public class OperationsController : ControllerBase
     public async Task<IActionResult> SuggestCategory([FromBody] CcOperation op)
     {
         if (op == null) return BadRequest();
-        
+
         // 1. Récupérer toutes les règles en base
         var rules = await _db.CcCategoryRules.ToListAsync();
 

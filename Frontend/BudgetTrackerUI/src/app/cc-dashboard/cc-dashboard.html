@@ -77,6 +77,18 @@
 
     <mat-expansion-panel [expanded]="false">
       <mat-expansion-panel-header>
+        <mat-panel-title> Répartition des dépenses </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="flex flex-col gap-6 pt-4">
+        <app-cc-macro-categories-monthly
+          [data]="macroMonthlyData()">
+        </app-cc-macro-categories-monthly>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel [expanded]="false">
+      <mat-expansion-panel-header>
         <mat-panel-title> Treemap </mat-panel-title>
       </mat-expansion-panel-header>
 

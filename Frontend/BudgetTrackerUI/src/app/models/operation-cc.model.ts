@@ -4,6 +4,7 @@ export interface CcOperation {
   description: string;
   montant: number;
   categorie: string;
+  macroCategory: string;
   Comment: string;
   banque: string;
   dateImport: string;

@@ -17,6 +17,7 @@ import { CcOperation } from '../models/operation-cc.model';
 import { OperationsService } from '../services/operations.service';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { CcMacroCategoriesMonthly } from '../charts/cc-macro-categories-monthly/cc-macro-categories-monthly';
 
 @Component({
   selector: 'app-cc-dashboard',
@@ -29,6 +30,7 @@ import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/
     CcMonthlySummary,
     DateFilter,
     CcOperationsList,
+    CcMacroCategoriesMonthly,
     MatButtonModule,
     MatIconModule,
     MatExpansionPanelTitle,
@@ -218,4 +220,34 @@ export class CcDashboard implements OnInit {
     // On recharge
     this.loadAllData();
   }
+
+  public macroMonthlyData = computed(() => {
+    const ops = this.operations().filter(o => o.montant < 0);
+    const groups: Record<string, any> = {};
+
+    ops.forEach(op => {
+      const date = new Date(op.date);
+      // Correction de l'erreur précédente : "2-digit"
+      const monthKey = date.toLocaleString('fr-FR', { month: 'short', year: '2-digit' });
+
+      if (!groups[monthKey]) {
+        groups[monthKey] = {
+          month: monthKey,
+          sortDate: new Date(date.getFullYear(), date.getMonth(), 1),
+          obligatoire: 0,
+          loisir: 0,
+          invest: 0
+        };
+      }
+
+      const amount = Math.abs(op.montant);
+
+      // On utilise le champ que tu viens d'ajouter au modèle
+      if (op.macroCategory === 'Obligatoire') groups[monthKey].obligatoire += amount;
+      else if (op.macroCategory === 'Loisir') groups[monthKey].loisir += amount;
+      else if (op.macroCategory === 'Investissement') groups[monthKey].invest += amount;
+    });
+
+    return Object.values(groups).sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
+  });
 }
