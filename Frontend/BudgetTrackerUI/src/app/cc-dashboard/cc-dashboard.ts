@@ -168,13 +168,6 @@ export class CcDashboard implements OnInit {
   }
 
   resetZoom() {
-    // On remet la vue par défaut (ex: last6) via le service
-    filtersService.updateFilters({
-      ...filtersService.getFilters(),
-      view: 'last6', // Ou ta valeur par défaut
-      // Note: Le service calculera automatiquement les dates start/end pour last6
-    });
-
     this.zoomFilters.set(undefined);
     this.loadAllData();
   }

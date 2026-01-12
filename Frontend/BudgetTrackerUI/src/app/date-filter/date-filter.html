@@ -1,13 +1,11 @@
 <div class="filter-wrapper">
   <mat-chip-listbox>
+    @if (showLastImportOption) {
     <mat-chip-option [selected]="currentView === 'last'"
       (selectionChange)="$event.source.selected = true; onViewChange('last')">
       Dernier import
     </mat-chip-option>
-    <mat-chip-option [selected]="currentView === 'all'"
-      (selectionChange)="$event.source.selected = true; onViewChange('all')">
-      Toutes
-    </mat-chip-option>
+    }
     <mat-chip-option [selected]="currentView === 'last3'"
       (selectionChange)="$event.source.selected = true; onViewChange('last3')">
       3 mois
@@ -19,6 +17,10 @@
     <mat-chip-option [selected]="currentView === 'last12'"
       (selectionChange)="$event.source.selected = true; onViewChange('last12')">
       12 mois
+    </mat-chip-option>
+    <mat-chip-option [selected]="currentView === 'all'"
+      (selectionChange)="$event.source.selected = true; onViewChange('all')">
+      Toutes
     </mat-chip-option>
     <mat-chip-option [selected]="currentView === 'custom'"
       (selectionChange)="$event.source.selected = true; onViewChange('custom')">
