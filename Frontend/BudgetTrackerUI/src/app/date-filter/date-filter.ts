@@ -80,25 +80,23 @@ export class DateFilter implements OnInit {
       this.endDate = null;
     }
     else if (viewName !== 'custom') {
-      // Modes calculés : last3, last6, last12
-      startStr = this.calculateStartDate(viewName);
-      console.log('startStr', startStr);
-      endStr = this.formatDate(new Date());
-      this.startDate = new Date(startStr);
-      this.endDate = new Date(endStr);
+      const now = new Date();
+
+      // FIN : Le dernier jour du mois PRÉCÉDENT
+      // En mettant le jour à 0 sur le mois actuel, JS revient au dernier jour du mois d'avant
+      const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      endStr = this.formatDate(lastDayLastMonth);
+
+      // DÉBUT : Le 1er jour du mois il y a X mois
+      const monthsToGoBack = parseInt(viewName.replace('last', ''));
+      const firstDayStartMonth = new Date(now.getFullYear(), now.getMonth() - monthsToGoBack, 1);
+      startStr = this.formatDate(firstDayStartMonth);
+
+      this.startDate = firstDayStartMonth;
+      this.endDate = lastDayLastMonth;
     }
 
     this.filterChanged.emit({ start: startStr, end: endStr, view: viewName });
-  }
-
-  private calculateStartDate(viewName: string): string {
-    const now = new Date();
-    let start = new Date();
-    if (viewName === 'last1') start.setMonth(now.getMonth() - 1);
-    if (viewName === 'last3') start.setMonth(now.getMonth() - 3);
-    if (viewName === 'last6') start.setMonth(now.getMonth() - 6);
-    if (viewName === 'last12') start.setMonth(now.getMonth() - 12);
-    return this.formatDate(start);
   }
 
   emitCustom() {
