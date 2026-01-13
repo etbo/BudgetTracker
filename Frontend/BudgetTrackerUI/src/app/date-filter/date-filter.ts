@@ -40,16 +40,16 @@ export class DateFilter implements OnInit {
 
     // Si on arrive avec "last" mais que l'option est désactivée pour ce composant
     if (!this.showLastImportOption && initialView === 'last') {
-      initialView = 'last6'; // On force sur last6 par exemple
+      initialView = 'last12'; // On force sur last12
     }
 
-    this.currentView = initialView || (this.showLastImportOption ? 'last' : 'last6');
+    this.currentView = initialView || (this.showLastImportOption ? 'last' : 'last12');
 
     if (current.start) this.startDate = new Date(current.start);
     if (current.end) this.endDate = new Date(current.end);
 
     // Si on refresh sur un mode calculé (ex: last6), on s'assure que les dates sont prêtes
-    if (['last3', 'last6', 'last12'].includes(this.currentView) && !current.start) {
+    if (['last3', 'last6', 'last12', 'last24', 'last36'].includes(this.currentView) && !current.start) {
       setTimeout(() => {
         this.onViewChange(this.currentView, true);
       }, 0);

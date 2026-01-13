@@ -16,7 +16,15 @@
     </mat-chip-option>
     <mat-chip-option [selected]="currentView === 'last12'"
       (selectionChange)="$event.source.selected = true; onViewChange('last12')">
-      12 mois
+      1 an
+    </mat-chip-option>
+    <mat-chip-option [selected]="currentView === 'last24'"
+      (selectionChange)="$event.source.selected = true; onViewChange('last24')">
+      2 ans
+    </mat-chip-option>
+    <mat-chip-option [selected]="currentView === 'last36'"
+      (selectionChange)="$event.source.selected = true; onViewChange('last36')">
+      3 ans
     </mat-chip-option>
     <mat-chip-option [selected]="currentView === 'all'"
       (selectionChange)="$event.source.selected = true; onViewChange('all')">
