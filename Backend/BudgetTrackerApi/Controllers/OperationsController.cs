@@ -9,8 +9,7 @@ using Microsoft.EntityFrameworkCore;
 public class OperationsController : ControllerBase
 {
     private readonly AppDbContext _db;
-
-    private readonly IRuleService _ruleService; // Injection du service
+    private readonly IRuleService _ruleService;
 
     public OperationsController(AppDbContext db, IRuleService ruleService)
     {
@@ -20,21 +19,19 @@ public class OperationsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CcOperation>>> Get(
-    [FromQuery] string mode = "last",
-    [FromQuery] bool missingCat = false,
-    [FromQuery] bool onlyCheques = false,
-    [FromQuery] bool suggestedCat = false,
-    [FromQuery] DateTime? startDate = null,
-    [FromQuery] DateTime? endDate = null,
-    [FromQuery] string? excludedCategories = null)
+        [FromQuery] string mode = "last",
+        [FromQuery] bool missingCat = false,
+        [FromQuery] bool onlyCheques = false,
+        [FromQuery] bool suggestedCat = false,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        [FromQuery] string? excludedCategories = null)
     {
-
         var query = _db.CcOperations.AsQueryable();
 
         // --- 1. Filtre de base (Période / Mode) ---
         if (mode == "last")
         {
-            // On récupère la date du dernier import
             if (await _db.CcOperations.AnyAsync())
             {
                 var lastDate = await _db.CcOperations.MaxAsync(op => op.DateImport);
@@ -45,7 +42,6 @@ public class OperationsController : ControllerBase
         {
             query = query.Where(op => op.Date >= startDate.Value && op.Date <= endDate.Value);
         }
-        // Si mode == "AllOps", on ne filtre pas par date
 
         // --- 2. Filtres cumulables (Chips) ---
         if (missingCat)
@@ -65,10 +61,11 @@ public class OperationsController : ControllerBase
             query = query.Where(op => op.Categorie == null || !excludedList.Contains(op.Categorie));
         }
 
-        // --- 3. Exécution de la requête ---
+        // --- 3. Exécution de la requête SQL ---
+        // Grâce au [NotMapped] dans CcOperation.cs, EF Core ignore MacroCategory ici
         var results = await query.ToListAsync();
 
-        // --- 4. Logique Post-Requête (Catégorisation auto) ---
+        // --- 4. Logique Post-Requête A : Catégorisation automatique par règles ---
         var rules = await _ruleService.GetActiveRulesAsync();
 
         foreach (var op in results.Where(o => string.IsNullOrEmpty(o.Categorie)))
@@ -81,15 +78,16 @@ public class OperationsController : ControllerBase
             }
         }
 
-        // On charge toutes les catégories en mémoire une seule fois
+        // --- 5. Logique Post-Requête B : Affectation de la MacroCategory ---
+        // On récupère le dictionnaire des types (ex: "Courses" -> "Variable")
         var categoryMapping = await _db.CcCategories
             .ToDictionaryAsync(c => c.Name, c => c.Type);
 
         foreach (var op in results)
         {
-            if (!string.IsNullOrEmpty(op.Categorie) && categoryMapping.TryGetValue(op.Categorie, out var macro))
+            if (!string.IsNullOrEmpty(op.Categorie) && categoryMapping.TryGetValue(op.Categorie, out var type))
             {
-                op.MacroCategory = macro; // "Obligatoire", "Loisir", etc.
+                op.MacroCategory = type;
             }
             else
             {
@@ -97,9 +95,8 @@ public class OperationsController : ControllerBase
             }
         }
 
-        // --- 6. Récupération et affectation de la MacroCategory ---
-
-        // --- 5. Filtre "Suggestions" (uniquement celles qui ont été modifiées par les règles) ---
+        // --- 6. Filtre final "Suggestions" ---
+        // On le fait après la catégorisation auto pour que IsModified soit à jour
         if (suggestedCat)
         {
             results = results.Where(op => op.IsModified).ToList();
@@ -126,13 +123,9 @@ public class OperationsController : ControllerBase
     {
         if (op == null) return BadRequest();
 
-        // 1. Récupérer toutes les règles en base
         var rules = await _db.CcCategoryRules.ToListAsync();
-
-        // 2. Utiliser ton service existant
         string suggestedCat = _ruleService.GetAutoCategory(op, rules);
 
-        // 3. Répondre au frontend
         return Ok(new
         {
             categorie = suggestedCat,

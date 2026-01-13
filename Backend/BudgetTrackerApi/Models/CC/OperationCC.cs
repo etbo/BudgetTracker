@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace BudgetTrackerApi.Models
 {
     public class CcOperation
@@ -7,6 +9,8 @@ namespace BudgetTrackerApi.Models
         public string? Description { get; set; }
         public double Montant { get; set; }
         public string? Categorie { get; set; }
+        
+        [NotMapped]
         public string? MacroCategory { get; set; }
         public string? Comment { get; set; }
         public string? Banque { get; set; }
