@@ -32,7 +32,7 @@ export class CcMacroCategoriesMonthly {
         stackType: "100%", // Force le total à 100%
         toolbar: { show: false }
       },
-      colors: ["#ef4444", "#3b82f6", "#22c55e"], // Rouge (Obligatoire), Bleu (Loisir), Vert (Invest)
+      colors: ["#ef4444", "#3b82f6", "#22c55e", "#8b8b8b"], // Rouge (Obligatoire), Bleu (Loisir), Vert (Invest)
       xaxis: { categories: [] },
       yaxis: {
         labels: { formatter: (val: number) => val + "%" }
@@ -58,7 +58,8 @@ export class CcMacroCategoriesMonthly {
     this.chartOptions.series = [
       { name: "Obligatoire", data: this.data.map(d => d.obligatoire) },
       { name: "Loisir", data: this.data.map(d => d.loisir) },
-      { name: "Investissement", data: this.data.map(d => d.invest) }
+      { name: "Investissement", data: this.data.map(d => d.invest) },
+      { name: "Sans catégorie", data: this.data.map(d => d.inconnu) }
     ];
 
     this.chartOptions.xaxis = { categories: categories };

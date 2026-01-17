@@ -215,12 +215,11 @@ export class CcDashboard implements OnInit {
   }
 
   public macroMonthlyData = computed(() => {
-    const ops = this.operations().filter(o => o.montant < 0);
+    const ops = this.operations().filter(o => (o.montant) < 0);
     const groups: Record<string, any> = {};
 
     ops.forEach(op => {
       const date = new Date(op.date);
-      // Correction de l'erreur précédente : "2-digit"
       const monthKey = date.toLocaleString('fr-FR', { month: 'short', year: '2-digit' });
 
       if (!groups[monthKey]) {
@@ -229,16 +228,22 @@ export class CcDashboard implements OnInit {
           sortDate: new Date(date.getFullYear(), date.getMonth(), 1),
           obligatoire: 0,
           loisir: 0,
-          invest: 0
+          invest: 0,
+          inconnu: 0
         };
       }
 
       const amount = Math.abs(op.montant);
+      const macro = op.macroCategory;
 
-      // On utilise le champ que tu viens d'ajouter au modèle
-      if (op.macroCategory === 'Obligatoire') groups[monthKey].obligatoire += amount;
-      else if (op.macroCategory === 'Loisir') groups[monthKey].loisir += amount;
-      else if (op.macroCategory === 'Investissement') groups[monthKey].invest += amount;
+      // Dispatching
+      if (macro === 'Obligatoire') groups[monthKey].obligatoire += amount;
+      else if (macro === 'Loisir') groups[monthKey].loisir += amount;
+      else if (macro === 'Investissement') groups[monthKey].invest += amount;
+      else {
+        // Tout ce qui n'est pas classé (Inconnu, null, vide)
+        groups[monthKey].inconnu += amount;
+      }
     });
 
     return Object.values(groups).sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
