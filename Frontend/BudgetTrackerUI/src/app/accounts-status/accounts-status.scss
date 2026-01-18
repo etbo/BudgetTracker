@@ -1,0 +1,38 @@
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.status-card {
+  border-left: 5px solid transparent;
+  transition: transform 0.2s;
+
+  &.status-warning {
+    border-left-color: #ffd740; // Orange/Ambre
+    background-color: #fffdf5;
+  }
+
+  &.status-ok {
+    border-left-color: #4caf50; // Vert
+  }
+
+  &.status-critical {
+    border-left-color: #f44336; // Rouge
+    background-color: #fff5f5;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  
+  mat-icon { width: 24px; height: 24px; }
+}

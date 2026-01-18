@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { AccountsStatus } from '../accounts-status/accounts-status';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [AccountsStatus],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

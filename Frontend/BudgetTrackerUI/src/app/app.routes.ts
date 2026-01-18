@@ -9,9 +9,13 @@ import { CcRules } from './cc-rules/cc-rules';
 import { Home } from './home/home';
 import { SavingsStatement } from './savings-statement/savings-statement';
 import { SavingsAccountList } from './savings-account-list/savings-account-list';
+import { AccountsStatus } from './accounts-status/accounts-status';
 
 export const routes: Routes = [
   { path: '', component: Home },
+
+  // All accounts
+  { path: 'account-status', component: AccountsStatus },
 
   // Comptes courant : cc
   { path: 'cc-dashboard', component: CcDashboard },

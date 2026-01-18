@@ -1,0 +1,28 @@
+<div class="status-grid">
+  @for (item of statusList(); track item.accountName) {
+    <div class="status-card" [class.warning]="item.actionRequired">
+      <div class="status-header">
+        <mat-icon [color]="item.actionRequired ? 'warn' : 'primary'">
+          {{ item.type === 'Épargne' ? 'savings' : 'account_balance' }}
+        </mat-icon>
+        <div>
+          <span class="type-badge">{{ item.type }}</span>
+          <h3>{{ item.accountName }}</h3>
+        </div>
+      </div>
+      
+      <div class="status-body">
+        <p>Dernière donnée : <strong>{{ item.lastEntryDate | date:'MMMM yyyy' }}</strong></p>
+        <p class="message" [class.text-warn]="item.actionRequired">{{ item.message }}</p>
+      </div>
+
+      @if (item.actionRequired) {
+        <button mat-flat-button 
+                [color]="item.type === 'Épargne' ? 'accent' : 'warn'" 
+                 >
+          {{ item.type === 'Épargne' ? 'Saisir solde' : 'Importer CSV' }}
+        </button>
+      }
+    </div>
+  }
+</div>
