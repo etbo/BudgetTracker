@@ -1,5 +1,6 @@
 public class AccountStatusDto
 {
+    public required string Owner { get; set; }
     public required string AccountName { get; set; }
     public required string Type { get; set; } // "CC" ou "Livret"
     public DateTime? LastEntryDate { get; set; }

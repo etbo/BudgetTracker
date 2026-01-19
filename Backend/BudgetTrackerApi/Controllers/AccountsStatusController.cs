@@ -2,7 +2,7 @@ using BudgetTrackerApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace BudgetTrackerApi.Controllers // Assure-toi d'avoir un namespace
+namespace BudgetTrackerApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -10,7 +10,6 @@ namespace BudgetTrackerApi.Controllers // Assure-toi d'avoir un namespace
     {
         private readonly AppDbContext _db;
 
-        // UN SEUL constructeur ici
         public AccountStatusController(AppDbContext db)
         {
             _db = db;
@@ -20,56 +19,67 @@ namespace BudgetTrackerApi.Controllers // Assure-toi d'avoir un namespace
         public async Task<ActionResult<IEnumerable<AccountStatusDto>>> GetStatus()
         {
             var now = DateTime.Now;
-            var lastMonthLimit = new DateTime(now.Year, now.Month, 1).AddDays(-1);
+            // Limite standard pour les Comptes Courants (mois dernier)
+            var defaultLimit = new DateTime(now.Year, now.Month, 1).AddDays(-1);
 
-            // 1. Statut des Comptes Courants (inchangé)
+            // 1. Statut des Comptes Courants (Fréquence fixe : 1 mois)
             var ccStatus = await _db.CcOperations
                 .GroupBy(o => o.Banque)
                 .Select(g => new AccountStatusDto
                 {
+                    Owner = "Joint",
                     AccountName = g.Key ?? "Inconnu",
                     Type = "Compte Courant",
                     LastEntryDate = g.Max(o => o.Date),
-                    ActionRequired = g.Max(o => o.Date) < lastMonthLimit,
-                    Message = g.Max(o => o.Date) < lastMonthLimit ? "Import mensuel requis" : "À jour"
+                    ActionRequired = g.Max(o => o.Date) < defaultLimit,
+                    Message = g.Max(o => o.Date) < defaultLimit ? "Import mensuel requis" : "À jour"
                 }).ToListAsync();
 
-            // 2. Statut des Livrets (SavingAccounts + SavingStatements)
-            // On part des comptes actifs
-            var savingsStatus = await _db.SavingAccounts
+            // 2. Statut des Livrets avec Fréquence Personnalisée
+            // On récupère d'abord les infos des comptes et la date max des statements
+            var savingsData = await _db.SavingAccounts
                 .Where(s => s.IsActive)
-                .Select(s => new AccountStatusDto
+                .Select(s => new
                 {
-                    AccountName = $"{s.Name} ({s.Owner})", // Adapte selon ton champ (ex: s.Label ou s.Name)
-                    Type = "Épargne",
-                    // On cherche la date max dans la table des relevés pour ce livret précis
-                    LastEntryDate = _db.SavingStatements
-                        .Where(st => st.SavingAccountId == s.Id) // Jointure sur l'ID du livret
-                        .Max(st => (DateTime?)st.Date),
-
-                    // La logique de calcul sera finalisée en mémoire juste après
-                    ActionRequired = false,
-                    Message = ""
+                    s.Name,
+                    s.UpdateFrequencyInMonths,
+                    s.Id,
+                    s.Owner,
+                    LastDate = _db.SavingStatements
+                        .Where(st => st.SavingAccountId == s.Id)
+                        .Max(st => (DateTime?)st.Date)
                 }).ToListAsync();
 
-            // 3. Post-traitement pour les livrets (gestion des dates nulles et alertes)
-            foreach (var s in savingsStatus)
+            // 3. Calcul de l'alerte en fonction de la fréquence de chaque livret
+            var savingsStatus = savingsData.Select(s =>
             {
-                if (s.LastEntryDate == null)
-                {
-                    s.ActionRequired = true;
-                    s.Message = "Aucune donnée saisie";
-                }
-                else
-                {
-                    s.ActionRequired = s.LastEntryDate < lastMonthLimit;
-                    s.Message = s.ActionRequired ? "Saisie solde requise" : "À jour";
-                }
-            }
+                // Calcul de la limite : Date du jour MOINS X mois de fréquence
+                // Si fréquence = 12 (annuel), la limite est il y a un an
+                var customLimit = now.AddMonths(-s.UpdateFrequencyInMonths);
+                
+                bool isLate = s.LastDate == null || s.LastDate < customLimit;
+                string msg = "À jour";
 
-            // 4. Fusion et tri
+                if (s.LastDate == null) msg = "Aucune donnée";
+                else if (isLate) msg = $"Saisie requise (tous les {s.UpdateFrequencyInMonths} mois)";
+
+                return new AccountStatusDto
+                {
+                    Owner = s.Owner,
+                    AccountName = s.Name,
+                    Type = "Épargne",
+                    LastEntryDate = s.LastDate,
+                    ActionRequired = isLate,
+                    Message = msg
+                };
+            }).ToList();
+
+            // 4. Fusion et tri final
+            // On trie d'abord par ActionRequired (les alertes en haut)
+            // Puis par Date (les plus vieux en premier pour les alertes)
             var globalStatus = ccStatus.Concat(savingsStatus)
                 .OrderByDescending(x => x.ActionRequired)
+                .ThenBy(x => x.LastEntryDate) 
                 .ThenBy(x => x.AccountName);
 
             return Ok(globalStatus);

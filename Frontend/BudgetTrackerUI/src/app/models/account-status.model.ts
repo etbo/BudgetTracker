@@ -1,4 +1,5 @@
 export interface AccountStatus {
+  owner: string; // Nom du propriétaire
   /** Nom de la banque ou du compte (ex: "Fortuneo", "Livret A") */
   accountName: string;
 

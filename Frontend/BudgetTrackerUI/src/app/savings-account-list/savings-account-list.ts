@@ -19,8 +19,35 @@ export class SavingsAccountList implements OnInit {
     { field: 'name', headerName: 'Nom du Livret', editable: true },
     { field: 'owner', headerName: 'Propriétaire', editable: true, filter: true },
     { field: 'bankName', headerName: 'Banque', editable: true, filter: true },
-    { field: 'isActive', headerName: 'Actif', editable: true, cellEditor: 'agCheckboxCellEditor', width: 100 }
+    { field: 'isActive', headerName: 'Actif', editable: true, cellEditor: 'agCheckboxCellEditor', width: 100 },
+    {
+      headerName: 'Fréquence MàJ',
+      field: 'updateFrequencyInMonths',
+      editable: true,
+      width: 150,
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: {
+        values: [1, 2, 3, 4, 6, 12] // Propose des choix logiques (mensuel, trimestriel, annuel...)
+      },
+      valueFormatter: params => params.value + ' mois',
+      // Cette fonction se déclenche quand tu valides la modification dans la grille
+      onCellValueChanged: (params) => {
+        this.saveAccountChanges(params.data);
+      }
+    }
   ];
+
+  saveAccountChanges(accountData: any) {
+    this.savingsService.updateAccount(accountData).subscribe({
+      next: () => {
+        console.log('Mise à jour réussie');
+        // Optionnel : afficher un petit message de succès (Toast/SnackBar)
+      },
+      error: (err) => {
+        console.error('Erreur lors de la sauvegarde', err);
+      }
+    });
+  }
 
   public defaultColDef: ColDef = {
     flex: 1,

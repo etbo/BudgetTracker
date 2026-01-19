@@ -17,6 +17,9 @@ namespace BudgetTrackerApi.Models.Savings
 
         public bool IsActive { get; set; } = true;
 
+        // Fréquence de mise à jour souhaitée, 1 mois par défaut
+        public int UpdateFrequencyInMonths { get; set; } = 1;
+
         // Pour une collection, on l'initialise toujours pour éviter les NullReferenceException
         public virtual ICollection<SavingStatement> Statements { get; set; } = new List<SavingStatement>();
     }
