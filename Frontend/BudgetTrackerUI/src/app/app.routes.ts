@@ -10,6 +10,7 @@ import { Home } from './home/home';
 import { SavingsStatement } from './savings-statement/savings-statement';
 import { SavingsAccountList } from './savings-account-list/savings-account-list';
 import { AccountsStatus } from './accounts-status/accounts-status';
+import { LifeInsuranceStatement } from './life-insurance-statement/life-insurance-statement';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -19,7 +20,7 @@ export const routes: Routes = [
 
   // Comptes courant : cc
   { path: 'cc-dashboard', component: CcDashboard },
-  { path: 'cc-Categories', component: CcCategories },
+  { path: 'cc-categories', component: CcCategories },
   { path: 'cc-rules', component: CcRules },
   { path: 'cc-operations', component: CcOperations },
   { path: 'cc-input', component: CcInput },
@@ -31,6 +32,9 @@ export const routes: Routes = [
   // savings
   { path: 'savings-statement', component: SavingsStatement },
   { path: 'savings-account-list', component: SavingsAccountList },
+  
+  // Assurance vie
+  { path: 'li-statement', component: LifeInsuranceStatement },
   
   // Redirection si l'URL est inconnue
   { path: '**', redirectTo: '' }

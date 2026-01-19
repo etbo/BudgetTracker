@@ -1,4 +1,5 @@
 using BudgetTrackerApi.Models;
+using BudgetTrackerApi.Models.LifeInsurance;
 using BudgetTrackerApi.Models.Savings;
 using BudgetTrackerApi.Services;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,10 @@ namespace BudgetTrackerApi.Data
             public DbSet<PeaCachedStockPrice> PeaCachedStockPrices { get; set; } = null!;
             public DbSet<SavingAccount> SavingAccounts { get; set; } = null!;
             public DbSet<SavingStatement> SavingStatements { get; set; } = null!;
+
+            public DbSet<LifeInsuranceAccount> LifeInsuranceAccounts { get; set; }
+            public DbSet<LifeInsuranceLine> LifeInsuranceLines { get; set; }
+            public DbSet<LifeInsuranceStatement> LifeInsuranceStatements { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
