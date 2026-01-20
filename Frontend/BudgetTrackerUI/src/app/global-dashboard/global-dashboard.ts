@@ -22,6 +22,18 @@ export class GlobalDashboard implements OnInit {
   public rawData = signal<any[]>([]);
   public viewMode = signal<ViewMode>('accountType');
 
+  public lastPoint = computed(() => {
+    const data = this.rawData();
+    return data.length > 0 ? data[data.length - 1] : null;
+  });
+
+  // Calcul du total net actuel
+  public currentTotal = computed(() => {
+    const p = this.lastPoint();
+    if (!p) return 0;
+    return p.cash + p.savings + p.lifeInsurance + p.pea;
+  });
+
   // Séries calculées dynamiquement selon le mode choisi
   public chartSeries = computed(() => {
     const data = this.rawData();
@@ -46,7 +58,7 @@ export class GlobalDashboard implements OnInit {
   // Couleurs dynamiques selon le nombre de séries
   public chartColors = computed(() => {
     return this.viewMode() === 'accountType'
-      ? ['#3f51b5', '#FEB019', '#00E396', '#775DD0'] // 4 couleurs
+      ? ['#0077ff', '#FEB019', '#00E396', '#775DD0'] // 4 couleurs
       : ['#00E396', '#FF4560']; // 2 couleurs (Vert / Rouge)
   });
 
@@ -54,7 +66,7 @@ export class GlobalDashboard implements OnInit {
     chart: {
       type: "area",
       stacked: true,
-      height: 400,
+      height: 600,
       zoom: { enabled: false },
       toolbar: { show: false }
     },

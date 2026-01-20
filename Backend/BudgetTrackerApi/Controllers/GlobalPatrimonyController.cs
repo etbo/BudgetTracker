@@ -18,24 +18,20 @@ public class GlobalPatrimonyController : ControllerBase
     {
         // 1. Récupération des données avec cast en (DateTime) pour garantir le type non-nullable
         var savings = await _db.SavingStatements
-            .Where(s => s.Date != null)
-            .Select(s => new { Date = (DateTime)s.Date!, Amount = (decimal)s.Amount, Cat = "Savings", Id = s.SavingAccountId.ToString() }).ToListAsync();
+            .Select(s => new { Date = s.Date!, Amount = (decimal)s.Amount, Cat = "Savings", Id = s.SavingAccountId.ToString() }).ToListAsync();
 
         var lifeInsurance = await _db.LifeInsuranceStatements
-            .Where(s => s.Date != null)
-            .Select(s => new { Date = (DateTime)s.Date!, Amount = (decimal)(s.UnitCount * s.UnitValue), Cat = "AV", Id = s.LifeInsuranceLineId.ToString() }).ToListAsync();
+            .Select(s => new { Date = s.Date!, Amount = (decimal)(s.UnitCount * s.UnitValue), Cat = "AV", Id = s.LifeInsuranceLineId.ToString() }).ToListAsync();
 
         var ccOperations = await _db.CcOperations
-            .Where(s => s.Date != null)
-            .Select(s => new { Date = (DateTime)s.Date!, Amount = (decimal)s.Montant }).ToListAsync();
+            .Select(s => new { Date = s.Date!, Amount = (decimal)s.Montant }).ToListAsync();
 
         var peaStocks = await _db.PeaOperations
             .Where(s => s.Date != null)
             .Select(s => new { Date = (DateTime)s.Date!, Ticker = s.Code, Quantity = (decimal)s.Quantité }).ToListAsync();
 
         var peaPrices = await _db.PeaCachedStockPrices
-            .Where(s => s.Date != null)
-            .Select(s => new { Date = (DateTime)s.Date!, Ticker = s.Ticker, Price = (decimal)s.Price }).ToListAsync();
+            .Select(s => new { Date = s.Date!, Ticker = s.Ticker, Price = (decimal)s.Price }).ToListAsync();
 
         // 2. Création de la liste de dates (Maintenant que tout est DateTime, plus d'erreur)
         var allDates = new List<DateTime>();
