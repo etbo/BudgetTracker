@@ -2,8 +2,15 @@
 
   <div class="nav-group">
     <a mat-list-item routerLink="/" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
-      <mat-icon matListItemIcon>home</mat-icon>
-      <span matListItemTitle>Accueil</span>
+      <mat-icon matListItemIcon>area_chart</mat-icon>
+      <span matListItemTitle>Patrimoine</span>
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <a mat-list-item routerLink="/account-status" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
+      <mat-icon matListItemIcon>error</mat-icon>
+      <span matListItemTitle>Status</span>
     </a>
   </div>
 
@@ -30,7 +37,7 @@
       <span matListItemTitle>Règles</span>
     </a>
 
-    <a mat-list-item routerLink="/cc-Categories" routerLinkActive="active-link">
+    <a mat-list-item routerLink="/cc-categories" routerLinkActive="active-link">
       <mat-icon matListItemIcon>category</mat-icon>
       <span matListItemTitle>Catégories</span>
     </a>
@@ -68,7 +75,7 @@
     </a>
 
     <a mat-list-item routerLink="/savings-account-list" routerLinkActive="active-link">
-      <mat-icon matListItemIcon>list</mat-icon>
+      <mat-icon matListItemIcon>savings</mat-icon>
       <span matListItemTitle>Liste livrets</span>
     </a>
   </div>

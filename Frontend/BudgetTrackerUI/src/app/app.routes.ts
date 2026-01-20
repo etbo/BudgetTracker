@@ -11,9 +11,13 @@ import { SavingsStatement } from './savings-statement/savings-statement';
 import { SavingsAccountList } from './savings-account-list/savings-account-list';
 import { AccountsStatus } from './accounts-status/accounts-status';
 import { LifeInsuranceStatement } from './life-insurance-statement/life-insurance-statement';
+import { GlobalDashboard } from './global-dashboard/global-dashboard';
 
 export const routes: Routes = [
-  { path: '', component: Home },
+  // { path: '', component: Home },
+
+  // Global dashboard
+  { path: '', component: GlobalDashboard },
 
   // All accounts
   { path: 'account-status', component: AccountsStatus },
