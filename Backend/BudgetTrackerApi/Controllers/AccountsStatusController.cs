@@ -35,8 +35,7 @@ namespace BudgetTrackerApi.Controllers
                     Message = g.Max(o => o.Date) < defaultLimit ? "Import mensuel requis" : "À jour"
                 }).ToListAsync();
 
-            // 2. Statut des Livrets avec Fréquence Personnalisée
-            // On récupère d'abord les infos des comptes et la date max des statements
+            // 2. Statut des Livrets (Fréquence variable)
             var savingsData = await _db.SavingAccounts
                 .Where(s => s.IsActive)
                 .Select(s => new
@@ -50,13 +49,12 @@ namespace BudgetTrackerApi.Controllers
                         .Max(st => (DateTime?)st.Date)
                 }).ToListAsync();
 
-            // 3. Calcul de l'alerte en fonction de la fréquence de chaque livret
             var savingsStatus = savingsData.Select(s =>
             {
                 // Calcul de la limite : Date du jour MOINS X mois de fréquence
                 // Si fréquence = 12 (annuel), la limite est il y a un an
                 var customLimit = now.AddMonths(-s.UpdateFrequencyInMonths);
-                
+
                 bool isLate = s.LastDate == null || s.LastDate < customLimit;
                 string msg = "À jour";
 
@@ -74,12 +72,42 @@ namespace BudgetTrackerApi.Controllers
                 };
             }).ToList();
 
+            // 3. Statut des AV (Fréquence fixe : 3 mois)
+            var liFrequency = 3;
+            var liLimit = now.AddMonths(-liFrequency);
+
+            var liData = await _db.LifeInsuranceAccounts
+                .Where(a => a.IsActive)
+                .Select(a => new
+                {
+                    a.Name,
+                    a.Owner,
+                    a.Id,
+                    LastDate = _db.LifeInsuranceStatements
+                        .Where(s => s.Line.LifeInsuranceAccountId == a.Id)
+                        .Max(s => (DateTime?)s.Date)
+                }).ToListAsync();
+
+            var liStatus = liData.Select(a =>
+            {
+                bool isLate = a.LastDate == null || a.LastDate < liLimit;
+                return new AccountStatusDto
+                {
+                    Owner = a.Owner,
+                    AccountName = a.Name,
+                    Type = "Assurance Vie",
+                    LastEntryDate = a.LastDate,
+                    ActionRequired = isLate,
+                    Message = a.LastDate == null ? "Aucune donnée" : (isLate ? "Mise à jour trimestrielle requise" : "À jour")
+                };
+            }).ToList();
+
             // 4. Fusion et tri final
             // On trie d'abord par ActionRequired (les alertes en haut)
             // Puis par Date (les plus vieux en premier pour les alertes)
-            var globalStatus = ccStatus.Concat(savingsStatus)
+            var globalStatus = ccStatus.Concat(savingsStatus).Concat(liStatus)
                 .OrderByDescending(x => x.ActionRequired)
-                .ThenBy(x => x.LastEntryDate) 
+                .ThenBy(x => x.LastEntryDate)
                 .ThenBy(x => x.AccountName);
 
             return Ok(globalStatus);
