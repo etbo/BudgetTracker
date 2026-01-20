@@ -82,18 +82,22 @@ public class LifeInsuranceController : ControllerBase
         }
 
         var history = await query
-            .OrderByDescending(s => s.Date)
-            .Select(s => new
-            {
-                Id = s.Id,
-                Date = s.Date,
-                UnitCount = s.UnitCount,
-                UnitValue = s.UnitValue,
-                LineLabel = s.Line.Label,
-                AccountInfo = $"{s.Line.Account.Name} - {s.Line.Account.Owner}"
-            })
-            .ToListAsync();
-
+        .OrderByDescending(s => s.Date)
+        .Select(s => new
+        {
+            Id = s.Id,
+            Date = s.Date,
+            UnitCount = s.UnitCount,
+            UnitValue = s.UnitValue,
+            LineLabel = s.Line.Label,
+            IsScpi = s.Line.IsScpi,
+            AccountName = s.Line.Account.Name,
+            AccountOwner = s.Line.Account.Owner,
+            // Clé de groupage : AccountId et Date complète
+            GroupKey = $"{s.Line.LifeInsuranceAccountId}_{s.Date}"
+        })
+        .ToListAsync();
+        
         return Ok(history);
     }
 

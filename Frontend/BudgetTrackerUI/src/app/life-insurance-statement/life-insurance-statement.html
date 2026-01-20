@@ -8,7 +8,7 @@
         </button>
     </div>
 
-    <ag-grid-angular style="width: 100%; height: 700px;" class="ag-theme-alpine" [columnDefs]="columnDefsHistory"
+    <ag-grid-angular style="width: 100%; height: 700px;" class="ag-theme-alpine" [columnDefs]="columnDefsHistory" [defaultColDef]="defaultColDef"
         [rowData]="historyData()" [gridOptions]="gridOptions" (cellValueChanged)="onCellValueChanged($event)">
     </ag-grid-angular>
 </div>

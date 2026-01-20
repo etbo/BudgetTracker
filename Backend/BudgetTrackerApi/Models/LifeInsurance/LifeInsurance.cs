@@ -8,7 +8,7 @@ namespace BudgetTrackerApi.Models.LifeInsurance
         public bool IsActive { get; set; } = true;
 
         // Liste des lignes de ce contrat (Fonds Euro + les 3 SCPI)
-        public List<LifeInsuranceLine> Lines { get; set; }
+        public virtual ICollection<LifeInsuranceLine> Lines { get; set; } = new List<LifeInsuranceLine>();
     }
 
     public class LifeInsuranceLine
@@ -16,18 +16,18 @@ namespace BudgetTrackerApi.Models.LifeInsurance
         public int Id { get; set; }
         public int LifeInsuranceAccountId { get; set; }
 
-        public LifeInsuranceAccount Account { get; set; }
-        
+
         public required string Label { get; set; }       // ex: "Fonds Euro", "Activimmo", etc.
         public bool IsScpi { get; set; }        // Pour différencier le fonds euro des SCPI
-        public List<LifeInsuranceStatement> Statements { get; set; }
+        public virtual LifeInsuranceAccount Account { get; set; } = default!;
+        public virtual ICollection<LifeInsuranceStatement> Statements { get; set; } = new List<LifeInsuranceStatement>();
     }
 
     public class LifeInsuranceStatement
     {
         public int Id { get; set; }
         public int LifeInsuranceLineId { get; set; }
-        public LifeInsuranceLine Line { get; set; }
+        public virtual LifeInsuranceLine Line { get; set; } = default!;
         public DateTime Date { get; set; }
 
         // Pour le fonds Euro, UnitCount sera 1 et UnitValue sera le montant

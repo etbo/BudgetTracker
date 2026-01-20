@@ -1,12 +1,29 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AgGridModule } from 'ag-grid-angular';
-import { ColDef, GridOptions } from 'ag-grid-community';
+import { ColDef, GridOptions, CellClickedEvent } from 'ag-grid-community';
 import { LifeInsuranceService } from '../services/life-insurance.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { LifeInsuranceInput } from '../life-insurance-input/life-insurance-input';
+import { customDateFormatter } from '../shared/utils/grid-utils';
+
+// Interface pour gérer la structure Header/Détail
+interface HistoryRow {
+  id?: number;
+  isHeader: boolean;
+  accountName: string;
+  accountOwner: string;
+  groupKey: string;
+  expanded?: boolean;
+  date?: string;
+  lineLabel?: string;
+  unitCount?: number;
+  unitValue?: number;
+  accountInfo?: string;
+  total?: number;
+}
 
 @Component({
   selector: 'app-life-insurance-statement',
@@ -19,51 +36,142 @@ export class LifeInsuranceStatement implements OnInit {
   private dialog = inject(MatDialog);
   private liService = inject(LifeInsuranceService);
 
-  // Données de l'historique
-  public historyData = signal<any[]>([]);
+  // Stockage brut et état des groupes
+  private rawHistoryData = signal<any[]>([]);
+  private expandedGroups = signal<Set<string>>(new Set());
 
-  // Configuration des colonnes pour l'HISTORIQUE
+  // Signal calculé pour AG Grid (Simulation du groupage)
+  public historyData = computed(() => {
+    const raw = this.rawHistoryData();
+    const expanded = this.expandedGroups();
+    const result: HistoryRow[] = [];
+
+    // Regroupement par GroupKey (formaté par le backend)
+    const groups = new Map<string, any[]>();
+    raw.forEach(item => {
+      const key = item.groupKey;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)?.push(item);
+    });
+
+    groups.forEach((items, key) => {
+      // 1. Ligne de résumé (Header)
+      const groupTotal = items.reduce((sum, i) => sum + (i.unitCount * i.unitValue), 0);
+      const isExpanded = expanded.has(key);
+
+      result.push({
+        isHeader: true,
+        groupKey: key,
+        expanded: isExpanded,
+        total: groupTotal,
+        date: items[0].date, // Pour le tri
+        accountName: items[0].accountName,
+        accountOwner: items[0].accountOwner
+      });
+
+      // 2. Lignes de détails (si le groupe est déplié)
+      if (isExpanded) {
+        items.forEach(i => result.push({ ...i, isHeader: false }));
+      }
+    });
+
+    return result;
+  });
+
   public columnDefsHistory: ColDef[] = [
     {
-      headerName: 'Contrat',
-      field: 'accountInfo',
-      filter: 'agTextColumnFilter',
+      headerName: 'Compte / Actif',
+      field: 'accountName',
       flex: 1,
-      // cellStyle: { color: '#666', fontStyle: 'italic' }
+      // Si c'est un header, on affiche le nom du compte, sinon le libellé de l'actif
+      valueGetter: (p) => p.data.isHeader
+        ? `${p.data.expanded ? '▼' : '▶'} ${p.data.accountName} (${p.data.accountOwner})`
+        : `      ${p.data.lineLabel}`,
+      cellStyle: (p): any => p.data.isHeader ? { fontWeight: 'bold', cursor: 'pointer', backgroundColor: '#fafafa' } : { paddingLeft: '50px' }
     },
     {
       headerName: 'Date',
       field: 'date',
-      sort: 'desc',
-      editable: true,
-      valueFormatter: (p) => p.value ? new Date(p.value).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : ''
+      width: 300,
+      // On n'affiche la date que sur la ligne de Header pour éviter la répétition
+      // valueFormatter: customDateFormatter,
+      valueFormatter: (p) => {
+        if (!p.value) return '';
+        if (p.data.isHeader) {
+          return customDateFormatter(p); // ou customDateFormatter(p.value) selon ta définition
+        }
+        return "";
+      },
+      cellStyle: (p): any => p.data.isHeader ? { fontWeight: 'bold', backgroundColor: '#fafafa' } : null
     },
-    { headerName: 'Actif', field: 'lineLabel', flex: 1 },
-    { headerName: 'Parts', field: 'unitCount', editable: true, valueFormatter: (p) => p.value?.toFixed(5), width: 200 },
-    { headerName: 'Prix Unitaire', editable: true, field: 'unitValue', valueFormatter: (p) => p.value ? p.value.toFixed(2) + ' €' : '', width: 200 },
+    {
+      headerName: 'Parts',
+      field: 'unitCount',
+      width: 250,
+      editable: (p) => !p.data.isHeader && p.data.isScpi,
+      valueFormatter: (p) => {
+        if (p.data.isHeader) return '';
+        // Si c'est un Fonds Euro (pas SCPI), on n'affiche rien ou un tiret
+        if (!p.data.isScpi) return '-';
+        return p.value?.toFixed(5);
+      },
+      cellStyle: (p): any => {
+        if (p.data.isHeader) return { color: '#ccc', backgroundColor: '#fafafa' };
+        return null;
+      }
+    },
+    {
+      headerName: 'Valeur (unitaire)',
+      field: 'unitValue',
+      width: 250,
+      editable: (p) => !p.data.isHeader,
+      valueFormatter: (p) => p.data.isHeader ? '' : (p.value ? p.value.toFixed(2) + ' €' : ''),
+      cellStyle: (p) => p.data.isHeader
+        ? { fontWeight: 'bold', cursor: 'pointer', backgroundColor: '#fafafa' }
+        : null
+    },
     {
       headerName: 'Total',
-      valueGetter: (p) => (p.data.unitCount || 0) * (p.data.unitValue || 0),
+      width: 250,
+      valueGetter: (p) => p.data.isHeader ? p.data.total : (p.data.unitCount * p.data.unitValue),
       valueFormatter: (p) => p.value?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }),
-      cellStyle: { fontWeight: 'bold' },
-      width: 200
+      cellStyle: (p): any => {
+        if (p.data.isHeader) {
+          return { fontWeight: 'bold', backgroundColor: '#fafafa' };
+        }
+        return { color: '#666' };
+      }
     }
   ];
 
+  defaultColDef = {
+    resizable: true, sortable: true, filter: true,
+    filterParams: {
+      buttons: ['clear']
+    }
+  };
+
   public gridOptions: GridOptions = {
-    rowHeight: 45,
-    defaultColDef: { resizable: true, sortable: true, filter: true }
+    onCellClicked: (event: CellClickedEvent) => this.toggleGroup(event),
+    suppressNoRowsOverlay: false
   };
 
   ngOnInit() {
     this.loadAllHistory();
   }
 
-  // Charge l'historique global (ou tu peux passer un ID spécifique si besoin)
   loadAllHistory() {
-    // Si ton backend le permet, on peut passer 0 ou rien pour tout voir, 
-    // sinon on garde l'ID par défaut pour l'instant
-    this.liService.getHistory(0).subscribe(data => this.historyData.set(data));
+    this.liService.getHistory(0).subscribe(data => this.rawHistoryData.set(data));
+  }
+
+  toggleGroup(event: CellClickedEvent) {
+    if (event.data.isHeader) {
+      const key = event.data.groupKey;
+      const newExpanded = new Set(this.expandedGroups());
+      if (newExpanded.has(key)) newExpanded.delete(key);
+      else newExpanded.add(key);
+      this.expandedGroups.set(newExpanded);
+    }
   }
 
   openSaisie() {
@@ -74,9 +182,7 @@ export class LifeInsuranceStatement implements OnInit {
       });
 
       dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.saveData(result);
-        }
+        if (result) this.saveData(result);
       });
     });
   }
@@ -89,27 +195,22 @@ export class LifeInsuranceStatement implements OnInit {
       unitValue: row.lastUnitValue
     }));
 
-    this.liService.saveSaisie(payload).subscribe(() => {
-      this.loadAllHistory(); // Rafraîchit la grille après sauvegarde
-    });
+    this.liService.saveSaisie(payload).subscribe(() => this.loadAllHistory());
   }
 
   onCellValueChanged(event: any) {
-    const data = event.data;
+    if (event.data.isHeader) return;
+
     const payload = {
-      lifeInsuranceLineId: 0, // Non utilisé par le PUT mais requis par le DTO si tu réutilises le même
-      date: data.date,
-      unitCount: data.unitCount,
-      unitValue: data.unitValue
+      lifeInsuranceLineId: event.data.lineId,
+      date: event.data.date,
+      unitCount: event.data.unitCount,
+      unitValue: event.data.unitValue
     };
 
-    // Appel au service pour faire le PUT
-    this.liService.updateStatement(data.id, payload).subscribe({
-      next: () => console.log('Mise à jour réussie'),
-      error: (err) => {
-        console.error('Erreur MAJ', err);
-        this.loadAllHistory(); // On recharge en cas d'erreur pour annuler visuellement
-      }
+    this.liService.updateStatement(event.data.id, payload).subscribe({
+      next: () => this.loadAllHistory(),
+      error: () => this.loadAllHistory()
     });
   }
 }
