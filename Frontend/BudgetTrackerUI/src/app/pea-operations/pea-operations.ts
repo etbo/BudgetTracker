@@ -68,6 +68,7 @@ export class PeaOperations implements OnInit {
     { headerName: 'Code', field: 'code', editable: true, width: 120 },
     {
       headerName: 'Quantité',
+      type: 'rightAligned',
       field: 'quantite',
       editable: true,
       width: 200,
@@ -76,6 +77,7 @@ export class PeaOperations implements OnInit {
     {
       headerName: 'Montant Brut',
       field: 'montantBrutUnitaire',
+      type: 'rightAligned',
       editable: true,
       width: 230,
       valueFormatter: currencyFormatter,
@@ -83,6 +85,7 @@ export class PeaOperations implements OnInit {
     },
     {
       headerName: 'Montant Net',
+      type: 'rightAligned',
       field: 'montantNet',
       editable: true,
       width: 230,
@@ -91,6 +94,7 @@ export class PeaOperations implements OnInit {
     },
     {
       headerName: 'Frais',
+      type: 'rightAligned',
       width: 230,
       valueGetter: params => this.calculateFrais(params.data),
       editable: false,

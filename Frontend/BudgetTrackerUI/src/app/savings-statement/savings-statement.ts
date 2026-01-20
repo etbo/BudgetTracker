@@ -68,7 +68,7 @@ export class SavingsStatement implements OnInit {
         }
       },
       {
-        field: 'amount', headerName: 'Solde', editable: true,
+        field: 'amount', headerName: 'Solde', editable: true, type: 'rightAligned',
         valueFormatter: (p: ValueFormatterParams) => p.value?.toFixed(2) + ' €',
       },
       { field: 'note', headerName: 'Note', editable: true }

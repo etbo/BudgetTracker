@@ -148,8 +148,9 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     { headerName: 'Description', field: 'description', flex: 2 },
     {
       headerName: 'Montant',
+      type: 'rightAligned',
       field: 'montant',
-      width: 110,
+      width: 150,
       valueFormatter: (p: ValueFormatterParams) => p.value?.toFixed(2) + ' €',
       cellClassRules: {
         'text-red-600': (p: any) => p.value < 0,

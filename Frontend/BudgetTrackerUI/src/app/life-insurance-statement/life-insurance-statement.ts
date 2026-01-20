@@ -107,6 +107,7 @@ export class LifeInsuranceStatement implements OnInit {
     {
       headerName: 'Parts',
       field: 'unitCount',
+      type: 'rightAligned',
       width: 250,
       editable: (p) => !p.data.isHeader && p.data.isScpi,
       valueFormatter: (p) => {
@@ -123,6 +124,7 @@ export class LifeInsuranceStatement implements OnInit {
     {
       headerName: 'Valeur (unitaire)',
       field: 'unitValue',
+      type: 'rightAligned',
       width: 250,
       editable: (p) => !p.data.isHeader,
       valueFormatter: (p) => p.data.isHeader ? '' : (p.value ? p.value.toFixed(2) + ' €' : ''),
@@ -132,6 +134,7 @@ export class LifeInsuranceStatement implements OnInit {
     },
     {
       headerName: 'Total',
+      type: 'rightAligned',
       width: 250,
       valueGetter: (p) => p.data.isHeader ? p.data.total : (p.data.unitCount * p.data.unitValue),
       valueFormatter: (p) => p.value?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }),
