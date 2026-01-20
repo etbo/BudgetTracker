@@ -1,1 +1,22 @@
-<p>global-dashboard works!</p>
+<div class="patrimony-card">
+    <div class="header">
+        <h2>Patrimoine Global</h2>
+
+        <mat-radio-group [ngModel]="viewMode()" (ngModelChange)="viewMode.set($event)" class="view-mode-radio-group">
+            <mat-radio-button value="accountType">Par type de compte</mat-radio-button>
+            <mat-radio-button value="liquidity">Par liquidité</mat-radio-button>
+        </mat-radio-group>
+    </div>
+
+    <div id="chart" *ngIf="rawData().length > 0">
+        <apx-chart [series]="chartSeries()" [chart]="chartOptions.chart!" [xaxis]="chartXAxis()"
+            [colors]="chartColors()" [stroke]="chartOptions.stroke!" [dataLabels]="chartOptions.dataLabels!"
+            [yaxis]="chartOptions.yaxis!" [fill]="chartOptions.fill!" [tooltip]="chartOptions.tooltip!"
+            [legend]="chartOptions.legend!">
+        </apx-chart>
+    </div>
+
+    <div class="loading-state" *ngIf="rawData().length === 0">
+        Chargement des données historiques...
+    </div>
+</div>
