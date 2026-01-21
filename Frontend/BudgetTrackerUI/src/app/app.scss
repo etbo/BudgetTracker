@@ -1,70 +1,52 @@
-.azure-wrapper {
+.app-wrapper {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
 
-.azure-toolbar {
-  height: 48px !important;
-  min-height: 48px !important;
-  background-color: #ffffff !important;
-  color: #0078d4 !important;
-  border-bottom: 1px solid #dcdcdc;
+.app-toolbar {
+  height: 48px;
+  min-height: 48px;
+  background-color: var(--azure-blue);
+  color: #ffffff;
   z-index: 1001;
   
   .app-brand {
     font-size: 16px;
-    font-weight: 600;
   }
+}
+
+.main-content-area {
+  background-color: var(--azure-bg-color);
+  padding: 30px;
 }
 
 .sidenav-container {
   flex: 1;
 }
 
-
 .spacer { flex: 1 1 auto; }
 
-.filter-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
+/* Cible spécifiquement les boutons à l'intérieur d'une mat-toolbar */
+.mat-toolbar {
+    /* Force la couleur du texte et des icônes pour tous les boutons */
+    .mat-mdc-button-base {
+        --mat-toolbar-container-text-color: white;
+    }
+
+    /* Si c'est un bouton d'icône (mat-icon-button) */
+    .mat-mdc-icon-button {
+        color: white;
+    }
 }
 
-.filter-container {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  height: 100%; /* S'assure que le container ne dépasse pas */
-}
+.app-sidenav {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 
-.date-range-field {
-  width: 250px;
-  /* Réduit la taille globale */
-  transform: scale(0.8); 
-  /* Ou alors on force la hauteur du container interne */
-}
-
-/* Version plus précise sans scale */
-.date-range-field {
-  width: 280px;
-}
-
-/* On force la suppression de l'espace réservé aux messages d'erreur (subscript) */
-.date-range-field .mat-mdc-form-field-subscript-wrapper {
-  display: none !important;
-}
-
-/* On ajuste la hauteur de la zone de saisie */
-.date-range-field .mat-mdc-text-field-wrapper {
-  height: 40px !important;
-  display: flex;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-/* On ajuste l'alignement de l'icône du calendrier */
-.date-range-field .mat-mdc-form-field-icon-suffix {
-  padding: 0 !important;
+  background-color: #fefefe;
+  width: 280px !important;
+  border-right: 1px solid #dcdcdc !important;
+  padding: 5px;
+  
 }

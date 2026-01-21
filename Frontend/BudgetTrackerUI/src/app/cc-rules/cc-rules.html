@@ -1,27 +1,11 @@
-<mat-card class="section">
-  <mat-card-header>
-    <mat-card-title>Règles de catégorisation</mat-card-title>
-  </mat-card-header>
+<h2>Règles de catégorisation</h2>
 
-  <mat-card-content style="padding-top: 20px;">
-    <div class="grid-wrapper">
-      <ag-grid-angular
-        style="width: 100%;"
-        class="ag-theme-alpine"
-        [rowData]="rules()"
-        [columnDefs]="columnDefs"
-        [defaultColDef]="defaultColDef"
-        [domLayout]="'autoHeight'"
-        [context]="gridContext"
-        (cellValueChanged)="onCellValueChanged($event)">
-      </ag-grid-angular>
-    </div>
-  </mat-card-content>
+<button mat-flat-button color="primary" (click)="addRule()">
+  <mat-icon>add</mat-icon>
+  Ajouter une règle
+</button>
 
-  <mat-card-actions align="end">
-    <button mat-flat-button color="primary" (click)="addRule()">
-      <mat-icon>add</mat-icon>
-      Ajouter une règle
-    </button>
-  </mat-card-actions>
-</mat-card>
+<ag-grid-angular style="width: 100%;" class="ag-theme-alpine" [rowData]="rules()" [columnDefs]="columnDefs"
+  [defaultColDef]="defaultColDef" [domLayout]="'autoHeight'" [context]="gridContext"
+  (cellValueChanged)="onCellValueChanged($event)">
+</ag-grid-angular>

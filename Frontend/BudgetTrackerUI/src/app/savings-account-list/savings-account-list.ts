@@ -2,10 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { SavingsService } from '../services/savings.service';
 import { ColDef } from 'ag-grid-community';
 import { AgGridAngular } from 'ag-grid-angular';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-savings-account-list',
-  imports: [AgGridAngular],
+  imports: [AgGridAngular, MatIconModule, MatButtonModule],
   templateUrl: './savings-account-list.html',
   styleUrl: './savings-account-list.scss',
 })

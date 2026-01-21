@@ -4,10 +4,12 @@ import { ColDef, GridReadyEvent, CellValueChangedEvent, GridApi, ValueFormatterP
 import { SavingsService } from '../services/savings.service';
 import { SavingStatement } from '../models/saving-account.model';
 import { customDateFormatter, localDateSetter } from '../shared/utils/grid-utils';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-savings-statement',
-  imports: [AgGridAngular],
+  imports: [AgGridAngular, MatIconModule, MatButtonModule],
   templateUrl: './savings-statement.html',
   styleUrl: './savings-statement.scss',
 })

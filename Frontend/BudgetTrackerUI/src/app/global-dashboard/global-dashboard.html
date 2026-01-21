@@ -1,54 +1,65 @@
-<div class="patrimony-card">
-    <div class="header">
-        <h2>Patrimoine Global</h2>
+<h2>Situation actuelle</h2>
 
-        <div class="summary-panel" *ngIf="lastPoint() as lp">
-            <div class="total-card">
-                <span class="label">Patrimoine Total</span>
-                <span class="value main-total">{{ currentTotal() | number:'1.0-0' }} €</span>
-            </div>
+<div class="summary-panel" *ngIf="lastPoint() as lp">
+    <mat-card appearance="outlined">
+        <mat-card-header>
+            <mat-card-title>{{ lp.cash | number:'1.0-0' }} €</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <span>Liquidités</span>
+        </mat-card-content>
+    </mat-card>
 
-            <div class="details-grid">
-                <div class="detail-item">
-                    <span class="dot cash">●</span>
-                    <span class="label">Liquidités</span>
-                    <span class="val">{{ lp.cash | number:'1.0-0' }} €</span>
-                </div>
-                <div class="detail-item">
-                    <span class="dot savings">●</span>
-                    <span class="label">Épargne</span>
-                    <span class="val">{{ lp.savings | number:'1.0-0' }} €</span>
-                </div>
-                <div class="detail-item">
-                    <span class="dot av">●</span>
-                    <span class="label">Assur. Vie</span>
-                    <span class="val">{{ lp.lifeInsurance | number:'1.0-0' }} €</span>
-                </div>
-                <div class="detail-item">
-                    <span class="dot pea">●</span>
-                    <span class="label">PEA</span>
-                    <span class="val">{{ lp.pea | number:'1.0-0' }} €</span>
-                </div>
-            </div>
+    <mat-card appearance="outlined">
+        <mat-card-header>
+            <mat-card-title>{{ lp.savings | number:'1.0-0' }} €</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <span>Épargne</span>
+        </mat-card-content>
+    </mat-card>
+    
+        <mat-card appearance="outlined">
+            <mat-card-header>
+                <mat-card-title>{{ lp.pea | number:'1.0-0' }} €</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <span>PEA</span>
+            </mat-card-content>
+        </mat-card>
+
+    <mat-card appearance="outlined">
+        <mat-card-header>
+            <mat-card-title>{{ lp.lifeInsurance | number:'1.0-0' }} €</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <span>Assur. Vie</span>
+        </mat-card-content>
+    </mat-card>
+</div>
+
+<h2>Historique</h2>
+
+<mat-card appearance="outlined">
+    <mat-card-content>
+        <div id="chart" *ngIf="rawData().length > 0">
+            <mat-radio-group [ngModel]="viewMode()" (ngModelChange)="viewMode.set($event)"
+                class="view-mode-radio-group">
+                <mat-radio-button value="accountType">Par type de compte</mat-radio-button>
+                <mat-radio-button value="liquidity">Par liquidité</mat-radio-button>
+            </mat-radio-group>
+
+            <apx-chart [series]="chartSeries()" [chart]="chartOptions.chart!" [xaxis]="chartXAxis()"
+                [colors]="chartColors()" [stroke]="chartOptions.stroke!" [dataLabels]="chartOptions.dataLabels!"
+                [yaxis]="chartOptions.yaxis!" [fill]="chartOptions.fill!" [tooltip]="chartOptions.tooltip!"
+                [legend]="chartOptions.legend!">
+            </apx-chart>
         </div>
-    </div>
+    </mat-card-content>
+</mat-card>
 
 
 
-    <div id="chart" *ngIf="rawData().length > 0">
-        <mat-radio-group [ngModel]="viewMode()" (ngModelChange)="viewMode.set($event)" class="view-mode-radio-group">
-            <mat-radio-button value="accountType">Par type de compte</mat-radio-button>
-            <mat-radio-button value="liquidity">Par liquidité</mat-radio-button>
-        </mat-radio-group>
-
-        <apx-chart [series]="chartSeries()" [chart]="chartOptions.chart!" [xaxis]="chartXAxis()"
-            [colors]="chartColors()" [stroke]="chartOptions.stroke!" [dataLabels]="chartOptions.dataLabels!"
-            [yaxis]="chartOptions.yaxis!" [fill]="chartOptions.fill!" [tooltip]="chartOptions.tooltip!"
-            [legend]="chartOptions.legend!">
-        </apx-chart>
-    </div>
-
-    <div class="loading-state" *ngIf="rawData().length === 0">
-        Chargement des données historiques...
-    </div>
+<div class="loading-state" *ngIf="rawData().length === 0">
+    Chargement des données historiques...
 </div>

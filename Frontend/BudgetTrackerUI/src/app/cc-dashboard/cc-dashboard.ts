@@ -16,7 +16,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { CcOperation } from '../models/operation-cc.model';
 import { OperationsService } from '../services/operations.service';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
-import { MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
+import { MatCard, MatCardHeader, MatCardModule, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { CcMacroCategoriesMonthly } from '../charts/cc-macro-categories-monthly/cc-macro-categories-monthly';
 
 @Component({
@@ -36,12 +36,12 @@ import { CcMacroCategoriesMonthly } from '../charts/cc-macro-categories-monthly/
     MatExpansionPanelTitle,
     MatExpansionPanelHeader,
     MatExpansionPanel,
-    MatCardSubtitle,
     MatCardHeader,
     MatCardTitle,
     MatCard,
     MatAccordion,
-    MatChipsModule
+    MatChipsModule,
+    MatCardModule
   ],
   templateUrl: './cc-dashboard.html',
   styleUrl: './cc-dashboard.scss'

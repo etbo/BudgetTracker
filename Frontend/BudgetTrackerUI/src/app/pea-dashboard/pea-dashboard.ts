@@ -4,11 +4,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PeaService } from '../services/pea.service';
 import { PeaGraphService } from '../services/peagraph.service';
 import { NgApexchartsModule, ChartComponent } from "ng-apexcharts";
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-pea-dashboard',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, NgApexchartsModule],
+  imports: [CommonModule, MatSnackBarModule, NgApexchartsModule, MatCardModule],
   templateUrl: './pea-dashboard.html'
 })
 export class PeaDashboard implements OnInit {

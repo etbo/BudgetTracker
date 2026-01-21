@@ -1,121 +1,111 @@
-<div style="padding: 20px;">
-  <app-date-filter [showLastImportOption]="false" (filterChanged)="onGlobalFilterChanged($event)"></app-date-filter>
+<h2>Filtres période</h2>
 
-  <mat-chip-listbox multiple>
-    <mat-chip-option [selected]="isCategoryExcluded('Neutre')" (click)="toggleCategoryExclusion('Neutre')" color="warn">
-      Ignorer Neutre
-    </mat-chip-option>
-    <mat-chip-option [selected]="isCategoryExcluded('Investissement')"
-      (click)="toggleCategoryExclusion('Investissement')" color="warn">
-      Ignorer Investissements
-    </mat-chip-option>
-  </mat-chip-listbox>
+<app-date-filter [showLastImportOption]="false" (filterChanged)="onGlobalFilterChanged($event)"></app-date-filter>
 
+<mat-chip-listbox multiple>
+  <mat-chip-option [selected]="isCategoryExcluded('Neutre')" (click)="toggleCategoryExclusion('Neutre')" color="warn">
+    Ignorer Neutre
+  </mat-chip-option>
+  <mat-chip-option [selected]="isCategoryExcluded('Investissement')" (click)="toggleCategoryExclusion('Investissement')"
+    color="warn">
+    Ignorer Investissements
+  </mat-chip-option>
+</mat-chip-listbox>
 
+<h2>Bilan financier</h2>
 
-  <mat-accordion class="example-headers-align" multi>
+<div class="summary-panel">
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>{{ totalRevenues() | number:'1.2-2' }} €</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <span>Recettes</span>
+    </mat-card-content>
+  </mat-card>
 
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title> Bilan financier </mat-panel-title>
-      </mat-expansion-panel-header>
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>{{ totalExpenses() | number:'1.2-2' }} €</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <span>Dépenses</span>
+    </mat-card-content>
+  </mat-card>
 
-      <div class="pt-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-
-          <mat-card class="summary-card revenue-border">
-            <mat-card-header>
-              <mat-card-subtitle>Recettes</mat-card-subtitle>
-              <mat-card-title class="text-green-600">
-                {{ totalRevenues() | number:'1.2-2' }} €
-              </mat-card-title>
-            </mat-card-header>
-          </mat-card>
-
-          <mat-card class="summary-card expense-border">
-            <mat-card-header>
-              <mat-card-subtitle>Dépenses</mat-card-subtitle>
-              <mat-card-title class="text-red-600">
-                {{ totalExpenses() | number:'1.2-2' }} €
-              </mat-card-title>
-            </mat-card-header>
-          </mat-card>
-
-          <mat-card class="summary-card" [ngClass]="balance() >= 0 ? 'balance-positive' : 'balance-negative'">
-            <mat-card-header>
-              <mat-card-subtitle>Solde période</mat-card-subtitle>
-              <mat-card-title [ngClass]="balance() >= 0 ? 'text-blue-600' : 'text-orange-600'">
-                {{ balance() | number:'1.2-2' }} €
-              </mat-card-title>
-            </mat-card-header>
-          </mat-card>
-
-        </div>
-      </div>
-    </mat-expansion-panel>
-
-    <mat-expansion-panel [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title> Bilan mensuel </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <div class="pt-4">
-        <app-cc-monthly-summary [operations]="operations()"></app-cc-monthly-summary>
-      </div>
-    </mat-expansion-panel>
-
-    <mat-expansion-panel [expanded]="false">
-      <mat-expansion-panel-header>
-        <mat-panel-title> Graphique </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <div class="flex flex-col gap-6 pt-4">
-        <app-cc-evolution-chart [data]="evolutionData()" (periodChanged)="onPeriodZoomed($event)">
-        </app-cc-evolution-chart>
-      </div>
-    </mat-expansion-panel>
-
-    <mat-expansion-panel [expanded]="false">
-      <mat-expansion-panel-header>
-        <mat-panel-title> Répartition des dépenses </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <div class="flex flex-col gap-6 pt-4">
-        <app-cc-macro-categories-monthly
-          [data]="macroMonthlyData()">
-        </app-cc-macro-categories-monthly>
-      </div>
-    </mat-expansion-panel>
-
-    <mat-expansion-panel [expanded]="false">
-      <mat-expansion-panel-header>
-        <mat-panel-title> Treemap </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <div class="flex flex-col gap-6 pt-4">
-        <app-treemap-color [expenses]="onlyExpensesData()" [revenues]="onlyRevenuesData()">
-        </app-treemap-color>
-        <app-pie-chart [chartTitle]="'Répartition Dépenses'" [data]="expensesForPie()">
-        </app-pie-chart>
-
-        <app-pie-chart [chartTitle]="'Répartition Revenus'" [data]="revenuesForPie()">
-        </app-pie-chart>
-      </div>
-    </mat-expansion-panel>
-
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title> Liste opérations </mat-panel-title>
-      </mat-expansion-panel-header>
-
-      <div class="pt-4">
-        <app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="10"
-          domLayout="autoHeight" sortColumn="montant" [SaveAllSuggestedButton]="false">
-        </app-cc-operations-list>
-      </div>
-    </mat-expansion-panel>
-
-
-  </mat-accordion>
-
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>{{ balance() | number:'1.2-2' }} €</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <span>Solde période</span>
+    </mat-card-content>
+  </mat-card>
 </div>
+
+<h2>Détail</h2>
+
+<mat-accordion multi>
+
+  <mat-expansion-panel [expanded]="false">
+    <mat-expansion-panel-header>
+      <mat-panel-title> Bilan mensuel </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="pt-4">
+      <app-cc-monthly-summary [operations]="operations()"></app-cc-monthly-summary>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel [expanded]="false">
+    <mat-expansion-panel-header>
+      <mat-panel-title> Graphique </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="flex flex-col gap-6 pt-4">
+      <app-cc-evolution-chart [data]="evolutionData()" (periodChanged)="onPeriodZoomed($event)">
+      </app-cc-evolution-chart>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel [expanded]="false">
+    <mat-expansion-panel-header>
+      <mat-panel-title> Répartition des dépenses </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="flex flex-col gap-6 pt-4">
+      <app-cc-macro-categories-monthly [data]="macroMonthlyData()">
+      </app-cc-macro-categories-monthly>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel [expanded]="false">
+    <mat-expansion-panel-header>
+      <mat-panel-title> Treemap </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="flex flex-col gap-6 pt-4">
+      <app-treemap-color [expenses]="onlyExpensesData()" [revenues]="onlyRevenuesData()">
+      </app-treemap-color>
+      <app-pie-chart [chartTitle]="'Répartition Dépenses'" [data]="expensesForPie()">
+      </app-pie-chart>
+
+      <app-pie-chart [chartTitle]="'Répartition Revenus'" [data]="revenuesForPie()">
+      </app-pie-chart>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Liste opérations </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="pt-4">
+      <app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="10"
+        domLayout="autoHeight" sortColumn="montant" [SaveAllSuggestedButton]="false">
+      </app-cc-operations-list>
+    </div>
+  </mat-expansion-panel>
+
+
+</mat-accordion>

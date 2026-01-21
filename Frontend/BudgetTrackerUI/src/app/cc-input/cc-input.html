@@ -1,14 +1,18 @@
+<h2>Importation de données</h2>
+
+<button mat-flat-button color="primary" (click)="fileInput.click()" [disabled]="isUploading()">
+  <mat-icon>cloud_upload</mat-icon> Charger des fichiers
+</button>
+
 <div class="import-container" style="padding: 20px;">
   <input type="file" (change)="onFileSelected($event)" #fileInput multiple hidden>
-  
-  <button mat-raised-button color="primary" (click)="fileInput.click()" [disabled]="isUploading()">
-    <mat-icon>cloud_upload</mat-icon> Charger des fichiers
-  </button>
+
+
 
   <p *ngIf="uploadStatus()" style="margin: 10px 0;">{{ uploadStatus() }}</p>
 
   <table mat-table [dataSource]="fichiersImports()" class="mat-elevation-z8" style="width: 100%; margin-top: 20px;">
-    
+
     <ng-container matColumnDef="nom">
       <th mat-header-cell *matHeaderCellDef>Fichier</th>
       <td mat-cell *matCellDef="let element">{{element.nomDuFichier}}</td>

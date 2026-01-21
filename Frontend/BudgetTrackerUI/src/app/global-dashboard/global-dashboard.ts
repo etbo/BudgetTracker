@@ -5,13 +5,14 @@ import { MatChipsModule } from '@angular/material/chips';
 import { PatrimonyService } from '../services/patrimony.service';
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
 
 type ViewMode = 'accountType' | 'liquidity';
 
 @Component({
   selector: 'app-global-dashboard',
   standalone: true,
-  imports: [CommonModule, NgApexchartsModule, MatChipsModule, MatRadioModule, FormsModule],
+  imports: [CommonModule, NgApexchartsModule, MatChipsModule, MatRadioModule, FormsModule, MatCardModule],
   templateUrl: './global-dashboard.html',
   styleUrl: './global-dashboard.scss',
 })
@@ -66,7 +67,7 @@ export class GlobalDashboard implements OnInit {
     chart: {
       type: "area",
       stacked: true,
-      height: 600,
+      height: 500,
       zoom: { enabled: false },
       toolbar: { show: false }
     },

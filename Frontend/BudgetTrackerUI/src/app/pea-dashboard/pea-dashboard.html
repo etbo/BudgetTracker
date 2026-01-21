@@ -1,41 +1,15 @@
-<div class="p-6">
-  <h2 class="text-2xl font-bold mb-4">Évolution du Portefeuille PEA</h2>
+<h2>Évolution du Portefeuille PEA</h2>
 
-  <div *ngIf="isLoading()" class="flex justify-center p-10">
-    <p>Mise à jour des cours et calcul des cumuls...</p>
-  </div>
+<div *ngIf="isLoading()" class="flex justify-center p-10">
+  <p>Mise à jour des cours et calcul des cumuls...</p>
+</div>
 
-  <div *ngIf="!isLoading() && chartSeries().length > 0" class="bg-white p-4 rounded shadow">
-    <apx-chart
-      [series]="chartSeries()"
-      [chart]="chartOptions.chart"
-      [xaxis]="chartOptions.xaxis"
-      [yaxis]="chartOptions.yaxis"
-      [stroke]="chartOptions.stroke"
-      [tooltip]="chartOptions.tooltip">
-    </apx-chart>
-  </div>
-
-  <div class="mt-8 overflow-auto h-64">
-    <table class="w-full text-sm text-left border">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="p-2">Date</th>
-          <th class="p-2">Achats Cumulés</th>
-          <th class="p-2">Valeur Totale</th>
-          <th class="p-2">Plus-value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of listeCumulsPea()" class="border-b">
-          <td class="p-2">{{ item.date | date:'shortDate' }}</td>
-          <td class="p-2">{{ item.achatCumules | number:'1.2-2' }} €</td>
-          <td class="p-2">{{ item.valeurTotale | number:'1.2-2' }} €</td>
-          <td class="p-2" [ngClass]="(item.valeurTotale - item.achatCumules) >= 0 ? 'text-green-600' : 'text-red-600'">
-            {{ (item.valeurTotale - item.achatCumules) | number:'1.2-2' }} €
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+<div *ngIf="!isLoading() && chartSeries().length > 0">
+  <mat-card appearance="outlined">
+    <mat-card-content>
+        <apx-chart [series]="chartSeries()" [chart]="chartOptions.chart" [xaxis]="chartOptions.xaxis"
+          [yaxis]="chartOptions.yaxis" [stroke]="chartOptions.stroke" [tooltip]="chartOptions.tooltip">
+        </apx-chart>
+    </mat-card-content>
+  </mat-card>
 </div>

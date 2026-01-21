@@ -21,86 +21,86 @@ html {
    ========================================================= */
 :root {
   /* Couleurs personnalisées */
-  --azure-bg-color: #f8f8f8;
-  --azure-sidebar-color: #eaeaea;
-  --azure-blue: #0078d4;
-
-  /* Suppression des arrondis Material 3 (Shapes) */
-  --mat-sys-corner-extra-small: 0px;
-  --mat-sys-corner-small: 0px;
-  --mat-sys-corner-medium: 0px;
-  --mat-sys-corner-large: 0px;
-  --mat-sys-corner-extra-large: 0px;
-  
-  /* Désactivation des arrondis spécifiques aux cartes et aux champs */
-  --mat-card-elevated-container-shape: 0px;
-  --mat-form-field-container-shape: 0px;
-  --mdc-filled-text-field-container-shape: 0px;
-  --mdc-outlined-text-field-container-shape: 0px;
-
-  /* Configuration des surfaces */
-  --mat-sys-surface-container-lowest: var(--azure-bg-color);
-  
-  /* Form fields compact */
-  --mat-form-field-container-height: 40px;
-  --mat-form-field-outlined-label-text-size: 13px;
-  --mat-form-field-input-text-size: 14px;
+  --azure-bg-color: #eef5f9;
+  --azure-blue: #1b84ff;
 }
 
 body {
   height: 100%;
   margin: 0;
   color-scheme: light;
-  background-color: var(--azure-bg-color) !important;
+  background-color: var(--azure-bg-color);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
 }
 
 /* Utilitaires de mise en page */
 .section {
-  width: 100%;
   max-width: 2200px;
-  margin: 24px auto;
+  margin: 24px;
   padding: 24px 16px;
   box-sizing: border-box;
 }
 
-/* Suppression globale des ombres pour un look Flat Azure */
+/* Force le fond blanc sur toutes les mat-card de l'application */
+mat-card {
+  --mdc-outlined-card-container-color: #ffffff !important;
+  --mdc-elevated-card-container-color: #ffffff !important;
+  background-color: #ffffff !important;
+}
 
-
-/* À mettre dans styles.scss pour écraser Material */
-
-.app-sidenav {
-  background-color: #eaeaea !important;
-  width: 280px !important;
-  border-right: 1px solid #dcdcdc !important;
-  padding: 5px;
-
-
-
-  .nav-group {
-    margin-bottom: 16px;
-
-    /* Le titre du groupe fixe */
-    .group-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #666;
-      padding: 0 16px;
-      margin: 8px 0;
-      letter-spacing: 0.5px;
-      text-transform: uppercase; /* Look très "Sidebar technique" */
-    }
-  }
-
-  .active-link {
-    background-color: #ffffff !important;
-    color: #0078d4 !important;
-
-    mat-icon {
-      color: #0078d4 !important;
-    }
-  }
-
+/* Force le fond blanc sur tous les expansion panels */
+mat-expansion-panel {
+  --mat-expansion-container-background-color: #ffffff !important;
+  background-color: #ffffff !important;
   
+  /* Optionnel : Si tu veux aussi que l'en-tête reste blanc au survol */
+  mat-expansion-panel-header {
+    background-color: #ffffff !important;
+    
+    &:hover {
+      background-color: #fcfcfc !important; /* Un blanc cassé très léger au survol */
+    }
+  }
+}
+
+.summary-panel {
+    display: flex;         /* Aligne les enfants (mat-card) en ligne */
+    gap: 16px;            /* Espace entre les cartes */
+    width: 100%;          /* Utilise toute la largeur */
+    margin-bottom: 24px;  /* Espace avec le graphique en dessous */
+
+    mat-card {
+        flex: 1;           /* Force chaque carte à prendre une part égale de la largeur */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center; /* Centre le texte à l'intérieur des cartes */
+        
+        // Ajustement pour réduire les marges internes par défaut de mat-card-header si besoin
+        mat-card-header {
+            padding-bottom: 0;
+            justify-content: center;
+        }
+        
+        mat-card-title {
+            font-size: 1.25rem !important;
+            font-weight: bold;
+            margin-bottom: 0 !important;
+        }
+
+        mat-card-content {
+            padding-top: 8px;
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+    }
+}
+
+/* Version responsive : on empile les cartes sur mobiles */
+@media (max-width: 768px) {
+    .summary-panel {
+        flex-direction: column;
+    }
 }

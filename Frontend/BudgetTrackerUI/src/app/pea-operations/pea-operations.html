@@ -1,22 +1,11 @@
-<div class="section">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-semibold text-gray-800">Saisie d'opération sur le PEA</h2>
-    <button mat-flat-button color="primary" (click)="addOperation()">
-      <mat-icon class="mr-1">add</mat-icon> Ajouter une opération
-    </button>
-  </div>
+<h2>Saisie d'opération sur le PEA</h2>
 
-  <ag-grid-angular
-    style="width: 100%; height: 600px;"
-    class="ag-theme-alpine"
-    [columnDefs]="columnDefs"
-    [defaultColDef]="defaultColDef"
-    [rowData]="operations()"
-    [getRowId]="getRowId"
-    [context]="gridContext"
-    (gridReady)="onGridReady($event)"
-    (cellValueChanged)="onCellValueChanged($event)"
-    [undoRedoCellEditing]="true"
-    [undoRedoCellEditingLimit]="10">
-  </ag-grid-angular>
-</div>
+<button mat-flat-button color="primary" (click)="addOperation()">
+  <mat-icon class="mr-1">add</mat-icon> Ajouter une opération
+</button>
+
+<ag-grid-angular style="width: 100%; height: 600px;" class="ag-theme-alpine" [columnDefs]="columnDefs"
+  [defaultColDef]="defaultColDef" [rowData]="operations()" [getRowId]="getRowId" [context]="gridContext"
+  (gridReady)="onGridReady($event)" (cellValueChanged)="onCellValueChanged($event)" [undoRedoCellEditing]="true"
+  [undoRedoCellEditingLimit]="10">
+</ag-grid-angular>

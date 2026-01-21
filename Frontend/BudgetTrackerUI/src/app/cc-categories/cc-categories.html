@@ -1,29 +1,11 @@
-<div class="p-8">
-  <mat-card class="section">
-    <mat-card-header>
-      <mat-card-title>Liste des Catégories</mat-card-title>
-    </mat-card-header>
+<h2>Liste des Catégories</h2>
 
-    <mat-card-content style="padding-top: 20px;">
-      <ag-grid-angular
-          style="width: 100%;"
-          class="ag-theme-alpine"
-          [rowData]="CcCategories()"
-          [columnDefs]="columnDefs"
-          [defaultColDef]="defaultColDef"
-          [domLayout]="'autoHeight'"
-          [getRowId]="getRowId"
-          [context]="gridContext"
-          (gridReady)="onGridReady($event)"
-          (cellValueChanged)="onCellValueChanged($event)">
-        </ag-grid-angular>
-    </mat-card-content>
+<button mat-flat-button color="primary" (click)="addCategory()">
+  <mat-icon>add</mat-icon>
+  Ajouter une catégorie
+</button>
 
-    <mat-card-actions align="end">
-    <button mat-flat-button color="primary" (click)="addCategory()">
-      <mat-icon>add</mat-icon>
-      Ajouter une catégorie
-    </button>
-  </mat-card-actions>
-  </mat-card>
-</div>
+<ag-grid-angular style="width: 100%;" class="ag-theme-alpine" [rowData]="CcCategories()" [columnDefs]="columnDefs"
+  [defaultColDef]="defaultColDef" [domLayout]="'autoHeight'" [getRowId]="getRowId" [context]="gridContext"
+  (gridReady)="onGridReady($event)" (cellValueChanged)="onCellValueChanged($event)">
+</ag-grid-angular>
