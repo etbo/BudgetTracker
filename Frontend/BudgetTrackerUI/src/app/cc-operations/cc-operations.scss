@@ -1,0 +1,35 @@
+.layout-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch; // Force la colonne de droite à faire la même hauteur que celle de gauche
+
+  .left-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .right-column {
+    display: flex;
+    align-items: flex-start; // Aligne le champ en haut
+    width: 350px;           // Largeur de ta barre de recherche
+  }
+
+  // Styles spécifiques pour forcer la hauteur de l'input Material
+  .full-height-search {
+    width: 100%;
+
+    // On supprime l'espace réservé aux erreurs en bas pour l'aligner parfaitement
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 900px) {
+  .layout-container {
+    flex-direction: column;
+    .right-column { width: 100%; }
+  }
+}

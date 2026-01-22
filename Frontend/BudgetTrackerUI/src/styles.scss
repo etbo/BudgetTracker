@@ -16,13 +16,21 @@ html {
   ));
 }
 
-/* =========================================================
-   Azure DevOps Design Tokens (Overrides)
-   ========================================================= */
 :root {
   /* Couleurs personnalisées */
   --azure-bg-color: #eef5f9;
   --azure-blue: #1b84ff;
+
+  /*** Affichage des boutons ***/
+  /* La couleur du texte */
+  --mat-button-filled-label-text-color: #ffffff;
+  
+  /* La couleur du fond (votre bleu moderne) */
+  --mat-button-filled-container-color: #1b84ff;
+
+  /* Pour les boutons au survol (optionnel) */
+  --mat-button-filled-state-layer-color: rgba(255, 255, 255, 0.1);
+
 }
 
 body {
@@ -103,4 +111,8 @@ mat-expansion-panel {
     .summary-panel {
         flex-direction: column;
     }
+}
+
+h2 {
+  color:#3A4752;
 }

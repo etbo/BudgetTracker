@@ -1,30 +1,37 @@
 <h2>Liste des opérations</h2>
 
-<app-date-filter [showLastImportOption]="true" (filterChanged)="onFilterChanged($event)" (importClicked)="onImport()">
-</app-date-filter>
+<div class="layout-container">
+  <div class="left-column">
+    <app-date-filter 
+      [showLastImportOption]="true" 
+      (filterChanged)="onFilterChanged($event)" 
+      (importClicked)="onImport()">
+    </app-date-filter>
 
-<mat-chip-listbox multiple>
-  <mat-chip-option [selected]="filterMissingCat" (click)="toggleExtraFilter('missing')" color="accent">
-    <mat-icon matChipAvatar>quiz</mat-icon>
-    Catégories manquantes
-  </mat-chip-option>
+    <mat-chip-listbox multiple>
+      <mat-chip-option [selected]="filterMissingCat" (click)="toggleExtraFilter('missing')" color="accent">
+        <mat-icon matChipAvatar>quiz</mat-icon>
+        Catégories manquantes
+      </mat-chip-option>
+      <mat-chip-option [selected]="filterSuggestedCat" (click)="toggleExtraFilter('suggested')" color="accent">
+        <mat-icon matChipAvatar>category</mat-icon>
+        Catégories suggérées
+      </mat-chip-option>
+      <mat-chip-option [selected]="filterOnlyCheques" (click)="toggleExtraFilter('cheque')" color="accent">
+        <mat-icon matChipAvatar>payments</mat-icon>
+        Chèques
+      </mat-chip-option>
+    </mat-chip-listbox>
+  </div>
 
-  <mat-chip-option [selected]="filterSuggestedCat" (click)="toggleExtraFilter('suggested')" color="accent">
-    <mat-icon matChipAvatar>category</mat-icon>
-    Catégories suggérées
-  </mat-chip-option>
-
-  <mat-chip-option [selected]="filterOnlyCheques" (click)="toggleExtraFilter('cheque')" color="accent">
-    <mat-icon matChipAvatar>payments</mat-icon>
-    Chèques
-  </mat-chip-option>
-</mat-chip-listbox>
-
-<mat-form-field appearance="outline">
-  <mat-label>Recherche globale</mat-label>
-  <input matInput [(ngModel)]="parentSearchString">
-  <mat-icon matSuffix>search</mat-icon>
-</mat-form-field>
+  <div class="right-column">
+    <mat-form-field appearance="outline" class="full-height-search">
+      <mat-label>Recherche globale</mat-label>
+      <input matInput [(ngModel)]="parentSearchString" placeholder="Ex: Courses, 15.50, Auchan...">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+</div>
 
 <app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="50"
   domLayout="autoHeight" sortColumn="montant" [SaveAllSuggestedButton]="true" [externalSearch]="parentSearchString">
