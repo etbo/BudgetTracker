@@ -115,7 +115,7 @@ export class CreateRuleDialog {
 @Component({
   selector: 'app-cc-operations-list',
   standalone: true,
-  imports: [CommonModule, AgGridModule, MatProgressSpinnerModule, FormsModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, FormsModule, AgGridModule, MatProgressSpinnerModule, FormsModule, MatIconModule, MatButtonModule, MatInputModule],
   templateUrl: './cc-operations-list.html',
   styleUrl: './cc-operations-list.scss',
 })
@@ -128,9 +128,12 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   @Input() sortColumn: string = 'date';
   @Input() SaveAllSuggestedButton: boolean = true;
   @Input() operations: CcOperation[] = [];
+  @Input() externalSearch: string = '';
 
   // Faire remonter le besoin de refresh après une modification
   @Output() refresh = new EventEmitter<void>();
+
+  searchString = '';
 
   isLoading = signal(false);
   showSaveAll = signal(false); // Signal pour piloter l'affichage du bouton global
@@ -213,6 +216,9 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     if (changes['sortColumn'] || changes['sortDirection']) {
       this.applySorting();
     }
+    if (changes['externalSearch'] && this.gridApi) {
+      this.gridApi.setGridOption('quickFilterText', this.externalSearch);
+    }
   }
 
   // --- Gestion de la visibilité du bouton global ---
@@ -231,6 +237,9 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
 
   onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+    if (this.externalSearch) {
+      this.gridApi.setGridOption('quickFilterText', this.externalSearch);
+    }
     this.applySorting();
     this.updateSaveAllVisibility();
   }

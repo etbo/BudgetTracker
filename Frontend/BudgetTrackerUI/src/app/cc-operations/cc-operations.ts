@@ -23,7 +23,7 @@ import { CcOperation } from '../models/operation-cc.model';
     MatIconModule, 
     MatChipsModule,
     DateFilter,
-    CcOperationsList // On importe le composant réutilisable
+    CcOperationsList
   ],
   templateUrl: './cc-operations.html',
   styleUrls: ['./cc-operations.scss']
@@ -33,8 +33,8 @@ export class CcOperations implements OnInit {
   operations = signal<CcOperation[]>([]);
 
   public zoomFilters = signal<FilterState | undefined>(undefined);
-  
-  searchString = '';
+
+  parentSearchString: string = '';
   
   // Ces propriétés servent uniquement à l'affichage des puces (chips)
   filterMissingCat = false;

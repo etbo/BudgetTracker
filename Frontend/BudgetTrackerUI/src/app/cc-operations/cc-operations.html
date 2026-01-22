@@ -1,46 +1,31 @@
-<mat-card class="section">
-  <mat-card-header>
-    <mat-card-title>Liste des opérations</mat-card-title>
-  </mat-card-header>
+<h2>Liste des opérations</h2>
 
-  <mat-card-content style="padding-top: 20px;">
+<app-date-filter [showLastImportOption]="true" (filterChanged)="onFilterChanged($event)" (importClicked)="onImport()">
+</app-date-filter>
 
-    <div class="flex flex-wrap items-center gap-4 mb-6">
-      <app-date-filter 
-        [showLastImportOption]="true" 
-        (filterChanged)="onFilterChanged($event)"
-        (importClicked)="onImport()">
-      </app-date-filter>
+<mat-chip-listbox multiple>
+  <mat-chip-option [selected]="filterMissingCat" (click)="toggleExtraFilter('missing')" color="accent">
+    <mat-icon matChipAvatar>quiz</mat-icon>
+    Catégories manquantes
+  </mat-chip-option>
 
-      <mat-form-field appearance="outline" class="w-[300px]">
-        <mat-label>Rechercher...</mat-label>
-        <input matInput [(ngModel)]="searchString">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
-    </div>
+  <mat-chip-option [selected]="filterSuggestedCat" (click)="toggleExtraFilter('suggested')" color="accent">
+    <mat-icon matChipAvatar>category</mat-icon>
+    Catégories suggérées
+  </mat-chip-option>
 
-    <div class="mb-6">
-      <mat-chip-listbox multiple>
-        <mat-chip-option [selected]="filterMissingCat" (click)="toggleExtraFilter('missing')" color="accent">
-          <mat-icon matChipAvatar>quiz</mat-icon>
-          Catégories manquantes
-        </mat-chip-option>
+  <mat-chip-option [selected]="filterOnlyCheques" (click)="toggleExtraFilter('cheque')" color="accent">
+    <mat-icon matChipAvatar>payments</mat-icon>
+    Chèques
+  </mat-chip-option>
+</mat-chip-listbox>
 
-        <mat-chip-option [selected]="filterSuggestedCat" (click)="toggleExtraFilter('suggested')" color="accent">
-          <mat-icon matChipAvatar>category</mat-icon>
-          Catégories suggérées
-        </mat-chip-option>
+<mat-form-field appearance="outline">
+  <mat-label>Recherche globale</mat-label>
+  <input matInput [(ngModel)]="parentSearchString">
+  <mat-icon matSuffix>search</mat-icon>
+</mat-form-field>
 
-        <mat-chip-option [selected]="filterOnlyCheques" (click)="toggleExtraFilter('cheque')" color="accent">
-          <mat-icon matChipAvatar>payments</mat-icon>
-          Chèques
-        </mat-chip-option>
-      </mat-chip-listbox>
-    </div>
-
-    <app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="50"
-          domLayout="autoHeight" sortColumn="montant" [SaveAllSuggestedButton]="true">
-    </app-cc-operations-list>
-
-  </mat-card-content>
-</mat-card>
+<app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="50"
+  domLayout="autoHeight" sortColumn="montant" [SaveAllSuggestedButton]="true" [externalSearch]="parentSearchString">
+</app-cc-operations-list>
