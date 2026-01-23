@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  overflow: hidden;
 }
 
 .app-toolbar {
@@ -10,7 +11,7 @@
   background-color: var(--azure-blue);
   color: #ffffff;
   z-index: 1001;
-  
+
   .app-brand {
     font-size: 16px;
   }
@@ -18,26 +19,41 @@
 
 .main-content-area {
   background-color: var(--azure-bg-color);
+  display: flex;
+  box-sizing: border-box;
+  height: 100%;
+
+  >* {
+    width: 100%;
+  }
+
+}
+
+.main-content {
   padding: 30px;
 }
 
 .sidenav-container {
   flex: 1;
+  height: 100%;
 }
 
-.spacer { flex: 1 1 auto; }
+.spacer {
+  flex: 1 1 auto;
+}
 
 /* Cible spécifiquement les boutons à l'intérieur d'une mat-toolbar */
 .mat-toolbar {
-    /* Force la couleur du texte et des icônes pour tous les boutons */
-    .mat-mdc-button-base {
-        --mat-toolbar-container-text-color: white;
-    }
 
-    /* Si c'est un bouton d'icône (mat-icon-button) */
-    .mat-mdc-icon-button {
-        color: white;
-    }
+  /* Force la couleur du texte et des icônes pour tous les boutons */
+  .mat-mdc-button-base {
+    --mat-toolbar-container-text-color: white;
+  }
+
+  /* Si c'est un bouton d'icône (mat-icon-button) */
+  .mat-mdc-icon-button {
+    color: white;
+  }
 }
 
 .app-sidenav {
@@ -48,5 +64,5 @@
   width: 280px !important;
   border-right: 1px solid #dcdcdc !important;
   padding: 5px;
-  
+
 }
