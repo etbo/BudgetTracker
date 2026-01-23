@@ -986,6 +986,60 @@ namespace BudgetTrackerApi.Migrations
                         });
                 });
 
+            modelBuilder.Entity("BudgetTrackerApi.Models.CcImportLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("id");
+
+                    b.Property<string>("BankName")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("bank_name");
+
+                    b.Property<DateTime?>("DateMax")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("date_max");
+
+                    b.Property<DateTime?>("DateMin")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("date_min");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("file_name");
+
+                    b.Property<DateTime>("ImportDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("import_date");
+
+                    b.Property<int>("InsertedRows")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("inserted_rows");
+
+                    b.Property<bool>("IsSuccessful")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_successful");
+
+                    b.Property<string>("MsgErreur")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("msg_erreur");
+
+                    b.Property<double>("TempsDeTraitementMs")
+                        .HasColumnType("REAL")
+                        .HasColumnName("temps_de_traitement_ms");
+
+                    b.Property<int>("TotalRows")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("total_rows");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("cc_import_logs");
+                });
+
             modelBuilder.Entity("BudgetTrackerApi.Models.CcOperation", b =>
                 {
                     b.Property<int>("Id")
@@ -1021,11 +1075,17 @@ namespace BudgetTrackerApi.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("hash");
 
+                    b.Property<int?>("ImportLogId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("import_log_id");
+
                     b.Property<double>("Montant")
                         .HasColumnType("REAL")
                         .HasColumnName("montant");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImportLogId");
 
                     b.ToTable("cc_operations", (string)null);
                 });
@@ -1107,6 +1167,8 @@ namespace BudgetTrackerApi.Migrations
                         .HasColumnName("unit_value");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LifeInsuranceLineId");
 
                     b.ToTable("life_insurance_statements");
                 });
@@ -1242,13 +1304,35 @@ namespace BudgetTrackerApi.Migrations
                     b.ToTable("saving_statements");
                 });
 
+            modelBuilder.Entity("BudgetTrackerApi.Models.CcOperation", b =>
+                {
+                    b.HasOne("BudgetTrackerApi.Models.CcImportLog", "ImportLog")
+                        .WithMany("Operations")
+                        .HasForeignKey("ImportLogId");
+
+                    b.Navigation("ImportLog");
+                });
+
             modelBuilder.Entity("BudgetTrackerApi.Models.LifeInsurance.LifeInsuranceLine", b =>
                 {
-                    b.HasOne("BudgetTrackerApi.Models.LifeInsurance.LifeInsuranceAccount", null)
+                    b.HasOne("BudgetTrackerApi.Models.LifeInsurance.LifeInsuranceAccount", "Account")
                         .WithMany("Lines")
                         .HasForeignKey("LifeInsuranceAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("BudgetTrackerApi.Models.LifeInsurance.LifeInsuranceStatement", b =>
+                {
+                    b.HasOne("BudgetTrackerApi.Models.LifeInsurance.LifeInsuranceLine", "Line")
+                        .WithMany("Statements")
+                        .HasForeignKey("LifeInsuranceLineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Line");
                 });
 
             modelBuilder.Entity("BudgetTrackerApi.Models.Savings.SavingStatement", b =>
@@ -1262,9 +1346,19 @@ namespace BudgetTrackerApi.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("BudgetTrackerApi.Models.CcImportLog", b =>
+                {
+                    b.Navigation("Operations");
+                });
+
             modelBuilder.Entity("BudgetTrackerApi.Models.LifeInsurance.LifeInsuranceAccount", b =>
                 {
                     b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("BudgetTrackerApi.Models.LifeInsurance.LifeInsuranceLine", b =>
+                {
+                    b.Navigation("Statements");
                 });
 
             modelBuilder.Entity("BudgetTrackerApi.Models.Savings.SavingAccount", b =>

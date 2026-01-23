@@ -12,7 +12,7 @@
   <div class="grid-container">
     <ag-grid-angular
       style="width: 100%; height: 500px;"
-      [rowData]="fichiersImports()"
+      [rowData]="allRowData()"
       [columnDefs]="columnDefs"
       [defaultColDef]="defaultColDef"
       (gridReady)="onGridReady($event)"

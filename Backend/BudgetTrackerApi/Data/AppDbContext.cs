@@ -41,6 +41,7 @@ namespace BudgetTrackerApi.Data
             public DbSet<LifeInsuranceAccount> LifeInsuranceAccounts { get; set; }
             public DbSet<LifeInsuranceLine> LifeInsuranceLines { get; set; }
             public DbSet<LifeInsuranceStatement> LifeInsuranceStatements { get; set; }
+            public DbSet<CcImportLog> CcImportLogs { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

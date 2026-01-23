@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using BudgetTrackerApi.Services; // Adapte selon tes namespaces
+using BudgetTrackerApi.Services;
+using BudgetTrackerApi.DTOs; // Adapte selon tes namespaces
 
 [ApiController]
 [Route("api/[controller]")]
@@ -25,5 +26,12 @@ public class ImportsController : ControllerBase
         var result = await _importService.ProcessImportAsync(file);
 
         return Ok(result);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<ImportResultDto>>> GetHistory()
+    {
+        var history = await _importService.GetAllImportsAsync();
+        return Ok(history);
     }
 }

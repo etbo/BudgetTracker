@@ -9,7 +9,7 @@ namespace BudgetTrackerApi.Models
         public string? Description { get; set; }
         public double Montant { get; set; }
         public string? Categorie { get; set; }
-        
+
         [NotMapped]
         public string? MacroCategory { get; set; }
         public string? Comment { get; set; }
@@ -17,5 +17,9 @@ namespace BudgetTrackerApi.Models
         public DateTime DateImport { get; set; }
         public string? Hash { get; set; }
         public bool IsModified { get; set; } = false;
+
+        // Clé étrangère vers l'import
+        public int? ImportLogId { get; set; }
+        public CcImportLog? ImportLog { get; set; }
     }
 }

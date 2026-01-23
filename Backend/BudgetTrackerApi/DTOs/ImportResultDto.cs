@@ -9,6 +9,7 @@ namespace BudgetTrackerApi.DTOs
         string? Parser,
         DateTime? DateMin,
         DateTime? DateMax,
-        double TempsDeTraitementMs
+        double TempsDeTraitementMs,
+        DateTime DateImport
     );
 }

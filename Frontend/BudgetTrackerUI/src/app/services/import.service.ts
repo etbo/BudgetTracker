@@ -9,6 +9,10 @@ export class ImportService {
 
     constructor(private http: HttpClient) { }
 
+    getHistory() {
+        return this.http.get<FichierTraite[]>(this.apiUrl);
+    }
+
     uploadFile(file: File) {
         const formData = new FormData();
         formData.append('file', file);
