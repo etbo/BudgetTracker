@@ -30,7 +30,7 @@ namespace BudgetTrackerApi.Services
                     // pour que le Parser puisse relire le Stream s'il en a besoin.
                     memoryStream.Position = 0;
                 }
-                
+
                 var ctx = new ParserInputContext
                 {
                     FileStream = memoryStream,
@@ -40,7 +40,7 @@ namespace BudgetTrackerApi.Services
                 };
                 var parser = ParserFactory.GetParser(ctx);
 
-                
+
                 if (parser == null)
                     throw new Exception("Parser non trouvé");
 
@@ -52,14 +52,30 @@ namespace BudgetTrackerApi.Services
 
                 // Filtrage par Hash
                 var existingHashes = _db.CcOperations.Select(o => o.Hash).ToHashSet();
+                Console.WriteLine($"Parsing terminé2");
                 var filteredOps = operations.Where(op => !existingHashes.Contains(op.Hash)).ToList();
+                Console.WriteLine($"Parsing terminé3");
 
                 _db.CcOperations.AddRange(filteredOps);
+                Console.WriteLine($"Parsing terminé4");
                 await _db.SaveChangesAsync();
+                Console.WriteLine($"Parsing terminé5");
+                Console.WriteLine($"operations.Count = {operations.Count}");
+                Console.WriteLine($"filteredOps.Count = {filteredOps.Count}");
 
-                return new ImportResultDto(file.FileName, true, "", operations.Count, filteredOps.Count,
-                    parser.BankName, filteredOps.Min(o => o.Date), filteredOps.Max(o => o.Date),
-                    (DateTime.Now - startTime).TotalMilliseconds);
+                bool hasOps = filteredOps.Any();
+
+                return new ImportResultDto(
+                    file.FileName,
+                    true,
+                    "",
+                    operations.Count,
+                    filteredOps.Count,
+                    parser.BankName,
+                    hasOps ? filteredOps.Min(o => o.Date) : null,
+                    hasOps ? filteredOps.Max(o => o.Date) : null,
+                    (DateTime.Now - startTime).TotalMilliseconds
+                );
             }
             catch (Exception e)
             {

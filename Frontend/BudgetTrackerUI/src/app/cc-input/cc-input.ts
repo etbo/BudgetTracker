@@ -2,14 +2,18 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
 import { ImportService } from '../services/import.service';
 import { FichierTraite } from '../models/fichier-traite.model';
+
+import { AgGridModule } from 'ag-grid-angular';
+import { ColDef, ModuleRegistry, AllCommunityModule, GridReadyEvent, GridApi } from 'ag-grid-community';
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 @Component({
   selector: 'app-cc-input',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatTableModule],
+  // Remplacer MatTableModule par AgGridModule
+  imports: [CommonModule, MatButtonModule, MatIconModule, AgGridModule],
   templateUrl: './cc-input.html',
   styleUrl: './cc-input.scss'
 })
@@ -18,23 +22,64 @@ export class CcInput {
   isUploading = signal(false);
   uploadStatus = signal('');
   private filesInProgress = 0;
+  private gridApi!: GridApi;
 
-  displayedColumns: string[] = ['nom', 'resultat', 'banque', 'stats', 'dates', 'duree'];
+  // Définition des colonnes AG Grid
+  columnDefs: ColDef[] = [
+    { headerName: 'Fichier', field: 'nomDuFichier', flex: 1.5 },
+    {
+      headerName: 'Résultat',
+      field: 'isSuccessful',
+      flex: 1,
+      cellRenderer: (p: any) => {
+        const color = p.value ? 'green' : 'red';
+        const label = p.value ? 'Succès' : (p.data.msgErreur || 'Erreur');
+        return `<span style="color: ${color}; font-weight: 500;">${label}</span>`;
+      }
+    },
+    { headerName: 'Banque', field: 'parser', flex: 1 },
+    {
+      headerName: 'Opérations (Lues/Ajoutées)',
+      valueGetter: (p) => `${p.data.nombreOperationsAjoutees} / ${p.data.nombreOperationsLus}`,
+      flex: 1
+    },
+    {
+      headerName: 'Période',
+      valueGetter: (p) => p.data.dateMin ? `${p.data.dateMin} au ${p.data.dateMax}` : '-',
+      flex: 1.2
+    },
+    {
+      headerName: 'Traitement',
+      field: 'tempsDeTraitementMs',
+      valueFormatter: (p) => `${p.value?.toFixed(0)} ms`,
+      width: 120
+    }
+  ];
+
+  defaultColDef: ColDef = {
+    sortable: true,
+    filter: true,
+    resizable: true
+  };
 
   constructor(private importService: ImportService) { }
+
+  onGridReady(params: GridReadyEvent) {
+    this.gridApi = params.api;
+  }
 
   onFileSelected(event: any) {
     const files: FileList = event.target.files;
     if (files && files.length > 0) {
       this.isUploading.set(true);
       Array.from(files).forEach(file => this.uploadFile(file));
-      event.target.value = ''; // Reset pour permettre de re-sélectionner le même fichier
+      event.target.value = '';
     }
   }
 
   private uploadFile(file: File) {
     this.filesInProgress++;
-    this.uploadStatus.set(`Import de ${this.filesInProgress} fichier(s) en cours...`);
+    this.uploadStatus.set(`LOADING Import de ${this.filesInProgress} fichier(s) en cours...`);
 
     this.importService.uploadFile(file).subscribe({
       next: (result) => {
@@ -43,7 +88,6 @@ export class CcInput {
         this.checkFinalization();
       },
       error: (err) => {
-        console.error('Erreur upload:', err);
         this.fichiersImports.update(actuels => [this.createErrorResult(file.name), ...actuels]);
         this.checkFinalization();
       }
