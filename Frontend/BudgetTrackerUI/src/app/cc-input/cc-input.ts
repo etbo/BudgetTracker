@@ -6,7 +6,8 @@ import { ImportService } from '../services/import.service';
 import { FichierTraite } from '../models/fichier-traite.model';
 
 import { AgGridModule } from 'ag-grid-angular';
-import { ColDef, ModuleRegistry, AllCommunityModule, GridReadyEvent, GridApi } from 'ag-grid-community';
+import { ColDef, ModuleRegistry, AllCommunityModule, GridReadyEvent, GridApi, ValueFormatterParams } from 'ag-grid-community';
+import { customDateFormatter } from '../shared/utils/grid-utils';
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 @Component({
@@ -45,7 +46,15 @@ export class CcInput {
     },
     {
       headerName: 'Période',
-      valueGetter: (p) => p.data.dateMin ? `${p.data.dateMin} au ${p.data.dateMax}` : '-',
+      valueGetter: (p) => {
+        if (!p.data.dateMin || !p.data.dateMax) return '-';
+
+        // On appelle manuellement ton formateur pour chaque date
+        const start = customDateFormatter({ value: p.data.dateMin } as ValueFormatterParams);
+        const end = customDateFormatter({ value: p.data.dateMax } as ValueFormatterParams);
+
+        return `${start} → ${end}`;
+      },
       flex: 1.2
     },
     {

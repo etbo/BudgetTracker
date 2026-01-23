@@ -116,3 +116,15 @@ mat-expansion-panel {
 h2 {
   color:#3A4752;
 }
+
+.main-content-area {
+  .main-content {
+    // Cible la balise button ou le sélecteur de base d'Angular Material
+    button[mat-flat-button], 
+    button[mat-raised-button],
+    .mat-mdc-button-base {
+      margin-bottom: 12px; // Espace sous le bouton
+      margin-right: 8px;   // Espace entre deux boutons côte à côte
+    }
+  }
+}

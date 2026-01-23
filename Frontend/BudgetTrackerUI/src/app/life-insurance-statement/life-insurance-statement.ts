@@ -87,7 +87,7 @@ export class LifeInsuranceStatement implements OnInit {
       valueGetter: (p) => p.data.isHeader
         ? `${p.data.expanded ? '▼' : '▶'} ${p.data.accountName} (${p.data.accountOwner})`
         : `      ${p.data.lineLabel}`,
-      cellStyle: (p): any => p.data.isHeader ? { fontWeight: 'bold', cursor: 'pointer', backgroundColor: '#fafafa' } : { paddingLeft: '50px' }
+      cellStyle: (p): any => p.data.isHeader ? { fontWeight: 'bold', cursor: 'pointer' } : { paddingLeft: '50px' }
     },
     {
       headerName: 'Date',
@@ -102,7 +102,7 @@ export class LifeInsuranceStatement implements OnInit {
         }
         return "";
       },
-      cellStyle: (p): any => p.data.isHeader ? { fontWeight: 'bold', backgroundColor: '#fafafa' } : null
+      cellStyle: (p): any => p.data.isHeader ? { fontWeight: 'bold' } : null
     },
     {
       headerName: 'Parts',
@@ -117,7 +117,7 @@ export class LifeInsuranceStatement implements OnInit {
         return p.value?.toFixed(5);
       },
       cellStyle: (p): any => {
-        if (p.data.isHeader) return { color: '#ccc', backgroundColor: '#fafafa' };
+        if (p.data.isHeader) return { color: '#ccc' };
         return null;
       }
     },
@@ -129,7 +129,7 @@ export class LifeInsuranceStatement implements OnInit {
       editable: (p) => !p.data.isHeader,
       valueFormatter: (p) => p.data.isHeader ? '' : (p.value ? p.value.toFixed(2) + ' €' : ''),
       cellStyle: (p) => p.data.isHeader
-        ? { fontWeight: 'bold', cursor: 'pointer', backgroundColor: '#fafafa' }
+        ? { fontWeight: 'bold', cursor: 'pointer' }
         : null
     },
     {
@@ -140,7 +140,7 @@ export class LifeInsuranceStatement implements OnInit {
       valueFormatter: (p) => p.value?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }),
       cellStyle: (p): any => {
         if (p.data.isHeader) {
-          return { fontWeight: 'bold', backgroundColor: '#fafafa' };
+          return { fontWeight: 'bold' };
         }
         return { color: '#666' };
       }
