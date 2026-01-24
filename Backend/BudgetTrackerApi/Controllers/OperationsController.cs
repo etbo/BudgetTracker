@@ -108,13 +108,33 @@ public class OperationsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, CcOperation op)
     {
-        var entity = await _db.CcOperations.FindAsync(id);
-        if (entity == null) return NotFound();
+        if (id != op.Id) return BadRequest();
 
-        entity.Categorie = op.Categorie;
-        entity.Comment = op.Comment;
+        // 1. On récupère la version actuelle en base pour comparer
+        var existingOp = await _db.CcOperations.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
+        // 2. Si la catégorie était vide et qu'elle vient d'être remplie
+        if (string.IsNullOrEmpty(existingOp?.Categorie) && !string.IsNullOrEmpty(op.Categorie))
+        {
+            // On cherche la règle qui correspond à ce qui vient d'être validé
+            var rule = await _db.CcCategoryRules
+                .FirstOrDefaultAsync(r => r.Category == op.Categorie &&
+                                         (op.Description ?? "").Contains(r.Pattern ?? ""));
+
+            if (rule != null)
+            {
+                rule.UsageCount++;
+
+                if (!rule.LastAppliedAt.HasValue || op.Date > rule.LastAppliedAt)
+                {
+                    rule.LastAppliedAt = op.Date;
+                }
+            }
+        }
+
+        _db.Entry(op).State = EntityState.Modified;
         await _db.SaveChangesAsync();
+
         return NoContent();
     }
 
@@ -123,13 +143,23 @@ public class OperationsController : ControllerBase
     {
         if (op == null) return BadRequest();
 
-        var rules = await _db.CcCategoryRules.ToListAsync();
-        string suggestedCat = _ruleService.GetAutoCategory(op, rules);
+        // 1. On récupère les règles actives
+        var rules = await _db.CcCategoryRules.Where(r => r.IsUsed).ToListAsync();
 
-        return Ok(new
+        // 2. On cherche la règle qui match (logique identique à ton RuleService)
+        var matchingRule = rules.FirstOrDefault(r =>
+            !string.IsNullOrEmpty(r.Pattern) &&
+            (op.Description ?? "").Contains(r.Pattern, StringComparison.OrdinalIgnoreCase));
+
+        if (matchingRule != null)
         {
-            categorie = suggestedCat,
-            isSuggested = !string.IsNullOrEmpty(suggestedCat)
-        });
+            return Ok(new
+            {
+                categorie = matchingRule.Category,
+                isSuggested = true
+            });
+        }
+
+        return Ok(new { categorie = "", isSuggested = false });
     }
 }

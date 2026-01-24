@@ -3,6 +3,7 @@ using System;
 using BudgetTrackerApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetTrackerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260124183422_AddRuleStatistics")]
+    partial class AddRuleStatistics
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -1188,10 +1191,6 @@ namespace BudgetTrackerApi.Migrations
                     b.Property<int?>("ImportLogId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("import_log_id");
-
-                    b.Property<bool>("IsSuggested")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("is_suggested");
 
                     b.Property<double>("Montant")
                         .HasColumnType("REAL")

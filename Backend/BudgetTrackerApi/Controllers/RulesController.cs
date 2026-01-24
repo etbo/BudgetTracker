@@ -50,4 +50,49 @@ public class RulesController : ControllerBase
         await _db.SaveChangesAsync();
         return NoContent();
     }
+
+    [HttpPost("recalculate-stats")]
+    public async Task<IActionResult> RecalculateStats()
+    {
+        var rules = await _db.CcCategoryRules.ToListAsync();
+        // On récupère les opérations qui ont une catégorie
+        var operations = await _db.CcOperations
+            .Where(o => !string.IsNullOrEmpty(o.Categorie))
+            .Select(o => new { 
+                Description = o.Description ?? "", 
+                Categorie = o.Categorie ?? "", 
+                Date = o.Date 
+            })
+            .ToListAsync();
+
+        foreach (var rule in rules)
+        {
+            if (string.IsNullOrEmpty(rule.Pattern))
+            {
+                rule.UsageCount = 0;
+                rule.LastAppliedAt = null;
+                continue;
+            }
+
+            var matches = operations.Where(o =>
+                o.Description.Contains(rule.Pattern, StringComparison.OrdinalIgnoreCase) &&
+                o.Categorie == rule.Category
+            ).ToList();
+
+            rule.UsageCount = matches.Count;
+
+            if (matches.Any())
+            {
+                // On prend enfin la vraie date de l'opération !
+                rule.LastAppliedAt = matches.Max(m => m.Date);
+            }
+            else
+            {
+                rule.LastAppliedAt = null;
+            }
+        }
+
+        await _db.SaveChangesAsync();
+        return Ok();
+    }
 }

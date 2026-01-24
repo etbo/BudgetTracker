@@ -144,15 +144,35 @@ export class CcRules implements OnInit {
         'color': '#1565c0'
       }
     },
+    // ... à l'intérieur de columnDefs ...
+
+    {
+      headerName: 'Usage',
+      field: 'usageCount',
+      width: 100,
+      filter: 'agNumberColumnFilter',
+      // Petit formateur pour ne rien afficher si c'est 0 (optionnel)
+      valueFormatter: (p) => p.value > 0 ? p.value : '-'
+    },
+    {
+      headerName: 'Dernière util.',
+      field: 'lastAppliedAt',
+      width: 160,
+      valueFormatter: customDateFormatter,
+      sort: 'desc',
+      comparator: (dateA, dateB) => {
+        // Gestion des nulls pour le tri
+        if (!dateA) return -1;
+        if (!dateB) return 1;
+        return new Date(dateA).getTime() - new Date(dateB).getTime();
+      }
+    },
     {
       headerName: 'X',
       width: 50,
       sortable: false,
       filter: false,
       cellRenderer: DeleteButtonRenderer,
-      cellStyle: {
-        'background-color': '#e3f2fd'
-      }
     }
   ];
 
@@ -198,5 +218,11 @@ export class CcRules implements OnInit {
         this.rules.update(list => list.filter(r => r.id !== rule.id));
       });
     }
+  }
+
+  recalculateStats() {
+    this.rulesService.recalculateStats().subscribe(() => {
+      this.loadRules(); // On recharge la grille avec les nouvelles valeurs
+    });
   }
 }

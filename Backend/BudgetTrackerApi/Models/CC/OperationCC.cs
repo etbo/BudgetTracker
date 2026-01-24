@@ -9,6 +9,7 @@ namespace BudgetTrackerApi.Models
         public string? Description { get; set; }
         public double Montant { get; set; }
         public string? Categorie { get; set; }
+        public bool IsSuggested { get; set; }
 
         [NotMapped]
         public string? MacroCategory { get; set; }

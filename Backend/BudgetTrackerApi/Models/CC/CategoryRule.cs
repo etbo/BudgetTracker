@@ -11,5 +11,7 @@ namespace BudgetTrackerApi.Models
         public DateTime? MaxDate { get; set; }
         public string? Category { get; set; } = "";
         public string? Comment { get; set; } = "";
+        public int UsageCount { get; set; } = 0;
+        public DateTime? LastAppliedAt { get; set; }
     }
 }

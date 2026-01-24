@@ -20,4 +20,8 @@ export class RulesService {
     // On ne rajoute PAS "/rules/" ici si c'est déjà dans l'apiUrl
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  recalculateStats(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/recalculate-stats`, {});
+  }
 }

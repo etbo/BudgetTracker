@@ -13,12 +13,11 @@ namespace BudgetTrackerApi.Services
         public async Task<ImportResultDto> ProcessImportAsync(IFormFile file)
         {
             var startTime = DateTime.Now;
-            // On prépare le log immédiatement pour pouvoir le sauver même en cas de crash
             var importLog = new CcImportLog
             {
                 FileName = file.FileName,
                 ImportDate = DateTime.Now,
-                IsSuccessful = false // Par défaut, on changera en true à la fin
+                IsSuccessful = false
             };
 
             try
@@ -49,19 +48,18 @@ namespace BudgetTrackerApi.Services
                 var operations = parser.Parse(ctx);
                 importLog.BankName = parser.BankName;
 
-                // 1. Filtrage par Hash pour éviter les doublons
                 var existingHashes = _db.CcOperations.Select(o => o.Hash).ToHashSet();
                 var filteredOps = operations.Where(op => !existingHashes.Contains(op.Hash)).ToList();
 
                 bool hasOps = filteredOps.Any();
-                
-                // Mise à jour des stats du log
+
                 importLog.TotalRows = operations.Count;
                 importLog.InsertedRows = filteredOps.Count;
                 importLog.DateMin = hasOps ? filteredOps.Min(o => o.Date) : null;
                 importLog.DateMax = hasOps ? filteredOps.Max(o => o.Date) : null;
 
-                // 2. Transaction pour les données
+                var activeRules = await _db.CcCategoryRules.Where(r => r.IsUsed).ToListAsync();
+
                 using (var transaction = await _db.Database.BeginTransactionAsync())
                 {
                     try
@@ -70,7 +68,7 @@ namespace BudgetTrackerApi.Services
                         importLog.TempsDeTraitementMs = (DateTime.Now - startTime).TotalMilliseconds;
 
                         _db.CcImportLogs.Add(importLog);
-                        await _db.SaveChangesAsync(); // Génère l'Id
+                        await _db.SaveChangesAsync();
 
                         if (hasOps)
                         {
@@ -87,7 +85,7 @@ namespace BudgetTrackerApi.Services
                     catch
                     {
                         await transaction.RollbackAsync();
-                        throw; // Relance pour le catch global
+                        throw;
                     }
                 }
 
@@ -96,28 +94,25 @@ namespace BudgetTrackerApi.Services
             catch (Exception e)
             {
                 Console.WriteLine($"Erreur : {e.Message}");
-                
-                // Finalisation du log en mode échec
                 importLog.IsSuccessful = false;
                 importLog.MsgErreur = e.Message;
                 importLog.TempsDeTraitementMs = (DateTime.Now - startTime).TotalMilliseconds;
 
-                // Si l'objet n'a pas été ajouté à la DB avant le crash, on l'ajoute
                 if (_db.Entry(importLog).State == EntityState.Detached)
                 {
                     _db.CcImportLogs.Add(importLog);
                 }
-                
+
                 await _db.SaveChangesAsync();
 
                 return new ImportResultDto(
-                    file.FileName, 
-                    false, 
-                    e.Message, 
-                    0, 0, 
-                    importLog.BankName, 
-                    null, null, 
-                    importLog.TempsDeTraitementMs, 
+                    file.FileName,
+                    false,
+                    e.Message,
+                    0, 0,
+                    importLog.BankName,
+                    null, null,
+                    importLog.TempsDeTraitementMs,
                     importLog.ImportDate
                 );
             }
@@ -129,7 +124,7 @@ namespace BudgetTrackerApi.Services
                 .OrderByDescending(i => i.ImportDate)
                 .Select(i => new ImportResultDto(
                     i.FileName,
-                    i.IsSuccessful, // Utilise la vraie valeur de succès
+                    i.IsSuccessful,
                     i.MsgErreur ?? "",
                     i.TotalRows,
                     i.InsertedRows,
