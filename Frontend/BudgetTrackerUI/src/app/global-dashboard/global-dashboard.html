@@ -3,7 +3,9 @@
 <div class="summary-panel" *ngIf="lastPoint() as lp">
     <mat-card appearance="outlined">
         <mat-card-header>
-            <mat-card-title>{{ lp.cash | number:'1.0-0' }} €</mat-card-title>
+            <mat-card-title [style.color]="'var(' + getAccountColorVar('cc') + ')'">
+                {{ lp.cash | number:'1.0-0' }} €
+            </mat-card-title>
         </mat-card-header>
         <mat-card-content>
             <span>Liquidités</span>
@@ -12,25 +14,31 @@
 
     <mat-card appearance="outlined">
         <mat-card-header>
-            <mat-card-title>{{ lp.savings | number:'1.0-0' }} €</mat-card-title>
+            <mat-card-title [style.color]="'var(' + getAccountColorVar('savings') + ')'">
+                {{ lp.savings | number:'1.0-0' }} €
+            </mat-card-title>
         </mat-card-header>
         <mat-card-content>
             <span>Épargne</span>
         </mat-card-content>
     </mat-card>
-    
-        <mat-card appearance="outlined">
-            <mat-card-header>
-                <mat-card-title>{{ lp.pea | number:'1.0-0' }} €</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                <span>PEA</span>
-            </mat-card-content>
-        </mat-card>
 
     <mat-card appearance="outlined">
         <mat-card-header>
-            <mat-card-title>{{ lp.lifeInsurance | number:'1.0-0' }} €</mat-card-title>
+            <mat-card-title [style.color]="'var(' + getAccountColorVar('pea') + ')'">
+                {{ lp.pea | number:'1.0-0' }} €
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <span>PEA</span>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined">
+        <mat-card-header>
+            <mat-card-title [style.color]="'var(' + getAccountColorVar('life-insurrance') + ')'">
+                {{ lp.lifeInsurance | number:'1.0-0' }} €
+            </mat-card-title>
         </mat-card-header>
         <mat-card-content>
             <span>Assur. Vie</span>

@@ -2,10 +2,11 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatChipsModule } from '@angular/material/chips';
-import { PatrimonyService } from '../services/patrimony.service';
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
+import { PatrimonyService } from '../services/patrimony.service';
+import { ThemeService } from '../services/theme.service';
 
 type ViewMode = 'accountType' | 'liquidity';
 
@@ -17,25 +18,25 @@ type ViewMode = 'accountType' | 'liquidity';
   styleUrl: './global-dashboard.scss',
 })
 export class GlobalDashboard implements OnInit {
+  private themeService = inject(ThemeService);
   private patrimonyService = inject(PatrimonyService);
 
-  // États
+  // --- ÉTATS ---
   public rawData = signal<any[]>([]);
   public viewMode = signal<ViewMode>('accountType');
 
+  // --- CALCULS DU PATRIMOINE ---
   public lastPoint = computed(() => {
     const data = this.rawData();
     return data.length > 0 ? data[data.length - 1] : null;
   });
 
-  // Calcul du total net actuel
   public currentTotal = computed(() => {
     const p = this.lastPoint();
-    if (!p) return 0;
-    return p.cash + p.savings + p.lifeInsurance + p.pea;
+    return p ? (p.cash + p.savings + p.lifeInsurance + p.pea) : 0;
   });
 
-  // Séries calculées dynamiquement selon le mode choisi
+  // --- SÉRIES DU GRAPHIQUE ---
   public chartSeries = computed(() => {
     const data = this.rawData();
     if (data.length === 0) return [];
@@ -48,7 +49,6 @@ export class GlobalDashboard implements OnInit {
         { name: "PEA", data: data.map(d => d.pea) }
       ];
     } else {
-      // Mode Liquidité : Cash+Épargne vs AV+PEA
       return [
         { name: "Liquide", data: data.map(d => d.cash + d.savings) },
         { name: "Non Liquide", data: data.map(d => d.lifeInsurance + d.pea) }
@@ -56,13 +56,34 @@ export class GlobalDashboard implements OnInit {
     }
   });
 
-  // Couleurs dynamiques selon le nombre de séries
+  // --- COULEURS SYNCHRONISÉES (THEME SERVICE) ---
   public chartColors = computed(() => {
-    return this.viewMode() === 'accountType'
-      ? ['#0077ff', '#FEB019', '#00E396', '#775DD0'] // 4 couleurs
-      : ['#00E396', '#FF4560']; // 2 couleurs (Vert / Rouge)
+    if (this.viewMode() === 'accountType') {
+      return [
+        this.themeService.getAccountColor('cc'),
+        this.themeService.getAccountColor('savings'),
+        this.themeService.getAccountColor('pea'),
+        this.themeService.getAccountColor('life-insurrance'),
+        this.themeService.getVariableColor('--color-autre')
+      ];
+    }
+    return [
+      this.themeService.getVariableColor('--color-success'),
+      this.themeService.getVariableColor('--color-danger')
+    ];
   });
 
+  // --- AXE X ---
+  public chartXAxis = computed(() => {
+    return {
+      type: "category" as const,
+      categories: this.rawData().map(d => d.label),
+      labels: { rotate: -45, style: { fontSize: '11px' } },
+      tickAmount: 12
+    };
+  });
+
+  // --- CONFIGURATION APEXCHARTS ---
   public chartOptions: any = {
     chart: {
       type: "area",
@@ -84,9 +105,7 @@ export class GlobalDashboard implements OnInit {
     },
     legend: { position: 'top', horizontalAlign: 'right' },
     yaxis: {
-      labels: {
-        formatter: (v: number) => (v / 1000).toFixed(0) + ' k€'
-      }
+      labels: { formatter: (v: number) => (v / 1000).toFixed(0) + ' k€' }
     },
     tooltip: {
       shared: true,
@@ -95,43 +114,43 @@ export class GlobalDashboard implements OnInit {
         const date = w.globals.categoryLabels[dataPointIndex];
         const total = series.reduce((sum: number, s: number[]) => sum + s[dataPointIndex], 0);
 
-        let html = `<div style="padding: 12px; line-height: 1.5; font-size: 12px; background: #fff; border: 1px solid #ccc; border-radius: 4px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1)">`;
-        html += `<div style="font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #eee;">${date}</div>`;
+        let html = `<div style="padding: 12px; font-size: 12px; background: #fff; border: 1px solid #ccc; border-radius: 4px;">`;
+        html += `<div style="font-weight: bold; margin-bottom: 8px;">${date}</div>`;
 
         w.config.series.forEach((s: any, idx: number) => {
           const val = series[idx][dataPointIndex];
           const color = w.config.colors[idx];
-          html += `<div style="display: flex; justify-content: space-between; gap: 20px; margin-bottom: 3px;">
+          html += `<div style="display: flex; justify-content: space-between; gap: 20px;">
                     <span><span style="color:${color}">●</span> ${s.name}</span>
                     <span style="font-weight: 600;">${val.toLocaleString('fr-FR')} €</span>
                    </div>`;
         });
 
-        html += `<div style="margin-top: 8px; padding-top: 8px; border-top: 2px solid #eee; display: flex; justify-content: space-between; font-weight: bold; color: #333;">
-                  <span>Patrimoine Net</span>
-                  <span>${total.toLocaleString('fr-FR')} €</span>
-                 </div>`;
-        html += `</div>`;
+        html += `<div style="margin-top: 8px; border-top: 1px solid #eee; font-weight: bold; padding-top: 5px;">
+                  Total: ${total.toLocaleString('fr-FR')} €
+                 </div></div>`;
         return html;
       }
     }
   };
 
-  public chartXAxis = computed(() => {
-    return {
-      type: "category" as const,
-      categories: this.rawData().map(d => d.label),
-      labels: {
-        rotate: -45,
-        style: { fontSize: '11px' }
-      },
-      tickAmount: 12
-    };
-  });
-
   ngOnInit() {
+    // Restauration du mode de vue uniquement
+    const savedView = localStorage.getItem('dashboard_view_mode') as ViewMode;
+    if (savedView) this.viewMode.set(savedView);
+
     this.patrimonyService.getGlobalHistory().subscribe(res => {
       this.rawData.set(res);
     });
+  }
+
+  updateViewMode(mode: ViewMode) {
+    this.viewMode.set(mode);
+    localStorage.setItem('dashboard_view_mode', mode);
+  }
+
+  // Utilitaire pour les bordures et textes des cartes dans le HTML
+  getAccountColorVar(name: string) {
+    return this.themeService.getAccountColorVar(name);
   }
 }
