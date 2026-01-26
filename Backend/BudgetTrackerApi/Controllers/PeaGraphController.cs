@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BudgetTrackerApi.Services;
 using BudgetTrackerApi.Models;
+using static BudgetTrackerApi.Services.FinanceService;
 
 namespace BudgetTrackerApi.Controllers
 {
@@ -53,12 +54,15 @@ namespace BudgetTrackerApi.Controllers
                 // On appelle ta logique existante du FinanceService
                 var res = await _financeService.UpdatePeaCachedStockPrice(ticker.Ticker, ticker.OldestDate, false);
 
-                results.Add(new UpdateResult
+                if (res.Status != UpdateStatus.NotAttempted)
                 {
-                    Ticker = ticker.Ticker,
-                    Status = res.Status.ToString(),
-                    Message = res.Message
-                });
+                    results.Add(new UpdateResult
+                    {
+                        Ticker = ticker.Ticker,
+                        Status = res.Status.ToString(),
+                        Message = res.Message
+                    });
+                }
             }
 
             return Ok(results);

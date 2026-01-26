@@ -1,9 +1,8 @@
-import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { PeaService } from '../services/pea.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { PeaGraphService } from '../services/peagraph.service';
-import { NgApexchartsModule, ChartComponent } from "ng-apexcharts";
+import { NgApexchartsModule } from "ng-apexcharts";
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
@@ -13,36 +12,24 @@ import { MatCardModule } from '@angular/material/card';
   templateUrl: './pea-dashboard.html'
 })
 export class PeaDashboard implements OnInit {
-  listeCumulsPea = signal<any[]>([]);
-  chartSeries = signal<any[]>([]);
-  isLoading = signal(true);
+  // --- Services ---
+  private peaGraphService = inject(PeaGraphService);
 
-  // Configuration ApexCharts
+  // --- États ---
+  public listeCumulsPea = signal<any[]>([]);
+  public chartSeries = signal<any[]>([]);
+  public isLoading = signal(true);
   public chartOptions: any;
 
-  constructor(
-    private peaService: PeaService, 
-    private peaGraphService: PeaGraphService,
-    private snackBar: MatSnackBar
-  ) {
+  constructor() {
     this.initChartOptions();
   }
 
   ngOnInit() {
-    this.updatePricesAndLoadData();
-  }
-
-  private updatePricesAndLoadData() {
-    // 1. Déclencher la mise à jour des prix
-    this.peaGraphService.updatePrices().subscribe(results => {
-      results.forEach(res => {
-        this.snackBar.open(`${res.ticker}: ${res.message}`, 'Fermer', { 
-            duration: 3000, 
-            panelClass: res.status === 'Success' ? 'bg-success' : 'bg-error' 
-        });
-      });
-
-      // 2. Charger les données de cumul
+    // On appelle updatePricesIfNeeded() : 
+    // - Si déjà fait (AppComponent), ça charge les données direct.
+    // - Si pas fait, ça met à jour puis charge les données.
+    this.peaGraphService.updatePricesIfNeeded().subscribe(() => {
       this.loadCumulData();
     });
   }
@@ -58,7 +45,7 @@ export class PeaDashboard implements OnInit {
   private processChartData(data: any[]) {
     const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    const series = [
+    this.chartSeries.set([
       {
         name: "Gains",
         data: sortedData.map(d => ({ x: new Date(d.date).getTime(), y: Math.round(d.valeurTotale - d.achatCumules) }))
@@ -71,18 +58,21 @@ export class PeaDashboard implements OnInit {
         name: "Valeur Totale",
         data: sortedData.map(d => ({ x: new Date(d.date).getTime(), y: Math.round(d.valeurTotale) }))
       }
-    ];
-
-    this.chartSeries.set(series);
+    ]);
   }
 
   private initChartOptions() {
     this.chartOptions = {
-      chart: { type: "line", height: 600, animations: { enabled: true } },
-      stroke: { width: 2, curve: 'smooth' },
+      chart: { 
+        type: "line", 
+        height: 600, 
+        animations: { enabled: true },
+        toolbar: { show: false }
+      },
+      stroke: { width: 3, curve: 'smooth' },
       xaxis: { type: "datetime" },
-      yaxis: { labels: { formatter: (val: number) => val.toFixed(2) + " €" } },
-      tooltip: { x: { format: "dd MMM yyyy" } }
+      yaxis: { labels: { formatter: (val: number) => val.toLocaleString('fr-FR') + " €" } },
+      tooltip: { x: { format: "dd MMM yyyy" }, shared: true }
     };
   }
 }

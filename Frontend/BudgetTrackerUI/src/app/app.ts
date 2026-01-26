@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'; // OnInit et signal ne sont plus nécessaires ici
+import { Component, inject, OnInit } from '@angular/core'; // OnInit et signal ne sont plus nécessaires ici
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -13,6 +13,8 @@ import { NavMenuComponent } from './nav-menu/nav-menu';
 
 import { filtersService } from './services/filters.service';
 import { ExportService } from './services/export.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { PeaGraphService } from './services/peagraph.service';
 
 @Component({
   selector: 'app-root',
@@ -31,12 +33,26 @@ import { ExportService } from './services/export.service';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
   // On ne garde que la logique de l'interface (UI)
   public isDrawerOpen = true;
   public isDarkMode = false;
 
+  private peaGraphService = inject(PeaGraphService);
+  private snackBar = inject(MatSnackBar);
+
   constructor(private exportService: ExportService) {}
+
+  ngOnInit() {
+    // Se lancera une seule fois au démarrage de l'app
+    this.peaGraphService.updatePricesIfNeeded().subscribe(results => {
+      if (results && results.length > 0) {
+        this.snackBar.open(`✅ Mise à jour des valeurs PEA (${results.length} titres)`, 'OK', { 
+          duration: 3000 
+        });
+      }
+    });
+  }
 
   toggleDrawer() {
     this.isDrawerOpen = !this.isDrawerOpen;

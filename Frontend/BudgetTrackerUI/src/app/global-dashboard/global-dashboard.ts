@@ -95,7 +95,7 @@ export class GlobalDashboard implements OnInit {
     dataLabels: { enabled: false },
     stroke: { curve: "smooth", width: 2 },
     fill: {
-      type: "gradient",
+      type: "solid",
       gradient: {
         shadeIntensity: 1,
         opacityFrom: 0.5,
