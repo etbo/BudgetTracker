@@ -9,14 +9,21 @@
 }
 
 .active-link {
-    background-color: #43ced7;
+    background-color: var(--nav-active-bg);
 
     .mdc-list-item__primary-text {
-        color: #ffffff !important;
+        color: var(--nav-active-text) !important;
     }
 
     mat-icon {
-      color: #ffffff;
+        color: var(--nav-active-icon);
     }
-  }
+}
+
+.group-title {
+  &.title-savings { color: var(--color-account-savings); }
+  &.title-finance { color: var(--color-account-pea); }
+  &.title-cc { color: var(--color-account-cc); }
+  &.title-life-insurrance { color: var(--color-account-life-insurrance); }
+}
 

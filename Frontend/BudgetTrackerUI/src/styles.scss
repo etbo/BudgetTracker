@@ -19,26 +19,31 @@ html {
 :root {
   /* Couleurs personnalisées */
   --azure-bg-color: #eef5f9;
-  --azure-blue: #1b84ff;
+  --azure-blue: #083D77;
 
   /*** Affichage des boutons ***/
   /* La couleur du texte */
   --mat-button-filled-label-text-color: #ffffff;
   
   /* La couleur du fond (votre bleu moderne) */
-  --mat-button-filled-container-color: #1b84ff;
+  --mat-button-filled-container-color: #083D77;
 
   /* Pour les boutons au survol (optionnel) */
   --mat-button-filled-state-layer-color: rgba(255, 255, 255, 0.1);
 
   /* couleur pour les graph */
-  --color-account-cc: #0077ff;
-  --color-account-savings: #FEB019;
-  --color-account-pea: #00E396;
-  --color-account-life-insurrance: #775DD0;
+  --color-account-cc: #61C9A8 ;
+  --color-account-savings: #F95738;
+  --color-account-pea: #F4D35E;
+  --color-account-life-insurrance: #EE964B;
   --color-success: #5ec26b;
   --color-danger: #FF4560;
-}
+
+  /* Navigation */
+  --nav-active-bg: #BBBAC6;
+  --nav-active-text: #ffffff;
+  --nav-active-icon: #ffffff;
+} 
 
 body {
   height: 100%;

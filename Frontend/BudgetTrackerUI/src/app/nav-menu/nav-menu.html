@@ -15,7 +15,7 @@
   </div>
 
   <div class="nav-group">
-    <h3 class="group-title">Comptes courants</h3>
+    <h3 class="group-title  title-cc">Comptes courants</h3>
 
     <a mat-list-item routerLink="/cc-dashboard" routerLinkActive="active-link">
       <mat-icon matListItemIcon>dashboard</mat-icon>
@@ -45,29 +45,7 @@
   </div>
 
   <div class="nav-group">
-    <h3 class="group-title">Finance</h3>
-    <a mat-list-item routerLink="/pea-dashboard" routerLinkActive="active-link">
-      <mat-icon matListItemIcon>dashboard</mat-icon>
-      <span matListItemTitle>Dashboard</span>
-    </a>
-
-    <a mat-list-item routerLink="/pea-input" routerLinkActive="active-link">
-      <mat-icon matListItemIcon>account_balance_wallet</mat-icon>
-      <span matListItemTitle>Opérations</span>
-    </a>
-  </div>
-
-  <div class="nav-group">
-    <h3 class="group-title">Assurance vie</h3>
-
-    <a mat-list-item routerLink="/li-statement" routerLinkActive="active-link">
-      <mat-icon matListItemIcon>list</mat-icon>
-      <span matListItemTitle>Relevés</span>
-    </a>
-  </div>
-
-  <div class="nav-group">
-    <h3 class="group-title">Livrets</h3>
+    <h3 class="group-title title-savings">Epargne</h3>
 
     <a mat-list-item routerLink="/savings-statement" routerLinkActive="active-link">
       <mat-icon matListItemIcon>table_view</mat-icon>
@@ -75,8 +53,35 @@
     </a>
 
     <a mat-list-item routerLink="/savings-account-list" routerLinkActive="active-link">
-      <mat-icon matListItemIcon>savings</mat-icon>
+      <mat-icon matListItemIcon>list</mat-icon>
       <span matListItemTitle>Liste livrets</span>
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <h3 class="group-title  title-finance">PEA</h3>
+    <a mat-list-item routerLink="/pea-dashboard" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>dashboard</mat-icon>
+      <span matListItemTitle>Dashboard</span>
+    </a>
+
+    <a mat-list-item routerLink="/pea-input" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>list</mat-icon>
+      <span matListItemTitle>Opérations</span>
+    </a>
+  </div>
+
+  <div class="nav-group">
+    <h3 class="group-title title-life-insurrance">Assur. vie</h3>
+
+    <a mat-list-item routerLink="/li-statement" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>table_view</mat-icon>
+      <span matListItemTitle>Relevés</span>
+    </a>
+
+    <a mat-list-item routerLink="/li-list" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>list</mat-icon>
+      <span matListItemTitle>Liste AV</span>
     </a>
   </div>
 

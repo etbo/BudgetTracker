@@ -97,7 +97,7 @@ public class LifeInsuranceController : ControllerBase
             GroupKey = $"{s.Line.LifeInsuranceAccountId}_{s.Date}"
         })
         .ToListAsync();
-        
+
         return Ok(history);
     }
 
@@ -106,8 +106,7 @@ public class LifeInsuranceController : ControllerBase
     {
         // Récupère tous les contrats avec leur Owner
         return Ok(await _db.LifeInsuranceAccounts
-            .Where(a => a.IsActive)
-            .Select(a => new { a.Id, a.Name, a.Owner })
+            .Select(a => new { a.Id, a.Name, a.Owner, a.IsActive, a.UpdateFrequencyInMonths })
             .ToListAsync());
     }
 
@@ -122,6 +121,50 @@ public class LifeInsuranceController : ControllerBase
         statement.UnitValue = dto.UnitValue;
         // On peut aussi permettre la date si besoin : statement.Date = dto.Date;
 
+        await _db.SaveChangesAsync();
+        return Ok();
+    }
+
+    // POST: api/LifeInsurance/accounts
+    [HttpPost("accounts")]
+    public async Task<ActionResult> CreateAccount([FromBody] LifeInsuranceAccount account)
+    {
+        if (account == null) return BadRequest();
+
+        _db.LifeInsuranceAccounts.Add(account);
+        await _db.SaveChangesAsync();
+
+        return Ok(account);
+    }
+
+    // PUT: api/LifeInsurance/accounts/{id}
+    [HttpPut("accounts/{id}")]
+    public async Task<IActionResult> UpdateAccount(int id, [FromBody] LifeInsuranceAccount updatedAccount)
+    {
+        var account = await _db.LifeInsuranceAccounts.FindAsync(id);
+        if (account == null) return NotFound();
+
+        // Mise à jour des champs éditables dans ta grille AG-Grid
+        account.Name = updatedAccount.Name;
+        account.Owner = updatedAccount.Owner;
+        account.IsActive = updatedAccount.IsActive;
+        account.UpdateFrequencyInMonths = updatedAccount.UpdateFrequencyInMonths;
+        // Ajoute ici bankName ou Provider si tu as ajouté ces colonnes en BDD
+
+        await _db.SaveChangesAsync();
+        return Ok();
+    }
+
+    // DELETE: api/LifeInsurance/accounts/{id}
+    [HttpDelete("accounts/{id}")]
+    public async Task<IActionResult> DeleteAccount(int id)
+    {
+        var account = await _db.LifeInsuranceAccounts.FindAsync(id);
+        if (account == null) return NotFound();
+
+        // Attention : la suppression peut échouer si des 'Lines' ou 'Statements' y sont liés.
+        // Optionnel : Passer IsActive à false au lieu de supprimer (Soft Delete)
+        _db.LifeInsuranceAccounts.Remove(account);
         await _db.SaveChangesAsync();
         return Ok();
     }

@@ -6,6 +6,7 @@ namespace BudgetTrackerApi.Models.LifeInsurance
         public required string Name { get; set; }        // ex: "Linxea Spirit 2"
         public required string Owner { get; set; }       // Ton nouveau champ (ex: "Joint", "Moi")
         public bool IsActive { get; set; } = true;
+        public int UpdateFrequencyInMonths { get; set; } = 1;
 
         // Liste des lignes de ce contrat (Fonds Euro + les 3 SCPI)
         public virtual ICollection<LifeInsuranceLine> Lines { get; set; } = new List<LifeInsuranceLine>();

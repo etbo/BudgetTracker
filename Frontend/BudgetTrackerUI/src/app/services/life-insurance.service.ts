@@ -39,4 +39,13 @@ export class LifeInsuranceService {
   updateStatement(id: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/update-statement/${id}`, data);
   }
+
+  createAccount(account: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/accounts`, account);
+  }
+
+  // Pour mettre à jour le nom, l'assureur ou la fréquence
+  updateAccount(account: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/accounts/${account.id}`, account);
+  }
 }

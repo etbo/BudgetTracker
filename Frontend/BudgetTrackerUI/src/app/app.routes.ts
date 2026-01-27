@@ -12,6 +12,7 @@ import { SavingsAccountList } from './savings-account-list/savings-account-list'
 import { AccountsStatus } from './accounts-status/accounts-status';
 import { LifeInsuranceStatement } from './life-insurance-statement/life-insurance-statement';
 import { GlobalDashboard } from './global-dashboard/global-dashboard';
+import { LifeInsurranceList } from './life-insurrance-list/life-insurrance-list';
 
 export const routes: Routes = [
   // { path: '', component: Home },
@@ -39,6 +40,7 @@ export const routes: Routes = [
   
   // Assurance vie
   { path: 'li-statement', component: LifeInsuranceStatement },
+  { path: 'li-list', component: LifeInsurranceList },
   
   // Redirection si l'URL est inconnue
   { path: '**', redirectTo: '' }

@@ -45,8 +45,8 @@ export class GlobalDashboard implements OnInit {
       return [
         { name: "Liquidités (CC)", data: data.map(d => d.cash) },
         { name: "Épargne", data: data.map(d => d.savings) },
-        { name: "Assurance Vie", data: data.map(d => d.lifeInsurance) },
-        { name: "PEA", data: data.map(d => d.pea) }
+        { name: "PEA", data: data.map(d => d.pea) },
+        { name: "Assurance Vie", data: data.map(d => d.lifeInsurance) }
       ];
     } else {
       return [
