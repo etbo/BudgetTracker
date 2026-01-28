@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -42,6 +42,17 @@ export class CcOperations implements OnInit, OnDestroy {
   filterMissingCat = false;
   filterSuggestedCat = false;
   filterOnlyCheques = false;
+
+  // Stats
+  totalOperations = computed(() => this.operations().length);
+  
+  missingCategoriesCount = computed(() => 
+    this.operations().filter(op => !op.categorie || op.isModified).length
+  );
+
+  suggestedCategoriesCount = computed(() => 
+    this.operations().filter(op => op.isModified).length
+  );
 
   constructor(private operationsService: OperationsService) { }
 

@@ -1,4 +1,17 @@
 <h2>Liste des opérations</h2>
+<div class="stats-bar">
+    <span class="stat-item">
+      <strong>{{ totalOperations() }}</strong> opérations
+    </span>
+    <span class="stat-divider"> | </span>
+    <span class="stat-item" [class.warning]="missingCategoriesCount() > 0">
+      <strong>{{ missingCategoriesCount() }}</strong> sans catégorie
+    </span>
+    <span class="stat-divider"> | </span>
+    <span class="stat-item">
+      <strong>{{ suggestedCategoriesCount() }}</strong> suggérées
+    </span>
+  </div>
 
 <div class="layout-container">
   <div class="left-column">

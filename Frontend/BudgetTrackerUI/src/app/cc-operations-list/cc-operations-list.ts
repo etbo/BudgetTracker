@@ -191,10 +191,6 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     }
   ];
 
-  private filterListener = (event: any) => {
-    this.refresh.emit();
-  };
-
   constructor(
     private opService: OperationsService,
     private rulesService: RulesService,
@@ -247,6 +243,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
       this.gridApi.setGridOption('quickFilterText', this.externalSearch);
     }
     this.applySorting();
+    this.isInitialising = false;
     this.updateSaveAllVisibility();
   }
 
@@ -266,6 +263,8 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
         op.isModified = false;
         this.gridApi.applyTransaction({ update: [op] });
         this.updateSaveAllVisibility();
+
+        this.refresh.emit();
       }
     });
   }
@@ -296,6 +295,8 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
               // Mise à jour de l'affichage AG Grid
               this.gridApi.applyTransaction({ update: [op] });
               this.updateSaveAllVisibility();
+
+              this.refresh.emit();
             });
           },
           error: (err) => console.error("Erreur lors de la suppression :", err)
@@ -335,6 +336,8 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
           this.gridApi.applyTransaction({ update: operationsToSave });
           this.updateSaveAllVisibility();
           this.isLoading.set(false);
+
+          this.refresh.emit();
         },
         error: () => this.isLoading.set(false)
       });
