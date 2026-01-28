@@ -25,7 +25,6 @@ export class TreemapColor implements OnChanges {
     const series = [];
     const colors = [];
 
-    console.log("treemap revenues length:", this.revenues.length);
     if (this.revenues.length > 0) {
       series.push({
         name: 'Recettes',
@@ -34,7 +33,6 @@ export class TreemapColor implements OnChanges {
       colors.push('#22c55e');
     }
     
-    console.log("treemap expenses length:", this.expenses.length);
     if (this.expenses.length > 0) {
       series.push({
         name: 'Dépenses',

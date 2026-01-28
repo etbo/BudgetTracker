@@ -4,8 +4,7 @@
   <div class="left-column">
     <app-date-filter 
       [showLastImportOption]="true" 
-      (filterChanged)="onFilterChanged($event)" 
-      (importClicked)="onImport()">
+      (filterChanged)="onFilterChanged($event)">
     </app-date-filter>
 
     <mat-chip-listbox multiple>
@@ -34,5 +33,5 @@
 </div>
 
 <app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="50"
-  domLayout="autoHeight" sortColumn="date" [SaveAllSuggestedButton]="true" [externalSearch]="parentSearchString">
+  domLayout="autoHeight" sortColumn="date" [SaveAllSuggestedButton]="true" [externalSearch]="parentSearchString" (refresh)="onListRefresh()">
 </app-cc-operations-list>

@@ -17,19 +17,21 @@ public class OperationsController : ControllerBase
         _ruleService = ruleService;
     }
 
+    // --- 1. Filtre de base (Période / Mode) ---
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CcOperation>>> Get(
-        [FromQuery] string mode = "last",
-        [FromQuery] bool missingCat = false,
-        [FromQuery] bool onlyCheques = false,
-        [FromQuery] bool suggestedCat = false,
-        [FromQuery] DateTime? startDate = null,
-        [FromQuery] DateTime? endDate = null,
-        [FromQuery] string? excludedCategories = null)
+    [FromQuery] string mode = "last",
+    [FromQuery] bool missingCat = false,
+    [FromQuery] bool onlyCheques = false,
+    [FromQuery] bool suggestedCat = false,
+    [FromQuery] DateTime? startDate = null,
+    [FromQuery] DateTime? endDate = null,
+    [FromQuery] string? excludedCategories = null)
     {
         var query = _db.CcOperations.AsQueryable();
 
         // --- 1. Filtre de base (Période / Mode) ---
+        // On ne filtre par DateImport que si le mode est strictement "last"
         if (mode == "last")
         {
             if (await _db.CcOperations.AnyAsync())
@@ -38,16 +40,24 @@ public class OperationsController : ControllerBase
                 query = query.Where(op => op.DateImport == lastDate);
             }
         }
+        // Pour tous les autres cas (last6, last12, last36...), on utilise les dates fournies
         else if (startDate.HasValue && endDate.HasValue)
         {
-            query = query.Where(op => op.Date >= startDate.Value && op.Date <= endDate.Value);
+            // IMPORTANT : On s'assure que startDate commence à 00:00:00
+            var start = startDate.Value.Date;
+            // IMPORTANT : On s'assure que endDate va jusqu'à 23:59:59
+            var end = endDate.Value.Date.AddDays(1).AddTicks(-1);
+
+            query = query.Where(op => op.Date >= start && op.Date <= end);
         }
 
-        // --- 2. Filtres cumulables (Chips) ---
+        // --- 2. Filtres cumulables (Le reste de ton code est parfait) ---
         if (missingCat)
         {
             query = query.Where(op => string.IsNullOrEmpty(op.Categorie));
         }
+
+        // ... reste du code identique ...
 
         if (onlyCheques)
         {

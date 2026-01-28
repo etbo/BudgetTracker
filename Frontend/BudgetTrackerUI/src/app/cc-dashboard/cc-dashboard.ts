@@ -18,6 +18,7 @@ import { OperationsService } from '../services/operations.service';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { MatCard, MatCardHeader, MatCardModule, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { CcMacroCategoriesMonthly } from '../charts/cc-macro-categories-monthly/cc-macro-categories-monthly';
+import { distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-cc-dashboard',
@@ -112,9 +113,16 @@ export class CcDashboard implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Charge les données initiales
-    this.loadAllData();
+    filtersService.filters$.pipe(
+      // On ne déclenche que si l'objet JSON des filtres est différent du précédent
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    ).subscribe(() => {
+      this.loadAllData();
+    });
 
+    // Force la synchro de l'URL UNE SEULE FOIS au démarrage
+    const current = filtersService.getFilters();
+    filtersService.updateFilters(current);
   }
 
   private refreshFromGlobal() {

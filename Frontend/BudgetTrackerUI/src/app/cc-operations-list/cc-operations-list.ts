@@ -26,6 +26,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
+import { Subscription } from 'rxjs';
+
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 @Component({
@@ -120,7 +122,9 @@ export class CreateRuleDialog {
   styleUrl: './cc-operations-list.scss',
 })
 export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
+  private filterSub?: Subscription;
   private gridApi!: GridApi;
+  private isInitialising = false;
 
   @Input() customFilters?: FilterState;
   @Input() pageSize: number = 50;
@@ -198,8 +202,8 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   ) { }
 
   ngOnInit() {
-    window.addEventListener('filterChanged', this.filterListener);
 
+    // Chargement des catégories pour le select
     this.rulesService.getCcCategories().subscribe(cats => {
       const catCol = this.columnDefs.find(c => c.field === 'categorie');
       if (catCol) {
@@ -210,19 +214,20 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['customFilters'] && this.customFilters) {
-      this.refresh.emit();
-    }
-    if (changes['sortColumn'] || changes['sortDirection']) {
-      this.applySorting();
-    }
+    
+    // Si la recherche externe change, on applique le filtre AG Grid (pas de refresh API nécessaire)
     if (changes['externalSearch'] && this.gridApi) {
       this.gridApi.setGridOption('quickFilterText', this.externalSearch);
+    }
+    
+    if (changes['sortColumn']) {
+      this.applySorting();
     }
   }
 
   // --- Gestion de la visibilité du bouton global ---
   updateSaveAllVisibility() {
+    if (this.isInitialising) return;
     if (!this.gridApi) return;
     if (!this.SaveAllSuggestedButton) return;
     let found = false;
@@ -236,6 +241,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   onModelUpdated() { this.updateSaveAllVisibility(); }
 
   onGridReady(params: GridReadyEvent) {
+    this.isInitialising = true;
     this.gridApi = params.api;
     if (this.externalSearch) {
       this.gridApi.setGridOption('quickFilterText', this.externalSearch);
@@ -336,7 +342,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy() {
-    window.removeEventListener('filterChanged', this.filterListener);
+    this.filterSub?.unsubscribe();
   }
 
   getRowId = (params: any) => params.data.id.toString();

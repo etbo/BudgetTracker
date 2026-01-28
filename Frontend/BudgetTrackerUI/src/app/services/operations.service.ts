@@ -13,12 +13,13 @@ export class OperationsService {
 
   getOperations(): Observable<CcOperation[]> {
     const filters = filtersService.getFilters();
-    
+
     let params = new HttpParams()
       .set('mode', filters.view || 'last')
-      .set('missingCat', !!filters.missingCat)
-      .set('suggestedCat', !!filters.suggestedCat)
-      .set('onlyCheques', !!filters.onlyCheques);
+      // On convertit explicitement en string "true"/"false"
+      .set('missingCat', (!!filters.missingCat).toString())
+      .set('suggestedCat', (!!filters.suggestedCat).toString())
+      .set('onlyCheques', (!!filters.onlyCheques).toString());
 
     if (filters.start) {
       params = params.set('startDate', filters.start);
@@ -28,7 +29,6 @@ export class OperationsService {
       params = params.set('endDate', filters.end);
     }
 
-    // AJOUT : On envoie les catégories exclues sous forme de string "Cat1,Cat2"
     if (filters.excludedCategories && filters.excludedCategories.length > 0) {
       params = params.set('excludedCategories', filters.excludedCategories.join(','));
     }

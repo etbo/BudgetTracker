@@ -120,15 +120,18 @@ export class GlobalDashboard implements OnInit {
         w.config.series.forEach((s: any, idx: number) => {
           const val = series[idx][dataPointIndex];
           const color = w.config.colors[idx];
+          const formattedVal = Math.round(val).toLocaleString('fr-FR');
           html += `<div style="display: flex; justify-content: space-between; gap: 20px;">
                     <span><span style="color:${color}">●</span> ${s.name}</span>
-                    <span style="font-weight: 600;">${val.toLocaleString('fr-FR')} €</span>
+                    <span style="font-weight: 600;">${formattedVal} €</span>
                    </div>`;
         });
 
-        html += `<div style="margin-top: 8px; border-top: 1px solid #eee; font-weight: bold; padding-top: 5px;">
-                  Total: ${total.toLocaleString('fr-FR')} €
-                 </div></div>`;
+        const formattedVal = Math.round(total).toLocaleString('fr-FR');
+
+        html += `<div style="margin-top: 8px; border-top: 1px solid #eee; font-weight: bold; padding-top: 5px; text-align: center;">
+            Total : ${formattedVal} €
+         </div></div>`;
         return html;
       }
     }

@@ -1,4 +1,4 @@
-// src/app/services/filters.service.ts
+import { BehaviorSubject } from 'rxjs';
 
 export interface FilterState {
   start?: string;
@@ -10,54 +10,99 @@ export interface FilterState {
   onlyCheques?: boolean;
 }
 
-export const filtersService = {
-  // 1. Lire l'URL et transformer en objet propre
-  getFilters(): FilterState {
-    const params = new URLSearchParams(window.location.search);
-    const view = params.get('view');
-    const excludedRaw = params.get('excludedCategories');
+const STORAGE_KEY = 'budget_tracker_filters';
 
-    return {
-      start: params.get('start') || undefined,
-      end: params.get('end') || undefined,
-      view: view || 'last',
-      excludedCategories: excludedRaw ? excludedRaw.split(',') : [],
-      missingCat: params.get('missingCat') === 'true',
-      suggestedCat: params.get('suggestedCat') === 'true',
-      onlyCheques: params.get('onlyCheques') === 'true'
-    };
+/**
+ * Calcule les dates si nécessaire
+ */
+function computeDates(state: FilterState): FilterState {
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  let start = state.start;
+  let end = state.end;
+
+  if (state.view === 'last6') {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 6);
+    start = d.toISOString().split('T')[0];
+    end = today;
+  } else if (state.view === 'last12') {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 1);
+    start = d.toISOString().split('T')[0];
+    end = today;
+  } else if (state.view === 'last24') {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 2);
+    start = d.toISOString().split('T')[0];
+    end = today;
+  }
+
+  return { ...state, start, end };
+}
+
+function getInitialState(): FilterState {
+  const params = new URLSearchParams(window.location.search);
+  
+  // Si URL vide, on check le storage
+  if (params.toString() === '' && localStorage.getItem(STORAGE_KEY)) {
+    return computeDates(JSON.parse(localStorage.getItem(STORAGE_KEY)!));
+  }
+
+  return computeDates({
+    start: params.get('start') || undefined,
+    end: params.get('end') || undefined,
+    view: params.get('view') || 'last6',
+    excludedCategories: params.get('excludedCategories')?.split(',').filter(x => x) || [],
+    missingCat: params.get('missingCat') === 'true',
+    suggestedCat: params.get('suggestedCat') === 'true',
+    onlyCheques: params.get('onlyCheques') === 'true'
+  });
+}
+
+const filtersSubject = new BehaviorSubject<FilterState>(getInitialState());
+
+export const filtersService = {
+  filters$: filtersSubject.asObservable(),
+
+  getFilters(): FilterState {
+    return filtersSubject.value;
   },
 
-  // 2. Mettre à jour l'URL intelligemment
-  updateFilters(newState: FilterState) {
-    const params = new URLSearchParams(window.location.search);
-    const current = { ...this.getFilters(), ...newState };
+  updateFilters(newState: Partial<FilterState>) {
+    // 1. Fusionner l'ancien état avec le nouveau
+    const current = computeDates({ ...this.getFilters(), ...newState });
+    console.log('Filtres mis à jour (Objet) :', current);
 
-    if (current.view === 'last' || current.view === 'all') {
-      current.start = undefined;
-      current.end = undefined;
-    }
-
+    // 2. Construire les paramètres de l'URL
+    const params = new URLSearchParams();
+    
     Object.entries(current).forEach(([key, value]) => {
-      if (value === true) {
-        params.set(key, 'true');
-      } else if (typeof value === 'string' && value) {
-        params.set(key, value);
-      } else if (Array.isArray(value) && value.length > 0) {
-        // --- AJOUT ICI : Gestion du tableau ---
-        params.set(key, value.join(','));
+      // Sécurité : on n'ajoute que si la valeur existe
+      if (value === undefined || value === null || value === false) return;
+
+      if (Array.isArray(value)) {
+        if (value.length > 0) params.set(key, value.join(','));
       } else {
-        params.delete(key);
+        params.set(key, value.toString());
       }
     });
 
-    const newPath = params.toString() ? '?' + params.toString() : '';
-    window.history.pushState(null, '', window.location.pathname + newPath);
-    window.dispatchEvent(new CustomEvent('filterChanged', { detail: current }));
+    const queryString = params.toString();
+    const newPath = queryString ? '?' + queryString : window.location.pathname;
+    
+    console.log('Tentative écriture URL :', newPath);
+
+    // 3. Mise à jour physique de l'URL et du Storage
+    window.history.pushState(null, '', newPath);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+
+    // 4. Notification des composants
+    filtersSubject.next(current);
   },
 
   reset() {
-    window.history.pushState(null, '', window.location.pathname);
-    window.dispatchEvent(new CustomEvent('filterChanged', { detail: { view: 'last' } }));
+    localStorage.removeItem(STORAGE_KEY);
+    this.updateFilters({ view: 'last6', start: undefined, end: undefined, excludedCategories: [] });
   }
 };

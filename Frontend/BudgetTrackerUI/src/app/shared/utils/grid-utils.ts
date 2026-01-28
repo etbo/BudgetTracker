@@ -63,3 +63,15 @@ export const localDateSetter = (params: ValueSetterParams): boolean => {
 
   return true;
 };
+
+export const formatDateFr = (value: any): string => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return value;
+  
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  }).format(date).replace('.', '');
+};
