@@ -43,7 +43,7 @@ function computeDates(state: FilterState): FilterState {
 
 function getInitialState(): FilterState {
   const params = new URLSearchParams(window.location.search);
-  
+
   // Si URL vide, on check le storage
   if (params.toString() === '' && localStorage.getItem(STORAGE_KEY)) {
     return computeDates(JSON.parse(localStorage.getItem(STORAGE_KEY)!));
@@ -69,18 +69,14 @@ export const filtersService = {
     return filtersSubject.value;
   },
 
+  // ... (reste du code identique)
+
   updateFilters(newState: Partial<FilterState>) {
-    // 1. Fusionner l'ancien état avec le nouveau
     const current = computeDates({ ...this.getFilters(), ...newState });
-    console.log('Filtres mis à jour (Objet) :', current);
-
-    // 2. Construire les paramètres de l'URL
     const params = new URLSearchParams();
-    
-    Object.entries(current).forEach(([key, value]) => {
-      // Sécurité : on n'ajoute que si la valeur existe
-      if (value === undefined || value === null || value === false) return;
 
+    Object.entries(current).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === false) return;
       if (Array.isArray(value)) {
         if (value.length > 0) params.set(key, value.join(','));
       } else {
@@ -89,15 +85,14 @@ export const filtersService = {
     });
 
     const queryString = params.toString();
-    const newPath = queryString ? '?' + queryString : window.location.pathname;
-    
-    console.log('Tentative écriture URL :', newPath);
 
-    // 3. Mise à jour physique de l'URL et du Storage
+    // --- CORRECTION ICI ---
+    // On garde le pathname actuel (ex: /cc-dashboard) et on ajoute les params
+    const newPath = window.location.pathname + (queryString ? '?' + queryString : '');
+
     window.history.pushState(null, '', newPath);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
 
-    // 4. Notification des composants
     filtersSubject.next(current);
   },
 
