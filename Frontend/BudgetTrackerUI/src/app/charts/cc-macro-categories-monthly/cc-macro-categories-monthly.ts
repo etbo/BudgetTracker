@@ -1,13 +1,14 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, SimpleChanges, OnChanges } from '@angular/core';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
 @Component({
   selector: 'app-cc-macro-categories-monthly',
+  standalone: true, // Assure-toi qu'il est standalone si besoin
   imports: [NgApexchartsModule],
   templateUrl: './cc-macro-categories-monthly.html',
   styleUrl: './cc-macro-categories-monthly.scss',
 })
-export class CcMacroCategoriesMonthly {
+export class CcMacroCategoriesMonthly implements OnChanges {
   @Input() data: any[] = [];
 
   public chartOptions: any;
@@ -17,7 +18,8 @@ export class CcMacroCategoriesMonthly {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['data'] && this.data) {
+    // On retire la vérification 'this.data' ici pour laisser updateChart gérer
+    if (changes['data']) {
       this.updateChart();
     }
   }
@@ -29,39 +31,55 @@ export class CcMacroCategoriesMonthly {
         type: "bar",
         height: 350,
         stacked: true,
-        stackType: "100%", // Force le total à 100%
+        stackType: "100%",
         toolbar: { show: false }
       },
-      colors: ["#ef4444", "#3b82f6", "#22c55e", "#8b8b8b"], // Rouge (Obligatoire), Bleu (Loisir), Vert (Invest)
-      xaxis: { categories: [] },
+      colors: ["#ef4444", "#3b82f6", "#22c55e", "#8b8b8b"],
+      xaxis: { 
+        categories: [],
+        type: 'category' // Force le mode catégorie pour les strings
+      },
       yaxis: {
-        labels: { formatter: (val: number) => val + "%" }
+        labels: { formatter: (val: number) => Math.round(val) + "%" }
       },
       dataLabels: {
         enabled: true,
-        formatter: (val: number) => Math.round(val) + "%"
+        formatter: (val: number) => val > 0 ? Math.round(val) + "%" : ""
       },
       legend: { position: "top", horizontalAlign: "left" },
       tooltip: {
-        y: { formatter: (val: number) => val.toLocaleString() + " €" }
+        y: { 
+          formatter: (val: number) => {
+            // Affiche 0 si c'est notre valeur de sécurité de 1€
+            const displayVal = val <= 1 ? 0 : val;
+            return displayVal.toLocaleString() + " €";
+          }
+        }
       }
     };
   }
 
   private updateChart() {
-    if (this.data.length === 0) return;
-
-    // Extraction des labels (mois)
+    // 1. Suppression du "if (this.data.length === 0) return;" 
+    // On veut que les catégories vides s'affichent quand même !
     const categories = this.data.map(d => d.month);
 
-    // Construction des séries
-    this.chartOptions.series = [
+    const series = [
       { name: "Obligatoire", data: this.data.map(d => d.obligatoire) },
       { name: "Loisir", data: this.data.map(d => d.loisir) },
       { name: "Investissement", data: this.data.map(d => d.invest) },
       { name: "Sans catégorie", data: this.data.map(d => d.inconnu) }
     ];
 
-    this.chartOptions.xaxis = { categories: categories };
+    // 2. CRUCIAL : On crée une nouvelle référence d'objet (Spread Operator)
+    // C'est ce qui force le composant <apx-chart> à détecter le changement
+    this.chartOptions = {
+      ...this.chartOptions,
+      series: series,
+      xaxis: {
+        ...this.chartOptions.xaxis,
+        categories: categories
+      }
+    };
   }
 }

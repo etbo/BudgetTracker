@@ -56,47 +56,14 @@ export class DateFilter implements OnInit {
     }
   }
 
-  onViewChange(viewName: string, force: boolean = false) {
+  onViewChange(view: string, isInitial: boolean = false) {
+    this.currentView = view;
 
-    // On ne bloque que si ce n'est pas forcé
-    if (!force && this.currentView === viewName && viewName !== 'custom') {
-      return;
-    }
-
-    this.currentView = viewName;
-    console.log("Initialisation URL forcée pour :", viewName);
-
-    let startStr = '';
-    let endStr = '';
-
-    if (viewName === 'last') {
-      this.startDate = null;
-      this.endDate = null;
-      startStr = 'last';
-      endStr = 'last';
-    }
-    else if (viewName === 'all') {
-      this.startDate = null;
-      this.endDate = null;
-    }
-    else if (viewName !== 'custom') {
-      const now = new Date();
-
-      // FIN : Le dernier jour du mois PRÉCÉDENT
-      // En mettant le jour à 0 sur le mois actuel, JS revient au dernier jour du mois d'avant
-      const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-      endStr = this.formatDate(lastDayLastMonth);
-
-      // DÉBUT : Le 1er jour du mois il y a X mois
-      const monthsToGoBack = parseInt(viewName.replace('last', ''));
-      const firstDayStartMonth = new Date(now.getFullYear(), now.getMonth() - monthsToGoBack, 1);
-      startStr = this.formatDate(firstDayStartMonth);
-
-      this.startDate = firstDayStartMonth;
-      this.endDate = lastDayLastMonth;
-    }
-
-    this.filterChanged.emit({ start: startStr, end: endStr, view: viewName });
+    // On envoie juste la vue au service. 
+    // C'est le service (via computeDates) qui calculera start et end.
+    filtersService.updateFilters({
+      view: view as any
+    });
   }
 
   emitCustom() {

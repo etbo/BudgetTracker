@@ -1,10 +1,8 @@
-<div id="chart" style="background: white; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-    @if (chartOptions) {
-    <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart" [xaxis]="chartOptions.xaxis"
-        [dataLabels]="chartOptions.dataLabels" [markers]="chartOptions.markers" [stroke]="chartOptions.stroke"
-        [colors]="chartOptions.colors" [yaxis]="chartOptions.yaxis" [title]="chartOptions.title">
-    </apx-chart>
+@if (chartOptions) {
+<apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart" [xaxis]="chartOptions.xaxis"
+    [dataLabels]="chartOptions.dataLabels" [markers]="chartOptions.markers" [stroke]="chartOptions.stroke"
+    [colors]="chartOptions.colors" [yaxis]="chartOptions.yaxis" [title]="chartOptions.title">
+</apx-chart>
 } @else {
-    <p>...</p>
+<p>...</p>
 }
-</div>

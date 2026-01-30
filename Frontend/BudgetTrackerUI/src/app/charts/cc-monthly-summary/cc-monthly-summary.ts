@@ -11,13 +11,13 @@ import { CcOperation } from '../../models/operation-cc.model';
 })
 export class CcMonthlySummary implements OnChanges {
   @Input() operations: CcOperation[] = [];
+  @Input() startDate?: string; // Nouvelle entrée
+  @Input() endDate?: string;   // Nouvelle entrée
 
   public chartOptions: any;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['operations'] && this.operations) {
-      this.prepareChartData(this.operations);
-    }
+    this.prepareChartData(this.operations);
   }
 
   private formatMonth(monthStr: string): string {
@@ -29,30 +29,56 @@ export class CcMonthlySummary implements OnChanges {
   }
 
   prepareChartData(operations: CcOperation[]) {
-    if (!operations || operations.length === 0) return;
+    if ((!operations || operations.length === 0) && (!this.startDate || !this.endDate)) {
+      this.chartOptions = null;
+      return;
+    }
 
-    // 1. Groupement par mois
-    const summary = operations.reduce((acc, op) => {
-      const month = op.date.substring(0, 7); // "YYYY-MM"
+    const summary: Record<string, { income: number; expenses: number }> = {};
 
-      // Initialisation du mois s'il n'existe pas
-      if (!acc[month]) {
-        acc[month] = { income: 0, expenses: 0 };
+    // --- 1. DÉTERMINATION DE LA PLAGE DE DATES ---
+    let startKey: string;
+    let endKey: string;
+
+    if (this.startDate && this.endDate) {
+      // Mode "LastX" ou "Custom" : on utilise les inputs
+      startKey = this.startDate.substring(0, 7);
+      endKey = this.endDate.substring(0, 7);
+    } else {
+      // Mode "ALL" : on cherche les bornes dans les données
+      const dates = operations.map(o => o.date).sort();
+      startKey = dates[0].substring(0, 7);
+      endKey = dates[dates.length - 1].substring(0, 7);
+    }
+
+    // --- 2. INITIALISATION DE LA TIMELINE ---
+    let [startYear, startMonth] = startKey.split('-').map(Number);
+    let [endYear, endMonth] = endKey.split('-').map(Number);
+
+    let cursor = new Date(startYear, startMonth - 1, 1);
+    const endLimit = new Date(endYear, endMonth - 1, 1);
+
+    while (cursor <= endLimit) {
+      const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
+      summary[key] = { income: 0, expenses: 0 };
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+
+    // --- 3. REMPLISSAGE ---
+    operations.forEach(op => {
+      const month = op.date.substring(0, 7);
+      if (summary[month]) {
+        const val = op.montant;
+        if (val > 0) summary[month].income += val;
+        else summary[month].expenses += Math.abs(val);
       }
+    });
 
-      const val = op.montant;
-      if (val > 0) {
-        acc[month].income += val;
-      } else {
-        acc[month].expenses += Math.abs(val);
-      }
-      return acc;
-    }, {} as Record<string, { income: number; expenses: number }>);
-
-    // 2. Tri chronologique
     const sortedMonths = Object.keys(summary).sort();
 
-    // 3. Configuration ApexCharts
+    // --- 4. CONFIGURATION APEXCHARTS ---
+
+    // --- 3. CONFIGURATION APEXCHARTS ---
     this.chartOptions = {
       series: [
         {
@@ -78,8 +104,22 @@ export class CcMonthlySummary implements OnChanges {
         zoom: { enabled: false }
       },
       stroke: { width: [0, 0, 3], curve: "smooth" },
-      colors: ["#22c55e", "#ef4444", "#3b82f6"], // Vert, Rouge, Bleu
-      labels: sortedMonths.map(m => this.formatMonth(m)),
+      colors: ["#22c55e", "#ef4444", "#3b82f6"],
+      labels: sortedMonths.map(m => this.formatMonth(m)), // Crucial : ce sont nos catégories
+      xaxis: {
+        type: 'category',
+        categories: sortedMonths.map(m => this.formatMonth(m)),
+        labels: {
+          rotate: -45,         // Incline les labels pour gagner de la place
+          rotateAlways: false, // Ne les incline que si ça ne passe pas à plat
+          hideOverlappingLabels: true, // Cache les labels qui se chevauchent vraiment
+          trim: false,
+          style: {
+            fontSize: '10px'   // On réduit un peu la taille pour les vues denses (24/36 mois)
+          }
+        },
+        tickAmount: sortedMonths.length > 12 ? 12 : undefined // Affiche max 12 ticks sur l'axe pour éviter le fouillis
+      },
       plotOptions: {
         bar: { borderRadius: 4, columnWidth: "55%" }
       },
@@ -94,14 +134,9 @@ export class CcMonthlySummary implements OnChanges {
       legend: { position: 'top' },
       dataLabels: {
         enabled: true,
-        enabledOnSeries: [2], // 0: Recettes, 1: Dépenses, 2: Bilan
-        //offsetY: -10, // Décale un peu vers le haut pour ne pas coller à la barre
-        style: {
-          fontSize: '12px',
-          colors: ["#3b82f6"]
-        },
+        enabledOnSeries: [2],
+        style: { fontSize: '12px', colors: ["#3b82f6"] },
         formatter: (val: number) => {
-          // On n'affiche que si la valeur n'est pas 0 et on formate en €
           return val !== 0 ? Math.round(val).toLocaleString('fr-FR') + " €" : "";
         }
       },

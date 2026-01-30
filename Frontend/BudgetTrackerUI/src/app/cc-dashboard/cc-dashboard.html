@@ -17,6 +17,15 @@
 <div class="summary-panel">
   <mat-card appearance="outlined">
     <mat-card-header>
+      <mat-card-title>{{ balance() | number:'1.2-2' }} €</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <span>Solde période</span>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined">
+    <mat-card-header>
       <mat-card-title>{{ totalRevenues() | number:'1.2-2' }} €</mat-card-title>
     </mat-card-header>
     <mat-card-content>
@@ -32,15 +41,6 @@
       <span>Dépenses</span>
     </mat-card-content>
   </mat-card>
-
-  <mat-card appearance="outlined">
-    <mat-card-header>
-      <mat-card-title>{{ balance() | number:'1.2-2' }} €</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <span>Solde période</span>
-    </mat-card-content>
-  </mat-card>
 </div>
 
 <h2>Détail</h2>
@@ -53,7 +53,11 @@
     </mat-expansion-panel-header>
 
     <div class="pt-4">
-      <app-cc-monthly-summary [operations]="operations()"></app-cc-monthly-summary>
+      <app-cc-monthly-summary 
+        [operations]="operations()"
+        [startDate]="currentFilters().start"
+        [endDate]="currentFilters().end">
+      </app-cc-monthly-summary>
     </div>
   </mat-expansion-panel>
 
@@ -62,7 +66,7 @@
       <mat-panel-title> Graphique </mat-panel-title>
     </mat-expansion-panel-header>
 
-    <div class="flex flex-col gap-6 pt-4">
+    <div class="pt-4">
       <app-cc-evolution-chart [data]="evolutionData()" (periodChanged)="onPeriodZoomed($event)">
       </app-cc-evolution-chart>
     </div>

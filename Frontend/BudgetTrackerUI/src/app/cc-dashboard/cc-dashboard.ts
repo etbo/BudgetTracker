@@ -49,6 +49,8 @@ import { distinctUntilChanged } from 'rxjs';
 })
 export class CcDashboard implements OnInit {
 
+  public currentFilters = signal<FilterState>(filtersService.getFilters());
+
   public evolutionData = signal<DailyBalance[]>([]);
   public categoryData = signal<CategoryBalance[]>([]);
   public isLoading = signal(true);
@@ -116,7 +118,8 @@ export class CcDashboard implements OnInit {
     filtersService.filters$.pipe(
       // On ne déclenche que si l'objet JSON des filtres est différent du précédent
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
-    ).subscribe(() => {
+    ).subscribe((newFilters) => {
+      this.currentFilters.set(newFilters);
       this.loadAllData();
     });
 
@@ -223,37 +226,56 @@ export class CcDashboard implements OnInit {
   }
 
   public macroMonthlyData = computed(() => {
-    const ops = this.operations().filter(o => (o.montant) < 0);
+    // 1. On récupère les filtres pour connaître la plage de dates demandée
+    const filters = this.currentFilters();
+    if (!filters.start || !filters.end) return [];
+
+    const startDate = new Date(filters.start);
+    const endDate = new Date(filters.end);
+
     const groups: Record<string, any> = {};
+
+    // 2. CRÉATION DE LA TIMELINE FORCÉE
+    // On initialise chaque mois de la période avec 1€ en "inconnu"
+    let cursor = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    const endLimit = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+
+    while (cursor <= endLimit) {
+      const monthKey = cursor.toLocaleString('fr-FR', { month: 'short', year: '2-digit' });
+      groups[monthKey] = {
+        month: monthKey,
+        sortDate: new Date(cursor.getTime()),
+        obligatoire: 0,
+        loisir: 0,
+        invest: 0,
+        inconnu: 1 // <--- Ton idée : 1€ forcé pour que le mois existe visuellement
+      };
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+
+    // 3. REMPLISSAGE AVEC LES OPÉRATIONS RÉELLES
+    const ops = this.operations().filter(o => o.montant < 0);
 
     ops.forEach(op => {
       const date = new Date(op.date);
       const monthKey = date.toLocaleString('fr-FR', { month: 'short', year: '2-digit' });
 
-      if (!groups[monthKey]) {
-        groups[monthKey] = {
-          month: monthKey,
-          sortDate: new Date(date.getFullYear(), date.getMonth(), 1),
-          obligatoire: 0,
-          loisir: 0,
-          invest: 0,
-          inconnu: 0
-        };
-      }
+      if (groups[monthKey]) {
+        // Si on a de la vraie donnée, on peut enlever le 1€ de sécurité 
+        // ou simplement l'ajouter, à ce stade 1€ ne changera pas ton graph à 100%
+        const amount = Math.abs(op.montant);
+        const macro = op.macroCategory;
 
-      const amount = Math.abs(op.montant);
-      const macro = op.macroCategory;
-
-      // Dispatching
-      if (macro === 'Obligatoire') groups[monthKey].obligatoire += amount;
-      else if (macro === 'Loisir') groups[monthKey].loisir += amount;
-      else if (macro === 'Investissement') groups[monthKey].invest += amount;
-      else {
-        // Tout ce qui n'est pas classé (Inconnu, null, vide)
-        groups[monthKey].inconnu += amount;
+        if (macro === 'Obligatoire') groups[monthKey].obligatoire += amount;
+        else if (macro === 'Loisir') groups[monthKey].loisir += amount;
+        else if (macro === 'Investissement') groups[monthKey].invest += amount;
+        else groups[monthKey].inconnu += amount;
       }
     });
 
-    return Object.values(groups).sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
+    var result = Object.values(groups).sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
+    console.log('result = ', result)
+
+    return result;
   });
 }

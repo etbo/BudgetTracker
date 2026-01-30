@@ -16,29 +16,43 @@ const STORAGE_KEY = 'budget_tracker_filters';
  * Calcule les dates si nécessaire
  */
 function computeDates(state: FilterState): FilterState {
-  const now = new Date();
-  const today = now.toISOString().split('T')[0];
-  let start = state.start;
-  let end = state.end;
-
-  if (state.view === 'last6') {
-    const d = new Date();
-    d.setMonth(d.getMonth() - 6);
-    start = d.toISOString().split('T')[0];
-    end = today;
-  } else if (state.view === 'last12') {
-    const d = new Date();
-    d.setFullYear(d.getFullYear() - 1);
-    start = d.toISOString().split('T')[0];
-    end = today;
-  } else if (state.view === 'last24') {
-    const d = new Date();
-    d.setFullYear(d.getFullYear() - 2);
-    start = d.toISOString().split('T')[0];
-    end = today;
+  // 1. Cas "All" : On nettoie explicitement les dates
+  if (state.view === 'all') {
+    return {
+      ...state,
+      start: undefined,
+      end: undefined
+    };
   }
 
-  return { ...state, start, end };
+  // 2. Cas "LastX" : On calcule les dates dynamiquement
+  if (state.view?.startsWith('last') && state.view !== 'last') {
+    const monthsToSubtract = parseInt(state.view.replace('last', ''), 10);
+
+    if (!isNaN(monthsToSubtract)) {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+
+      // Fin = dernier jour du mois précédent
+      const endOfRange = new Date(currentYear, currentMonth, 0);
+      // Début = 1er jour du mois X mois en arrière
+      const startOfRange = new Date(currentYear, currentMonth - monthsToSubtract, 1);
+
+      const formatDate = (d: Date) => {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      };
+
+      return {
+        ...state,
+        start: formatDate(startOfRange),
+        end: formatDate(endOfRange)
+      };
+    }
+  }
+
+  // 3. Cas par défaut (Custom, undefined, ou 'last' sans chiffre) : On ne touche à rien
+  return state;
 }
 
 function getInitialState(): FilterState {
@@ -68,8 +82,6 @@ export const filtersService = {
   getFilters(): FilterState {
     return filtersSubject.value;
   },
-
-  // ... (reste du code identique)
 
   updateFilters(newState: Partial<FilterState>) {
     const current = computeDates({ ...this.getFilters(), ...newState });
