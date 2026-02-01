@@ -210,14 +210,14 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    
-    // Si la recherche externe change, on applique le filtre AG Grid (pas de refresh API nécessaire)
+    // Si les opérations changent (depuis le parent CcOperations)
+    if (changes['operations'] && this.gridApi) {
+      this.gridApi.setGridOption('rowData', this.operations);
+      this.updateSaveAllVisibility();
+    }
+
     if (changes['externalSearch'] && this.gridApi) {
       this.gridApi.setGridOption('quickFilterText', this.externalSearch);
-    }
-    
-    if (changes['sortColumn']) {
-      this.applySorting();
     }
   }
 

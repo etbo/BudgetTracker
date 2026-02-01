@@ -43,36 +43,27 @@ export class CcOperations implements OnInit, OnDestroy {
   filterSuggestedCat = false;
   filterOnlyCheques = false;
 
-  // Stats
+  // Stats (Inchangées)
   totalOperations = computed(() => this.operations().length);
-  
-  missingCategoriesCount = computed(() => 
-    this.operations().filter(op => !op.categorie || op.isSuggested).length
-  );
-
-  suggestedCategoriesCount = computed(() => 
-    this.operations().filter(op => op.isSuggested).length
-  );
+  missingCategoriesCount = computed(() => this.operations().filter(op => !op.categorie || op.isSuggested).length);
+  suggestedCategoriesCount = computed(() => this.operations().filter(op => op.isSuggested).length);
 
   constructor(private operationsService: OperationsService) { }
 
   ngOnInit() {
-    // 1. Mise à jour de l'UI uniquement lors des changements de filtres globaux
-    // On ne rappelle PAS loadOperations ici pour éviter la boucle infinie avec le service
+    // Écoute les changements de filtres (URL, Puces, Dates)
     this.filterSub = filtersService.filters$.pipe(
       distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     ).subscribe(() => {
-      this.refreshLocalFilters();
+      this.refreshLocalFilters(); // Met à jour les variables filterXXXX pour l'UI
+      this.loadOperations();      // RELANCE l'appel API (indispensable)
     });
-
-    // 2. Premier chargement manuel au lancement de la page
-    this.loadOperations();
   }
 
   loadOperations() {
+    // Note : getOperations() utilise filtersService.getFilters() en interne
     this.operationsService.getOperations().subscribe(data => {
       this.operations.set(data);
-      // Synchronisation du signal local pour informer la liste AG Grid
       this.zoomFilters.set({ ...filtersService.getFilters() });
     });
   }
@@ -84,39 +75,35 @@ export class CcOperations implements OnInit, OnDestroy {
     this.filterOnlyCheques = !!f.onlyCheques;
   }
 
-  // Déclenché par le composant DateFilter
   onFilterChanged(event: any) {
+    // Cette méthode met à jour le service global, 
+    // ce qui déclenche automatiquement le .subscribe() du ngOnInit
     filtersService.updateFilters({
+      ...filtersService.getFilters(),
       start: event.start,
       end: event.end,
       view: event.view
     });
-    this.loadOperations(); 
   }
 
-  // Déclenché par le composant CcOperationsList (ex: après une sauvegarde ou suppression)
   onListRefresh() {
     this.loadOperations();
   }
 
-  // Gestion des clics sur les puces de filtrage
   toggleExtraFilter(type: 'missing' | 'suggested' | 'cheque') {
     const f = filtersService.getFilters();
     
+    // On met à jour le service global. 
+    // L'abonnement dans ngOnInit s'occupera du loadOperations()
     filtersService.updateFilters({
       ...f,
       missingCat: type === 'missing' ? !f.missingCat : f.missingCat,
       suggestedCat: type === 'suggested' ? !f.suggestedCat : f.suggestedCat,
       onlyCheques: type === 'cheque' ? !f.onlyCheques : f.onlyCheques
     });
-
-    // On déclenche manuellement le chargement suite à l'action utilisateur
-    this.loadOperations();
   }
 
   ngOnDestroy() {
-    if (this.filterSub) {
-      this.filterSub.unsubscribe();
-    }
+    this.filterSub?.unsubscribe();
   }
 }

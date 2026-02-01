@@ -11,12 +11,16 @@ export class OperationsService {
 
   constructor(private http: HttpClient) { }
 
-  getOperations(): Observable<CcOperation[]> {
-    const filters = filtersService.getFilters();
+  /**
+   * Récupère les opérations.
+   * @param customFilters Si fourni, utilise ces filtres au lieu de ceux du service global.
+   */
+  getOperations(customFilters?: FilterState): Observable<CcOperation[]> {
+    // Si customFilters est fourni, on l'utilise, sinon on prend les filtres globaux
+    const filters = customFilters || filtersService.getFilters();
 
     let params = new HttpParams()
       .set('mode', filters.view || 'last')
-      // On convertit explicitement en string "true"/"false"
       .set('missingCat', (!!filters.missingCat).toString())
       .set('suggestedCat', (!!filters.suggestedCat).toString())
       .set('onlyCheques', (!!filters.onlyCheques).toString());
@@ -37,11 +41,11 @@ export class OperationsService {
   }
 
   updateOperation(op: CcOperation) {
+    // Note : On envoie le DTO (qui contient Amount, Label, etc. selon ton mapping C#)
     return this.http.put(`${this.apiUrl}/${op.id}`, op);
   }
 
   getSuggestion(op: CcOperation): Observable<{ categorie: string, isSuggested: boolean }> {
-    // On appelle l'endpoint [HttpPost("suggest")] de ton contrôleur C#
     return this.http.post<{ categorie: string, isSuggested: boolean }>(
       `${this.apiUrl}/suggest`,
       op

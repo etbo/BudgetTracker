@@ -3,11 +3,11 @@
 <app-date-filter [showLastImportOption]="false" (filterChanged)="onGlobalFilterChanged($event)"></app-date-filter>
 
 <mat-chip-listbox multiple>
-  <mat-chip-option [selected]="isCategoryExcluded('Neutre')" (click)="toggleCategoryExclusion('Neutre')" color="warn">
+  <mat-chip-option [selected]="ignoreNeutre()" (click)="toggleDashNeutre()" color="warn">
     Ignorer Neutre
   </mat-chip-option>
-  <mat-chip-option [selected]="isCategoryExcluded('Investissement')" (click)="toggleCategoryExclusion('Investissement')"
-    color="warn">
+
+  <mat-chip-option [selected]="ignoreInvest()" (click)="toggleDashInvest()" color="warn">
     Ignorer Investissements
   </mat-chip-option>
 </mat-chip-listbox>
@@ -53,9 +53,7 @@
     </mat-expansion-panel-header>
 
     <div class="pt-4">
-      <app-cc-monthly-summary 
-        [operations]="operations()"
-        [startDate]="currentFilters().start"
+      <app-cc-monthly-summary [operations]="operations()" [startDate]="currentFilters().start"
         [endDate]="currentFilters().end">
       </app-cc-monthly-summary>
     </div>
