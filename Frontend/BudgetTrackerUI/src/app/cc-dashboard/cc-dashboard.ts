@@ -182,16 +182,34 @@ export class CcDashboard implements OnInit {
 
   public macroMonthlyData = computed(() => {
     const filters = this.currentFilters();
-    if (!filters.start || !filters.end) return [];
+    const allOps = this.operations();
 
-    const startDate = new Date(filters.start);
-    const endDate = new Date(filters.end);
+    if (allOps.length === 0) return [];
+
+    // 1. Détermination des dates de début et de fin
+    let startDate: Date;
+    let endDate: Date;
+
+    if (filters.start && filters.end) {
+      // Mode classique (last6, custom, etc.)
+      startDate = new Date(filters.start);
+      endDate = new Date(filters.end);
+    } else {
+      // Mode "All" : On cherche les extrêmes dans les données réelles
+      const dates = allOps.map(o => new Date(o.date).getTime());
+      startDate = new Date(Math.min(...dates));
+      endDate = new Date(Math.max(...dates));
+    }
+
     const groups: Record<string, any> = {};
 
+    // 2. Initialisation de la timeline (même logique qu'avant)
     let cursor = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
     const endLimit = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
 
-    while (cursor <= endLimit) {
+    // Sécurité pour éviter une boucle infinie si dates invalides
+    let safetyBreak = 0;
+    while (cursor <= endLimit && safetyBreak < 240) { // Max 20 ans
       const monthKey = cursor.toLocaleString('fr-FR', { month: 'short', year: '2-digit' });
       groups[monthKey] = {
         month: monthKey,
@@ -199,10 +217,12 @@ export class CcDashboard implements OnInit {
         obligatoire: 0, loisir: 0, invest: 0, inconnu: 1
       };
       cursor.setMonth(cursor.getMonth() + 1);
+      safetyBreak++;
     }
 
-    const ops = this.operations().filter(o => o.amount < 0);
-    ops.forEach(op => {
+    // 3. Remplissage avec les dépenses (amount < 0)
+    const expenses = allOps.filter(o => o.amount < 0);
+    expenses.forEach(op => {
       const date = new Date(op.date);
       const monthKey = date.toLocaleString('fr-FR', { month: 'short', year: '2-digit' });
 
