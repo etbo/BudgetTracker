@@ -76,7 +76,7 @@ export class PeaOperations implements OnInit {
     },
     {
       headerName: 'Montant Brut',
-      field: 'montantBrutUnitaire',
+      field: 'grossUnitAmount',
       type: 'rightAligned',
       editable: true,
       width: 230,
@@ -86,7 +86,7 @@ export class PeaOperations implements OnInit {
     {
       headerName: 'Montant Net',
       type: 'rightAligned',
-      field: 'montantNet',
+      field: 'netAmount',
       editable: true,
       width: 230,
       valueFormatter: currencyFormatter,
@@ -178,8 +178,8 @@ export class PeaOperations implements OnInit {
   }
 
   calculateFrais(op: PeaOperation): string {
-    if (op.montantNet > 0 && op.montantBrutUnitaire > 0 && op.montantNet > op.montantBrutUnitaire) {
-      const pourcentage = ((op.montantNet / op.montantBrutUnitaire) - 1) * 100;
+    if (op.netAmount > 0 && op.grossUnitAmount > 0 && op.netAmount > op.grossUnitAmount) {
+      const pourcentage = ((op.netAmount / op.grossUnitAmount) - 1) * 100;
       return pourcentage.toFixed(2) + ' %';
     }
     return '-';

@@ -186,7 +186,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     },
     { headerName: 'Commentaire', field: 'comment', editable: true, flex: 1 },
     {
-      headerName: 'Banque', field: 'banque', width: 120, cellClass: 'text-gray-400 text-sm',
+      headerName: 'Banque', field: 'bank', width: 120, cellClass: 'text-gray-400 text-sm',
       filterParams: { filterOptions: ['contains'], maxNumConditions: 1, debounceMs: 200 }
     }
   ];

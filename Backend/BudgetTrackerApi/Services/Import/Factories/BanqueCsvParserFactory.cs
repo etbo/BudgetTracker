@@ -1,6 +1,6 @@
 public static class CsvParserFactory
 {
-    public static IBanqueParser? GetParser(string fileContent)
+    public static IBankParser? GetParser(string fileContent)
     {
 
         if (fileContent.StartsWith("Date op�ration;Date valeur;libell�;D�bit;Cr�dit;") || fileContent.Contains("Date opération;Date valeur;libellé;Débit;Crédit;")) // ou analyser colonnes

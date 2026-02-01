@@ -7,7 +7,7 @@ namespace BudgetTrackerApi.Models
         public required string Description { get; set; }
 
         // Decimal car cela caste mieux les espace entre milliers (le format fr en général)
-        public decimal Montant { get; set; }
+        public decimal Amount { get; set; }
         public decimal? StatementBalance { get; set; }
         public string Flow { get; set; } = "";
 

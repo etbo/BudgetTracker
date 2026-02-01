@@ -3,7 +3,7 @@ using BudgetTrackerApi.Services.Import;
 using BudgetTrackerApi.Models;
 using OfficeOpenXml;
 
-public class CreditAgricoleExcelParser : IBanqueParser
+public class CreditAgricoleExcelParser : IBankParser
 {
     public string BankName => "Crédit agricole";
 
@@ -64,8 +64,8 @@ public class CreditAgricoleExcelParser : IBanqueParser
                 {
                     Date = parsedDate,
                     Description = sheet.Cells[i, 2].Text,
-                    Montant = double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 4].Text) ? "0" : sheet.Cells[i, 4].Text) - double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 3].Text) ? "0" : sheet.Cells[i, 3].Text),
-                    Banque = "CA",
+                    Amount = double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 4].Text) ? "0" : sheet.Cells[i, 4].Text) - double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 3].Text) ? "0" : sheet.Cells[i, 3].Text),
+                    Bank = "CA",
                     Comment = "",
                 };
 

@@ -40,11 +40,11 @@ namespace BudgetTrackerApi.Services
                     !op.Description.Contains(r.Pattern, StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                // 2. Vérification des Montants (Min / Max)
-                if (r.MinAmount.HasValue && op.Montant < (double)r.MinAmount.Value)
+                // 2. Vérification des Amounts (Min / Max)
+                if (r.MinAmount.HasValue && op.Amount < (double)r.MinAmount.Value)
                     continue;
 
-                if (r.MaxAmount.HasValue && op.Montant > (double)r.MaxAmount.Value)
+                if (r.MaxAmount.HasValue && op.Amount > (double)r.MaxAmount.Value)
                     continue;
 
                 // 3. Vérification des Dates (Min / Max)

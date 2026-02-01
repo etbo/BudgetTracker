@@ -2,7 +2,7 @@ using BudgetTrackerApi.Data;
 using BudgetTrackerApi.Data.Helpers;
 using BudgetTrackerApi.Services.Import;
 using BudgetTrackerApi.Models;
-public class FortuneoCsvParser : IBanqueParser
+public class FortuneoCsvParser : IBankParser
 {
     public string BankName => "Fortuneo";
 
@@ -39,8 +39,8 @@ public class FortuneoCsvParser : IBanqueParser
             {
                 Date = parsedDate, // Sur que ce n'est pas null
                 Description = values[2],
-                Montant = double.Parse(string.IsNullOrWhiteSpace(values[3]) ? "0" : values[3]) + double.Parse(string.IsNullOrWhiteSpace(values[4]) ? "0" : values[4]),
-                Banque = "Fortuneo",
+                Amount = double.Parse(string.IsNullOrWhiteSpace(values[3]) ? "0" : values[3]) + double.Parse(string.IsNullOrWhiteSpace(values[4]) ? "0" : values[4]),
+                Bank = "Fortuneo",
                 Comment = "",
             };
 

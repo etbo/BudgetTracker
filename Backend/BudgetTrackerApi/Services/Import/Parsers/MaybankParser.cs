@@ -6,7 +6,7 @@ using BudgetTrackerApi.Services.Import;
 using BudgetTrackerApi.Models;
 using CsvHelper;
 
-public class MaybankCsvParser : IBanqueParser
+public class MaybankCsvParser : IBankParser
 {
     public string BankName => "Maybank";
 
@@ -49,22 +49,22 @@ public class MaybankCsvParser : IBanqueParser
             }
 
             // Calcul montant
-            double MontantReel = 0;
+            double AmountReel = 0;
 
             double TauxChangeMyrToEur = 0.208;
 
             if (row.Flow.Contains("Withdrawal"))
-                MontantReel = (double)-row.Montant * TauxChangeMyrToEur;
+                AmountReel = (double)-row.Amount * TauxChangeMyrToEur;
             else
-                MontantReel = (double)row.Montant * TauxChangeMyrToEur;
+                AmountReel = (double)row.Amount * TauxChangeMyrToEur;
 
 
             var operation = new CcOperation
             {
                 Date = parsedDate,
                 Description = row.Description,
-                Montant = MontantReel,
-                Banque = "Maybank",
+                Amount = AmountReel,
+                Bank = "Maybank",
             };
 
             // Récupération du Hash de base pour cette ligne

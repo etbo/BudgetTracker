@@ -3,6 +3,7 @@ using System;
 using BudgetTrackerApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetTrackerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201202520_RenameBank")]
+    partial class RenameBank
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -1157,10 +1160,6 @@ namespace BudgetTrackerApi.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("id");
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("REAL")
-                        .HasColumnName("amount");
-
                     b.Property<string>("Bank")
                         .HasColumnType("TEXT")
                         .HasColumnName("bank");
@@ -1188,6 +1187,10 @@ namespace BudgetTrackerApi.Migrations
                     b.Property<int?>("ImportLogId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("import_log_id");
+
+                    b.Property<double>("Montant")
+                        .HasColumnType("REAL")
+                        .HasColumnName("montant");
 
                     b.HasKey("Id");
 
@@ -1328,13 +1331,13 @@ namespace BudgetTrackerApi.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("date");
 
-                    b.Property<double>("GrossUnitAmount")
+                    b.Property<double>("MontantBrutUnitaire")
                         .HasColumnType("REAL")
-                        .HasColumnName("gross_unit_amount");
+                        .HasColumnName("montant_brut_unitaire");
 
-                    b.Property<double>("NetAmount")
+                    b.Property<double>("MontantNet")
                         .HasColumnType("REAL")
-                        .HasColumnName("net_amount");
+                        .HasColumnName("montant_net");
 
                     b.Property<int>("Quantité")
                         .HasColumnType("INTEGER")

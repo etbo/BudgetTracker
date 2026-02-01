@@ -57,7 +57,7 @@ namespace BudgetTrackerApi.Data
                               entity.SetTableName(ToSnakeCase(tableName));
                         }
 
-                        // Nom des colonnes : MontantNet -> montant_net
+                        // Nom des colonnes : NetAmount -> net_amount
                         foreach (var property in entity.GetProperties())
                         {
                               property.SetColumnName(ToSnakeCase(property.Name));
@@ -214,7 +214,7 @@ namespace BudgetTrackerApi.Data
             }
 
             /// <summary>
-            /// Transforme le PascalCase en snake_case (ex: MontantNet -> montant_net)
+            /// Transforme le PascalCase en snake_case (ex: NetAmount -> net_amount)
             /// </summary>
             private string ToSnakeCase(string text)
             {

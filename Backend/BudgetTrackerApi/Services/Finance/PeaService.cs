@@ -75,7 +75,7 @@ namespace BudgetTrackerApi.Services
                 if (!operation.Date.HasValue) continue;
 
                 // Mise à jour des cumuls d'achats
-                cumulAchatGlobal += (double)(operation.Quantité * operation.MontantNet);
+                cumulAchatGlobal += (double)(operation.Quantité * operation.NetAmount);
 
                 // Mise à jour des quantités détenues par Ticker
                 if (quantitesPossedees.ContainsKey(operation.Code))

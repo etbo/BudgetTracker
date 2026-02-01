@@ -37,7 +37,7 @@ public class CcDashboardController : ControllerBase
             // 2. Groupement par date (ne retourne que les dates avec data)
             var dailyTotals = await query
                 .GroupBy(op => op.Date.Date)
-                .Select(g => new { Date = g.Key, DailyAmount = g.Sum(x => x.Montant) })
+                .Select(g => new { Date = g.Key, DailyAmount = g.Sum(x => x.Amount) })
                 .OrderBy(x => x.Date)
                 .ToListAsync();
 
@@ -87,9 +87,9 @@ public class CcDashboardController : ControllerBase
                 {
                     Category = g.Key,
                     // Somme des montants négatifs (Dépenses)
-                    Expenses = g.Where(o => o.Montant < 0).Sum(o => o.Montant),
+                    Expenses = g.Where(o => o.Amount < 0).Sum(o => o.Amount),
                     // Somme des montants positifs (Revenus)
-                    Incomes = g.Where(o => o.Montant > 0).Sum(o => o.Montant)
+                    Incomes = g.Where(o => o.Amount > 0).Sum(o => o.Amount)
                 })
                 .ToListAsync();
 

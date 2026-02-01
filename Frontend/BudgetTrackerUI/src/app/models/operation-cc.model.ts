@@ -7,5 +7,5 @@ export interface CcOperation {
   macroCategory: string;
   isSuggested?: boolean; // Pour l'affichage de l'icône disquette
   comment: string;
-  banque: string;
+  bank: string;
 }

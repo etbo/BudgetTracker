@@ -50,7 +50,7 @@ namespace BudgetTrackerApi.Services
             foreach (var op in orderedOperations)
             {
                 // Ajouter le montant à la balance cumulée
-                currentBalance += op.Montant;
+                currentBalance += op.Amount;
 
                 // Si une opération a déjà eu lieu à cette date, on met à jour la balance finale de la journée.
                 // Sinon, on ajoute un nouveau point.

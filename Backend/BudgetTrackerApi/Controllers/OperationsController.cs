@@ -91,13 +91,13 @@ public class OperationsController : ControllerBase
             {
                 Id = op.Id,
                 Date = op.Date,
-                Amount = (decimal)op.Montant,
+                Amount = (decimal)op.Amount,
                 Label = op.Description ?? "",
                 Category = currentCat,
                 IsSuggested = !string.IsNullOrEmpty(autoCat),
                 MacroCategory = macro ?? "Inconnu",
                 Comment = op.Comment,
-                Banque = op.Banque
+                Bank = op.Bank
             };
         }).ToList();
 

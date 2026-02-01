@@ -11,6 +11,6 @@ namespace BudgetTrackerApi.DTOs
         public string? MacroCategory { get; set; }
         public bool IsSuggested { get; set; }
         public string? Comment { get; set; }
-        public string? Banque { get; set; }
+        public string? Bank { get; set; }
     }
 }

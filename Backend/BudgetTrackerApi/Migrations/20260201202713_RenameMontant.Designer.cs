@@ -3,6 +3,7 @@ using System;
 using BudgetTrackerApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetTrackerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201202713_RenameMontant")]
+    partial class RenameMontant
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -1319,6 +1322,14 @@ namespace BudgetTrackerApi.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("id");
 
+                    b.Property<double>("AmountBrutUnitaire")
+                        .HasColumnType("REAL")
+                        .HasColumnName("amount_brut_unitaire");
+
+                    b.Property<double>("AmountNet")
+                        .HasColumnType("REAL")
+                        .HasColumnName("amount_net");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -1327,14 +1338,6 @@ namespace BudgetTrackerApi.Migrations
                     b.Property<DateTime?>("Date")
                         .HasColumnType("TEXT")
                         .HasColumnName("date");
-
-                    b.Property<double>("GrossUnitAmount")
-                        .HasColumnType("REAL")
-                        .HasColumnName("gross_unit_amount");
-
-                    b.Property<double>("NetAmount")
-                        .HasColumnType("REAL")
-                        .HasColumnName("net_amount");
 
                     b.Property<int>("Quantité")
                         .HasColumnType("INTEGER")

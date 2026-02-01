@@ -2,7 +2,7 @@ using CsvHelper;
 
 public static class ParserFactory
 {
-    public static IBanqueParser? GetParser(ParserInputContext ctx)
+    public static IBankParser? GetParser(ParserInputContext ctx)
     {
         // 1) Détection Excel (extension + MIME)
         if (ctx.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase) ||

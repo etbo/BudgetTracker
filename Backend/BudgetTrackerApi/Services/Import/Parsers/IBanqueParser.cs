@@ -1,7 +1,7 @@
 using BudgetTrackerApi.Data;
 using BudgetTrackerApi.Models;
 
-public interface IBanqueParser
+public interface IBankParser
 {
     string BankName { get; }
     List<CcOperation> Parse(ParserInputContext ctx);

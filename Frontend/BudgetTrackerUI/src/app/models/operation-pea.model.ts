@@ -4,6 +4,6 @@ export interface PeaOperation {
   titulaire: string;
   code: string;
   quantite: number;
-  montantBrutUnitaire: number;
-  montantNet: number;
+  grossUnitAmount: number;
+  netAmount: number;
 }

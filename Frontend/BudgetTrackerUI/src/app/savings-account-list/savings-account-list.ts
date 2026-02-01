@@ -20,7 +20,7 @@ export class SavingsAccountList implements OnInit {
   public columnDefs: ColDef[] = [
     { field: 'name', headerName: 'Nom du Livret', editable: true },
     { field: 'owner', headerName: 'Propriétaire', editable: true, filter: true },
-    { field: 'bankName', headerName: 'Banque', editable: true, filter: true },
+    { field: 'bankName', headerName: 'Bank', editable: true, filter: true },
     { field: 'isActive', headerName: 'Actif', editable: true, cellEditor: 'agCheckboxCellEditor', width: 100 },
     {
       headerName: 'Fréquence MàJ',
@@ -62,7 +62,7 @@ export class SavingsAccountList implements OnInit {
   }
 
   addAccount() {
-    const newAccount = { name: 'Nouveau Livret', owner: 'Nom', bank: 'Banque', isActive: true };
+    const newAccount = { name: 'Nouveau Livret', owner: 'Nom', bank: 'Bank', isActive: true };
     this.savingsService.createAccount(newAccount as any).subscribe();
   }
 

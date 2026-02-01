@@ -6,7 +6,7 @@ using BudgetTrackerApi.Models;
 using CsvHelper;
 using SQLitePCL;
 
-public class GsheetsCsvParser : IBanqueParser
+public class GsheetsCsvParser : IBankParser
 {
     public string BankName => "Extraction Google Sheets";
     
@@ -47,9 +47,9 @@ public class GsheetsCsvParser : IBanqueParser
             {
                 Date = parsedDate,
                 Description = row.Description,
-                Montant = (double)row.Montant,
+                Amount = (double)row.Amount,
                 Category = row.Type,
-                Banque = row.Banque,
+                Bank = row.Bank,
                 Comment = row.Commentaires,
             };
 

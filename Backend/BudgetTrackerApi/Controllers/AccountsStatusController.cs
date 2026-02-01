@@ -24,7 +24,7 @@ namespace BudgetTrackerApi.Controllers
 
             // 1. Statut des Comptes Courants (Fréquence fixe : 1 mois)
             var ccStatus = await _db.CcOperations
-                .GroupBy(o => o.Banque)
+                .GroupBy(o => o.Bank)
                 .Select(g => new AccountStatusDto
                 {
                     Owner = "Joint",

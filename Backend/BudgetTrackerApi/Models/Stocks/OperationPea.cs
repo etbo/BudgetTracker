@@ -10,7 +10,7 @@ namespace BudgetTrackerApi.Models
         public string Code { get; set; } = string.Empty;
         [JsonPropertyName("quantite")]
         public int Quantité { get; set; }
-        public double MontantBrutUnitaire { get; set; }
-        public double MontantNet { get; set; }
+        public double GrossUnitAmount { get; set; }
+        public double NetAmount { get; set; }
     }
 }

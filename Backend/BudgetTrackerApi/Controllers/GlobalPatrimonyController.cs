@@ -24,7 +24,7 @@ public class GlobalPatrimonyController : ControllerBase
             .Select(s => new { Date = s.Date!, Amount = (decimal)(s.UnitCount * s.UnitValue), Cat = "AV", Id = s.LifeInsuranceLineId.ToString() }).ToListAsync();
 
         var ccOperations = await _db.CcOperations
-            .Select(s => new { Date = s.Date!, Amount = (decimal)s.Montant }).ToListAsync();
+            .Select(s => new { Date = s.Date!, Amount = (decimal)s.Amount }).ToListAsync();
 
         var peaStocks = await _db.PeaOperations
             .Where(s => s.Date != null)
