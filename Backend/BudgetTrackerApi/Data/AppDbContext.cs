@@ -85,20 +85,20 @@ namespace BudgetTrackerApi.Data
                   });
 
                   modelBuilder.Entity<CcCategory>().HasData(
-                        new CcCategory { Id = 1, Name = "Prêt", Type = "Obligatoire" },
-                        new CcCategory { Id = 2, Name = "Courses", Type = "Obligatoire" },
-                        new CcCategory { Id = 3, Name = "Travaux", Type = "Obligatoire" },
-                        new CcCategory { Id = 4, Name = "Loisir", Type = "Loisir" },
-                        new CcCategory { Id = 5, Name = "Vacances", Type = "Loisir" },
-                        new CcCategory { Id = 6, Name = "Transport", Type = "Obligatoire" },
-                        new CcCategory { Id = 7, Name = "Factures", Type = "Obligatoire" },
-                        new CcCategory { Id = 8, Name = "Vêtements", Type = "Obligatoire" },
-                        new CcCategory { Id = 9, Name = "Cadeaux", Type = "Loisir" },
-                        new CcCategory { Id = 10, Name = "Santé", Type = "Obligatoire" },
-                        new CcCategory { Id = 11, Name = "Autres", Type = "Obligatoire" },
-                        new CcCategory { Id = 12, Name = "Maison/Equip.", Type = "Obligatoire" },
-                        new CcCategory { Id = 13, Name = "Neutre", Type = "Neutre" },
-                        new CcCategory { Id = 14, Name = "Revenu", Type = "Revenu" }
+                        new CcCategory { Id = 1, Name = "Prêt", MacroCategory = "Obligatoire" },
+                        new CcCategory { Id = 2, Name = "Courses", MacroCategory = "Obligatoire" },
+                        new CcCategory { Id = 3, Name = "Travaux", MacroCategory = "Obligatoire" },
+                        new CcCategory { Id = 4, Name = "Loisir", MacroCategory = "Loisir" },
+                        new CcCategory { Id = 5, Name = "Vacances", MacroCategory = "Loisir" },
+                        new CcCategory { Id = 6, Name = "Transport", MacroCategory = "Obligatoire" },
+                        new CcCategory { Id = 7, Name = "Factures", MacroCategory = "Obligatoire" },
+                        new CcCategory { Id = 8, Name = "Vêtements", MacroCategory = "Obligatoire" },
+                        new CcCategory { Id = 9, Name = "Cadeaux", MacroCategory = "Loisir" },
+                        new CcCategory { Id = 10, Name = "Santé", MacroCategory = "Obligatoire" },
+                        new CcCategory { Id = 11, Name = "Autres", MacroCategory = "Obligatoire" },
+                        new CcCategory { Id = 12, Name = "Maison/Equip.", MacroCategory = "Obligatoire" },
+                        new CcCategory { Id = 13, Name = "Neutre", MacroCategory = "Neutre" },
+                        new CcCategory { Id = 14, Name = "Revenu", MacroCategory = "Revenu" }
                   );
 
                   modelBuilder.Entity<CcCategoryRule>().HasData(

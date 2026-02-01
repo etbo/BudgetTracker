@@ -4,6 +4,6 @@ namespace BudgetTrackerApi.Data
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public string? Type { get; set; } // Optionnel
+        public string? MacroCategory { get; set; } // Optionnel
     }
 }

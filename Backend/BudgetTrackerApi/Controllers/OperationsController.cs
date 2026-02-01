@@ -71,7 +71,7 @@ public class OperationsController : ControllerBase
 
         // --- 4. Préparation des données complémentaires ---
         var rules = await _ruleService.GetActiveRulesAsync();
-        var categoryMapping = await _db.CcCategories.ToDictionaryAsync(c => c.Name, c => c.Type);
+        var categoryMapping = await _db.CcCategories.ToDictionaryAsync(c => c.Name, c => c.MacroCategory);
 
         // --- 5. Mapping Manuel Model -> DTO avec Logique Métier ---
         var results = operations.Select(op =>
