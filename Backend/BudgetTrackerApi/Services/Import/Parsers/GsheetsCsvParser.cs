@@ -48,7 +48,7 @@ public class GsheetsCsvParser : IBanqueParser
                 Date = parsedDate,
                 Description = row.Description,
                 Montant = (double)row.Montant,
-                Categorie = row.Type,
+                Category = row.Type,
                 Banque = row.Banque,
                 Comment = row.Commentaires,
             };

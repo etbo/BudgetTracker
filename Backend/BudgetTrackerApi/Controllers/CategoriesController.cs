@@ -23,8 +23,8 @@ public class CcCategoriesController : ControllerBase
         if (existingCat.Name != updatedCat.Name)
         {
             // 1. Mise à jour des opérations CC
-            var ops = await _db.CcOperations.Where(o => o.Categorie == existingCat.Name).ToListAsync();
-            ops.ForEach(o => o.Categorie = updatedCat.Name);
+            var ops = await _db.CcOperations.Where(o => o.Category == existingCat.Name).ToListAsync();
+            ops.ForEach(o => o.Category = updatedCat.Name);
 
             // 2. Mise à jour des règles
             var rules = await _db.CcCategoryRules.Where(r => r.Category == existingCat.Name).ToListAsync();

@@ -116,7 +116,7 @@ export class CcDashboard implements OnInit {
       this.isLoading.set(false);
     });
 
-    // 2. Appel Balances par Catégorie (Pie Chart / Treemap)
+    // 2. Appel Balances par Category (Pie Chart / Treemap)
     this.balanceService.getAllCategoryBalances().subscribe(data => {
       // Filtrage manuel des catégories ignorées localement
       const filtered = data.filter(c => !localExclusions.includes(c.category));

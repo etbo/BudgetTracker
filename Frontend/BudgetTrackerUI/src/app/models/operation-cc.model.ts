@@ -3,7 +3,7 @@ export interface CcOperation {
   date: string;
   amount: number;
   label: string;
-  categorie: string;
+  category: string;
   macroCategory: string;
   isSuggested?: boolean; // Pour l'affichage de l'icône disquette
   comment: string;

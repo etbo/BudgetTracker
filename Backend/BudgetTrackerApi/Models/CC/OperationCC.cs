@@ -8,7 +8,7 @@ namespace BudgetTrackerApi.Models
         public DateTime Date { get; set; }
         public string? Description { get; set; }
         public double Montant { get; set; }
-        public string? Categorie { get; set; }
+        public string? Category { get; set; }
         public string? Comment { get; set; }
         public string? Banque { get; set; }
         public int? ImportLogId { get; set; }

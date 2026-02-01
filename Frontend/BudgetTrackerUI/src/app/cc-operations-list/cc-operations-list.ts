@@ -77,7 +77,7 @@ export class SaveButtonRenderer implements ICellRendererAngularComp {
       </mat-form-field>
       
       <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Catégorie à associer</mat-label>
+        <mat-label>Category à associer</mat-label>
         <mat-select [(ngModel)]="data.category">
           <mat-option *ngFor="let cat of categories" [value]="cat.name">
             {{cat.name}}
@@ -166,7 +166,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     },
     {
       headerName: 'Catégorie',
-      field: 'categorie',
+      field: 'category',
       editable: true,
       cellEditor: 'agSelectCellEditor',
       singleClickEdit: true,
@@ -184,7 +184,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
       sortable: false, filter: false,
       cellClassRules: { 'bg-yellow-100-no-border': (p: any) => p.data.isSuggested }
     },
-    { headerName: 'Comment', field: 'comment', editable: true, flex: 1 },
+    { headerName: 'Commentaire', field: 'comment', editable: true, flex: 1 },
     {
       headerName: 'Banque', field: 'banque', width: 120, cellClass: 'text-gray-400 text-sm',
       filterParams: { filterOptions: ['contains'], maxNumConditions: 1, debounceMs: 200 }
@@ -201,7 +201,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
 
     // Chargement des catégories pour le select
     this.rulesService.getCcCategories().subscribe(cats => {
-      const catCol = this.columnDefs.find(c => c.field === 'categorie');
+      const catCol = this.columnDefs.find(c => c.field === 'category');
       if (catCol) {
         catCol.cellEditorParams = { values: ['', ...cats.map(c => c.name)] };
         this.gridApi?.setGridOption('columnDefs', [...this.columnDefs]);
@@ -273,21 +273,21 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     const field = event.colDef.field;
     const op = event.data;
 
-    if (field === 'categorie') {
+    if (field === 'category') {
       const newValue = event.newValue?.trim();
 
       if (!newValue || newValue === '') {
         // 1. SUPPRESSION RÉELLE : On met à jour la base avec null
-        this.opService.updateOperation({ ...op, categorie: null }).subscribe({
+        this.opService.updateOperation({ ...op, category: null }).subscribe({
           next: () => {
             // 2. RECHERCHE DE SUGGESTION : Une fois que c'est vide en base, on cherche une règle
             this.opService.getSuggestion(op).subscribe(res => {
               if (res.isSuggested) {
-                op.categorie = res.categorie;
+                op.category = res.category;
                 op.isSuggested = true;
                 op.isSuggested = true; // S'affiche en jaune pour indiquer la proposition
               } else {
-                op.categorie = null;
+                op.category = null;
                 op.isSuggested = false;
                 op.isSuggested = false;
               }
@@ -358,7 +358,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     event.event.preventDefault();
 
     const description = event.value;
-    const currentCategory = event.data.categorie;
+    const currentCategory = event.data.category;
 
     const dialogRef = this.dialog.open(CreateRuleDialog, {
       width: '800px',

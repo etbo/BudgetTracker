@@ -45,8 +45,8 @@ export class OperationsService {
     return this.http.put(`${this.apiUrl}/${op.id}`, op);
   }
 
-  getSuggestion(op: CcOperation): Observable<{ categorie: string, isSuggested: boolean }> {
-    return this.http.post<{ categorie: string, isSuggested: boolean }>(
+  getSuggestion(op: CcOperation): Observable<{ category: string, isSuggested: boolean }> {
+    return this.http.post<{ category: string, isSuggested: boolean }>(
       `${this.apiUrl}/suggest`,
       op
     );

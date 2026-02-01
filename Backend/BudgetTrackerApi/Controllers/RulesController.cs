@@ -57,10 +57,10 @@ public class RulesController : ControllerBase
         var rules = await _db.CcCategoryRules.ToListAsync();
         // On récupère les opérations qui ont une catégorie
         var operations = await _db.CcOperations
-            .Where(o => !string.IsNullOrEmpty(o.Categorie))
+            .Where(o => !string.IsNullOrEmpty(o.Category))
             .Select(o => new { 
                 Description = o.Description ?? "", 
-                Categorie = o.Categorie ?? "", 
+                Category = o.Category ?? "", 
                 Date = o.Date 
             })
             .ToListAsync();
@@ -76,7 +76,7 @@ public class RulesController : ControllerBase
 
             var matches = operations.Where(o =>
                 o.Description.Contains(rule.Pattern, StringComparison.OrdinalIgnoreCase) &&
-                o.Categorie == rule.Category
+                o.Category == rule.Category
             ).ToList();
 
             rule.UsageCount = matches.Count;

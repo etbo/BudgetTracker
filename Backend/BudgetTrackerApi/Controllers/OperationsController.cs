@@ -51,7 +51,7 @@ public class OperationsController : ControllerBase
         // --- 2. Filtres cumulables ---
         if (missingCat)
         {
-            query = query.Where(op => string.IsNullOrEmpty(op.Categorie));
+            query = query.Where(op => string.IsNullOrEmpty(op.Category));
         }
 
         if (onlyCheques)
@@ -63,7 +63,7 @@ public class OperationsController : ControllerBase
         if (!string.IsNullOrEmpty(excludedCategories))
         {
             var excludedList = excludedCategories.Split(',').ToList();
-            query = query.Where(op => op.Categorie == null || !excludedList.Contains(op.Categorie));
+            query = query.Where(op => op.Category == null || !excludedList.Contains(op.Category));
         }
 
         // --- 3. Exécution de la requête SQL (On récupère les Models) ---
@@ -78,13 +78,13 @@ public class OperationsController : ControllerBase
         {
             // Calcul de la suggestion auto
             string? autoCat = null;
-            if (string.IsNullOrEmpty(op.Categorie))
+            if (string.IsNullOrEmpty(op.Category))
             {
                 autoCat = _ruleService.GetAutoCategory(op, rules);
             }
 
             // Détermination de la MacroCategory
-            string currentCat = autoCat ?? op.Categorie ?? "";
+            string currentCat = autoCat ?? op.Category ?? "";
             categoryMapping.TryGetValue(currentCat, out var macro);
 
             return new CcOperationDto
@@ -93,7 +93,7 @@ public class OperationsController : ControllerBase
                 Date = op.Date,
                 Amount = (decimal)op.Montant,
                 Label = op.Description ?? "",
-                Categorie = currentCat,
+                Category = currentCat,
                 IsSuggested = !string.IsNullOrEmpty(autoCat),
                 MacroCategory = macro ?? "Inconnu",
                 Comment = op.Comment,
@@ -120,10 +120,10 @@ public class OperationsController : ControllerBase
         if (op == null) return NotFound();
 
         // Logique des règles (si la catégorie passe de vide à remplie)
-        if (string.IsNullOrEmpty(op.Categorie) && !string.IsNullOrEmpty(dto.Categorie))
+        if (string.IsNullOrEmpty(op.Category) && !string.IsNullOrEmpty(dto.Category))
         {
             var rule = await _db.CcCategoryRules
-                .FirstOrDefaultAsync(r => r.Category == dto.Categorie &&
+                .FirstOrDefaultAsync(r => r.Category == dto.Category &&
                                          (op.Description ?? "").Contains(r.Pattern ?? ""));
 
             if (rule != null)
@@ -135,7 +135,7 @@ public class OperationsController : ControllerBase
         }
 
         // Mise à jour des champs du Model depuis le DTO
-        op.Categorie = dto.Categorie;
+        op.Category = dto.Category;
         // op.Comment = dto.Comment; // Si tu l'ajoutes au DTO
 
         await _db.SaveChangesAsync();
@@ -157,9 +157,9 @@ public class OperationsController : ControllerBase
 
         if (matchingRule != null)
         {
-            return Ok(new { categorie = matchingRule.Category, isSuggested = true });
+            return Ok(new { category = matchingRule.Category, isSuggested = true });
         }
 
-        return Ok(new { categorie = "", isSuggested = false });
+        return Ok(new { category = "", isSuggested = false });
     }
 }

@@ -131,7 +131,7 @@ export class CcRules implements OnInit {
     },
     { headerName: 'Comment', field: 'comment', editable: true, flex: 1 },
     {
-      headerName: 'Catégorie cible',
+      headerName: 'Category cible',
       field: 'category',
       editable: true,
       cellEditor: 'agSelectCellEditor',

@@ -9,7 +9,7 @@ namespace BudgetTrackerApi.Models
         public decimal Montant { get; set; }
         public required string Type { get; set; }
         public required string Commentaires { get; set; }
-        public required string Catégorie { get; set; }
+        public required string Category { get; set; }
         public required string Banque { get; set; }
     }
 }
