@@ -42,8 +42,6 @@ public class CreditAgricoleExcelParser : IBanqueParser
         // Instancie le hashContext qui mémorisera les Hash de cet import en particulier
         var hashContext = new ImportHashContext();
 
-        var CurrentDateTime = DateTime.UtcNow;
-
         while (true)
         {
             i++;
@@ -69,7 +67,6 @@ public class CreditAgricoleExcelParser : IBanqueParser
                     Montant = double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 4].Text) ? "0" : sheet.Cells[i, 4].Text) - double.Parse(string.IsNullOrWhiteSpace(sheet.Cells[i, 3].Text) ? "0" : sheet.Cells[i, 3].Text),
                     Banque = "CA",
                     Comment = "",
-                    DateImport = CurrentDateTime,
                 };
 
                 // Récupération du Hash de base pour cette ligne

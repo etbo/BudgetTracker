@@ -51,7 +51,7 @@ export class ConfirmDialogComponent { }
   imports: [CommonModule, MatButtonModule, MatIconModule],
   template: `
     <div class="flex justify-center items-center h-full">
-      <button mat-icon-button color="primary" *ngIf="params.data.isModified" (click)="onSave()">
+      <button mat-icon-button color="primary" *ngIf="params.data.isSuggested" (click)="onSave()">
         <mat-icon>save_alt</mat-icon>
       </button>
     </div>
@@ -152,11 +152,11 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
 
   columnDefs: any[] = [
     { headerName: 'Date', field: 'date', width: 130, valueFormatter: customDateFormatter },
-    { headerName: 'Description', field: 'description', flex: 2 },
+    { headerName: 'Description', field: 'label', flex: 2 },
     {
       headerName: 'Montant',
       type: 'rightAligned',
-      field: 'montant',
+      field: 'amount',
       width: 150,
       valueFormatter: (p: ValueFormatterParams) => p.value?.toFixed(2) + ' €',
       cellClassRules: {
@@ -173,7 +173,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
       cellEditorParams: { values: [] },
       width: 180,
       cellClassRules: {
-        'bg-yellow-100 italic': (p: any) => p.data.isModified,
+        'bg-yellow-100 italic': (p: any) => p.data.isSuggested,
         'bg-blue-50': (p: any) => p.data.isSuggested
       }
     },
@@ -182,9 +182,9 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
       width: 60,
       cellRenderer: SaveButtonRenderer,
       sortable: false, filter: false,
-      cellClassRules: { 'bg-yellow-100-no-border': (p: any) => p.data.isModified }
+      cellClassRules: { 'bg-yellow-100-no-border': (p: any) => p.data.isSuggested }
     },
-    { headerName: 'Comment', field: 'Comment', editable: true, flex: 1 },
+    { headerName: 'Comment', field: 'comment', editable: true, flex: 1 },
     {
       headerName: 'Banque', field: 'banque', width: 120, cellClass: 'text-gray-400 text-sm',
       filterParams: { filterOptions: ['contains'], maxNumConditions: 1, debounceMs: 200 }
@@ -228,7 +228,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     if (!this.SaveAllSuggestedButton) return;
     let found = false;
     this.gridApi.forEachNodeAfterFilter((node) => {
-      if (node.data?.isModified) found = true;
+      if (node.data?.isSuggested) found = true;
     });
     this.showSaveAll.set(found);
   }
@@ -260,7 +260,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   save(op: CcOperation) {
     this.opService.updateOperation(op).subscribe({
       next: () => {
-        op.isModified = false;
+        op.isSuggested = false;
         this.gridApi.applyTransaction({ update: [op] });
         this.updateSaveAllVisibility();
 
@@ -285,11 +285,11 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
               if (res.isSuggested) {
                 op.categorie = res.categorie;
                 op.isSuggested = true;
-                op.isModified = true; // S'affiche en jaune pour indiquer la proposition
+                op.isSuggested = true; // S'affiche en jaune pour indiquer la proposition
               } else {
                 op.categorie = null;
                 op.isSuggested = false;
-                op.isModified = false;
+                op.isSuggested = false;
               }
 
               // Mise à jour de l'affichage AG Grid
@@ -303,20 +303,20 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
         });
       } else {
         // Choix manuel : sauvegarde directe
-        op.isModified = false;
+        op.isSuggested = false;
         op.isSuggested = false;
         this.save(op);
       }
     }
     else if (field === 'Comment') {
-      this.opService.updateOperation({ id: op.id, Comment: event.newValue } as CcOperation).subscribe();
+      this.opService.updateOperation({ id: op.id, comment: event.newValue } as CcOperation).subscribe();
     }
   }
 
   saveAllSuggested() {
     const operationsToSave: CcOperation[] = [];
     this.gridApi.forEachNodeAfterFilter((node) => {
-      if (node.data.isModified) operationsToSave.push(node.data);
+      if (node.data.isSuggested) operationsToSave.push(node.data);
     });
 
     if (operationsToSave.length === 0) return;
@@ -332,7 +332,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
       const requests = operationsToSave.map(op => this.opService.updateOperation(op));
       forkJoin(requests).subscribe({
         next: () => {
-          operationsToSave.forEach(op => op.isModified = false);
+          operationsToSave.forEach(op => op.isSuggested = false);
           this.gridApi.applyTransaction({ update: operationsToSave });
           this.updateSaveAllVisibility();
           this.isLoading.set(false);

@@ -47,11 +47,11 @@ export class CcOperations implements OnInit, OnDestroy {
   totalOperations = computed(() => this.operations().length);
   
   missingCategoriesCount = computed(() => 
-    this.operations().filter(op => !op.categorie || op.isModified).length
+    this.operations().filter(op => !op.categorie || op.isSuggested).length
   );
 
   suggestedCategoriesCount = computed(() => 
-    this.operations().filter(op => op.isModified).length
+    this.operations().filter(op => op.isSuggested).length
   );
 
   constructor(private operationsService: OperationsService) { }

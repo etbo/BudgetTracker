@@ -68,7 +68,7 @@ export class CcMonthlySummary implements OnChanges {
     operations.forEach(op => {
       const month = op.date.substring(0, 7);
       if (summary[month]) {
-        const val = op.montant;
+        const val = op.amount;
         if (val > 0) summary[month].income += val;
         else summary[month].expenses += Math.abs(val);
       }

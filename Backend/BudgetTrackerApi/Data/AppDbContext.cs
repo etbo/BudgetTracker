@@ -70,7 +70,6 @@ namespace BudgetTrackerApi.Data
                   {
                         // On s'assure que le nom de table reste cohérent avec ton choix
                         entity.ToTable("cc_operations");
-                        entity.Ignore(e => e.IsModified);
                   });
 
                   modelBuilder.Entity<PeaOperation>(entity =>

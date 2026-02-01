@@ -9,6 +9,8 @@ namespace BudgetTrackerApi.DTOs
         public string? Categorie { get; set; }
         // Ce champ n'existe qu'ici, pas en BDD !
         public string? MacroCategory { get; set; }
-        public bool IsModified { get; set; }
+        public bool IsSuggested { get; set; }
+        public string? Comment { get; set; }
+        public string? Banque { get; set; }
     }
 }

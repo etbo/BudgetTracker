@@ -254,7 +254,7 @@ export class CcDashboard implements OnInit {
     }
 
     // 3. REMPLISSAGE AVEC LES OPÉRATIONS RÉELLES
-    const ops = this.operations().filter(o => o.montant < 0);
+    const ops = this.operations().filter(o => o.amount < 0);
 
     ops.forEach(op => {
       const date = new Date(op.date);
@@ -263,7 +263,7 @@ export class CcDashboard implements OnInit {
       if (groups[monthKey]) {
         // Si on a de la vraie donnée, on peut enlever le 1€ de sécurité 
         // ou simplement l'ajouter, à ce stade 1€ ne changera pas ton graph à 100%
-        const amount = Math.abs(op.montant);
+        const amount = Math.abs(op.amount);
         const macro = op.macroCategory;
 
         if (macro === 'Obligatoire') groups[monthKey].obligatoire += amount;

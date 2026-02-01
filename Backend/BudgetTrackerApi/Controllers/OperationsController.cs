@@ -1,6 +1,7 @@
 using BudgetTrackerApi.Data;
 using BudgetTrackerApi.Models;
 using BudgetTrackerApi.Services;
+using BudgetTrackerApi.DTOs; // Assure-toi d'importer tes DTOs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,47 +18,41 @@ public class OperationsController : ControllerBase
         _ruleService = ruleService;
     }
 
-    // --- 1. Filtre de base (Période / Mode) ---
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CcOperation>>> Get(
-    [FromQuery] string mode = "last",
-    [FromQuery] bool missingCat = false,
-    [FromQuery] bool onlyCheques = false,
-    [FromQuery] bool suggestedCat = false,
-    [FromQuery] DateTime? startDate = null,
-    [FromQuery] DateTime? endDate = null,
-    [FromQuery] string? excludedCategories = null)
+    public async Task<ActionResult<IEnumerable<CcOperationDto>>> Get(
+        [FromQuery] string mode = "last",
+        [FromQuery] bool missingCat = false,
+        [FromQuery] bool onlyCheques = false,
+        [FromQuery] bool suggestedCat = false,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null,
+        [FromQuery] string? excludedCategories = null)
     {
         var query = _db.CcOperations.AsQueryable();
 
         // --- 1. Filtre de base (Période / Mode) ---
-        // On ne filtre par DateImport que si le mode est strictement "last"
         if (mode == "last")
         {
-            if (await _db.CcOperations.AnyAsync())
+            var lastImportDate = await _db.CcImportLogs
+                .MaxAsync(log => (DateTime?)log.ImportDate);
+
+            if (lastImportDate.HasValue)
             {
-                var lastDate = await _db.CcOperations.MaxAsync(op => op.DateImport);
-                query = query.Where(op => op.DateImport == lastDate);
+                query = query.Where(op => op.ImportLog!.ImportDate == lastImportDate.Value);
             }
         }
-        // Pour tous les autres cas (last6, last12, last36...), on utilise les dates fournies
         else if (startDate.HasValue && endDate.HasValue)
         {
-            // IMPORTANT : On s'assure que startDate commence à 00:00:00
             var start = startDate.Value.Date;
-            // IMPORTANT : On s'assure que endDate va jusqu'à 23:59:59
             var end = endDate.Value.Date.AddDays(1).AddTicks(-1);
-
             query = query.Where(op => op.Date >= start && op.Date <= end);
         }
 
-        // --- 2. Filtres cumulables (Le reste de ton code est parfait) ---
+        // --- 2. Filtres cumulables ---
         if (missingCat)
         {
             query = query.Where(op => string.IsNullOrEmpty(op.Categorie));
         }
-
-        // ... reste du code identique ...
 
         if (onlyCheques)
         {
@@ -71,103 +66,98 @@ public class OperationsController : ControllerBase
             query = query.Where(op => op.Categorie == null || !excludedList.Contains(op.Categorie));
         }
 
-        // --- 3. Exécution de la requête SQL ---
-        // Grâce au [NotMapped] dans CcOperation.cs, EF Core ignore MacroCategory ici
-        var results = await query.ToListAsync();
+        // --- 3. Exécution de la requête SQL (On récupère les Models) ---
+        var operations = await query.ToListAsync();
 
-        // --- 4. Logique Post-Requête A : Catégorisation automatique par règles ---
+        // --- 4. Préparation des données complémentaires ---
         var rules = await _ruleService.GetActiveRulesAsync();
+        var categoryMapping = await _db.CcCategories.ToDictionaryAsync(c => c.Name, c => c.Type);
 
-        foreach (var op in results.Where(o => string.IsNullOrEmpty(o.Categorie)))
+        // --- 5. Mapping Manuel Model -> DTO avec Logique Métier ---
+        var results = operations.Select(op =>
         {
-            var autoCat = _ruleService.GetAutoCategory(op, rules);
-            if (!string.IsNullOrEmpty(autoCat))
+            // Calcul de la suggestion auto
+            string? autoCat = null;
+            if (string.IsNullOrEmpty(op.Categorie))
             {
-                op.Categorie = autoCat;
-                op.IsModified = true;
+                autoCat = _ruleService.GetAutoCategory(op, rules);
             }
-        }
 
-        // --- 5. Logique Post-Requête B : Affectation de la MacroCategory ---
-        // On récupère le dictionnaire des types (ex: "Courses" -> "Variable")
-        var categoryMapping = await _db.CcCategories
-            .ToDictionaryAsync(c => c.Name, c => c.Type);
+            // Détermination de la MacroCategory
+            string currentCat = autoCat ?? op.Categorie ?? "";
+            categoryMapping.TryGetValue(currentCat, out var macro);
 
-        foreach (var op in results)
-        {
-            if (!string.IsNullOrEmpty(op.Categorie) && categoryMapping.TryGetValue(op.Categorie, out var type))
+            return new CcOperationDto
             {
-                op.MacroCategory = type;
-            }
-            else
-            {
-                op.MacroCategory = "Inconnu";
-            }
-        }
+                Id = op.Id,
+                Date = op.Date,
+                Amount = (decimal)op.Montant,
+                Label = op.Description ?? "",
+                Categorie = currentCat,
+                IsSuggested = !string.IsNullOrEmpty(autoCat),
+                MacroCategory = macro ?? "Inconnu",
+                Comment = op.Comment,
+                Banque = op.Banque
+            };
+        }).ToList();
 
-        // --- 6. Filtre final "Suggestions" ---
-        // On le fait après la catégorisation auto pour que IsModified soit à jour
+        // --- 6. Filtre final "Suggestions" sur les DTOs ---
         if (suggestedCat)
         {
-            results = results.Where(op => op.IsModified).ToList();
+            results = results.Where(dto => dto.IsSuggested).ToList();
         }
 
         return Ok(results);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, CcOperation op)
+    public async Task<IActionResult> Update(int id, CcOperationDto dto)
     {
-        if (id != op.Id) return BadRequest();
+        if (id != dto.Id) return BadRequest();
 
-        // 1. On récupère la version actuelle en base pour comparer
-        var existingOp = await _db.CcOperations.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        // On récupère le MODEL en base pour le mettre à jour
+        var op = await _db.CcOperations.FindAsync(id);
+        if (op == null) return NotFound();
 
-        // 2. Si la catégorie était vide et qu'elle vient d'être remplie
-        if (string.IsNullOrEmpty(existingOp?.Categorie) && !string.IsNullOrEmpty(op.Categorie))
+        // Logique des règles (si la catégorie passe de vide à remplie)
+        if (string.IsNullOrEmpty(op.Categorie) && !string.IsNullOrEmpty(dto.Categorie))
         {
-            // On cherche la règle qui correspond à ce qui vient d'être validé
             var rule = await _db.CcCategoryRules
-                .FirstOrDefaultAsync(r => r.Category == op.Categorie &&
+                .FirstOrDefaultAsync(r => r.Category == dto.Categorie &&
                                          (op.Description ?? "").Contains(r.Pattern ?? ""));
 
             if (rule != null)
             {
                 rule.UsageCount++;
-
                 if (!rule.LastAppliedAt.HasValue || op.Date > rule.LastAppliedAt)
-                {
                     rule.LastAppliedAt = op.Date;
-                }
             }
         }
 
-        _db.Entry(op).State = EntityState.Modified;
-        await _db.SaveChangesAsync();
+        // Mise à jour des champs du Model depuis le DTO
+        op.Categorie = dto.Categorie;
+        // op.Comment = dto.Comment; // Si tu l'ajoutes au DTO
 
+        await _db.SaveChangesAsync();
         return NoContent();
     }
 
     [HttpPost("suggest")]
-    public async Task<IActionResult> SuggestCategory([FromBody] CcOperation op)
+    public async Task<IActionResult> SuggestCategory([FromBody] CcOperationDto opDto)
     {
-        if (op == null) return BadRequest();
+        if (opDto == null) return BadRequest();
 
-        // 1. On récupère les règles actives
+        // On crée un model temporaire pour le service de règles
+        var tempOp = new CcOperation { Description = opDto.Label };
+        
         var rules = await _db.CcCategoryRules.Where(r => r.IsUsed).ToListAsync();
-
-        // 2. On cherche la règle qui match (logique identique à ton RuleService)
         var matchingRule = rules.FirstOrDefault(r =>
             !string.IsNullOrEmpty(r.Pattern) &&
-            (op.Description ?? "").Contains(r.Pattern, StringComparison.OrdinalIgnoreCase));
+            (tempOp.Description ?? "").Contains(r.Pattern, StringComparison.OrdinalIgnoreCase));
 
         if (matchingRule != null)
         {
-            return Ok(new
-            {
-                categorie = matchingRule.Category,
-                isSuggested = true
-            });
+            return Ok(new { categorie = matchingRule.Category, isSuggested = true });
         }
 
         return Ok(new { categorie = "", isSuggested = false });

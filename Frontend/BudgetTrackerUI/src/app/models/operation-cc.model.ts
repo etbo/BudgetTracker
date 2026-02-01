@@ -1,12 +1,11 @@
 export interface CcOperation {
   id: number;
   date: string;
-  description: string;
-  montant: number;
+  amount: number;
+  label: string;
   categorie: string;
   macroCategory: string;
-  Comment: string;
+  isSuggested?: boolean; // Pour l'affichage de l'icône disquette
+  comment: string;
   banque: string;
-  dateImport: string;
-  isModified?: boolean; // Pour l'affichage de l'icône disquette
 }
