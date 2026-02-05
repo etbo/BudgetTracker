@@ -1,55 +1,18 @@
-<div class="filter-wrapper">
-  <mat-chip-listbox>
-    @if (showLastImportOption) {
-    <mat-chip-option [selected]="currentView === 'last'"
-      (selectionChange)="$event.source.selected = true; onViewChange('last')">
-      Dernier import
-    </mat-chip-option>
-    }
-    <mat-chip-option [selected]="currentView === 'last3'"
-      (selectionChange)="$event.source.selected = true; onViewChange('last3')">
-      3 mois
-    </mat-chip-option>
-    <mat-chip-option [selected]="currentView === 'last6'"
-      (selectionChange)="$event.source.selected = true; onViewChange('last6')">
-      6 mois
-    </mat-chip-option>
-    <mat-chip-option [selected]="currentView === 'last12'"
-      (selectionChange)="$event.source.selected = true; onViewChange('last12')">
-      1 an
-    </mat-chip-option>
-    <mat-chip-option [selected]="currentView === 'last24'"
-      (selectionChange)="$event.source.selected = true; onViewChange('last24')">
-      2 ans
-    </mat-chip-option>
-    <mat-chip-option [selected]="currentView === 'last36'"
-      (selectionChange)="$event.source.selected = true; onViewChange('last36')">
-      3 ans
-    </mat-chip-option>
-    <mat-chip-option [selected]="currentView === 'all'"
-      (selectionChange)="$event.source.selected = true; onViewChange('all')">
-      Toutes
-    </mat-chip-option>
-    <mat-chip-option [selected]="currentView === 'custom'"
-      (selectionChange)="$event.source.selected = true; onViewChange('custom')">
-      Personnalisé
-    </mat-chip-option>
-  </mat-chip-listbox>
+<mat-chip-listbox>
+  <mat-chip-option [selected]="currentView === 'last3'" (click)="onViewChange('last3')">3 mois</mat-chip-option>
+  <mat-chip-option [selected]="currentView === 'last6'" (click)="onViewChange('last6')">6 mois</mat-chip-option>
+  <mat-chip-option [selected]="currentView === 'last12'" (click)="onViewChange('last12')">1 an</mat-chip-option>
+  <mat-chip-option [selected]="currentView === 'all'" (click)="onViewChange('all')">Toutes</mat-chip-option>
+</mat-chip-listbox>
 
-  @if (currentView === 'custom') {
-  <div class="custom-dates">
-    <mat-form-field appearance="outline">
-      <mat-label>Début</mat-label>
-      <input matInput [matDatepicker]="pickerStart" [(ngModel)]="startDate" (dateChange)="emitCustom()">
-      <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
-      <mat-datepicker #pickerStart></mat-datepicker>
-    </mat-form-field>
-    <mat-form-field appearance="outline">
-      <mat-label>Fin</mat-label>
-      <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="endDate" (dateChange)="emitCustom()">
-      <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
-      <mat-datepicker #pickerEnd></mat-datepicker>
-    </mat-form-field>
-  </div>
+<mat-chip-listbox multiple>
+  @for (year of availableYears; track year) {
+    <mat-chip-option 
+      [selected]="isYearSelected(year)"
+      [disabled]="isYearDisabled(year)"
+      (click)="onYearToggle(year)"
+      color="primary">
+      {{ year }}
+    </mat-chip-option>
   }
-</div>
+</mat-chip-listbox>

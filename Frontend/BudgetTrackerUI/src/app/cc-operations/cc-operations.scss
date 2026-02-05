@@ -12,7 +12,7 @@
   .right-column {
     display: flex;
     align-items: flex-start; // Aligne le champ en haut
-    width: 350px;           // Largeur de ta barre de recherche
+    width: 350px; // Largeur de ta barre de recherche
   }
 
   // Styles spécifiques pour forcer la hauteur de l'input Material
@@ -26,10 +26,18 @@
   }
 }
 
+.stats-bar{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 // Responsive
 @media (max-width: 900px) {
   .layout-container {
     flex-direction: column;
-    .right-column { width: 100%; }
+
+    .right-column {
+      width: 100%;
+    }
   }
 }

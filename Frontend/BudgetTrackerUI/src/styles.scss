@@ -6,14 +6,12 @@
 html {
   height: 100%;
 
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  @include mat.theme((color: (primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    ));
 }
 
 :root {
@@ -24,7 +22,7 @@ html {
   /*** Affichage des boutons ***/
   /* La couleur du texte */
   --mat-button-filled-label-text-color: #ffffff;
-  
+
   /* La couleur du fond (votre bleu moderne) */
   --mat-button-filled-container-color: #083D77;
 
@@ -32,7 +30,7 @@ html {
   --mat-button-filled-state-layer-color: rgba(255, 255, 255, 0.1);
 
   /* couleur pour les graph */
-  --color-account-cc: #61C9A8 ;
+  --color-account-cc: #61C9A8;
   --color-account-savings: #F95738;
   --color-account-pea: #F4D35E;
   --color-account-life-insurrance: #EE964B;
@@ -43,7 +41,7 @@ html {
   --nav-active-bg: #BBBAC6;
   --nav-active-text: #ffffff;
   --nav-active-icon: #ffffff;
-} 
+}
 
 body {
   height: 100%;
@@ -73,70 +71,90 @@ mat-card {
 mat-expansion-panel {
   --mat-expansion-container-background-color: #ffffff !important;
   background-color: #ffffff !important;
-  
+
   /* Optionnel : Si tu veux aussi que l'en-tête reste blanc au survol */
   mat-expansion-panel-header {
     background-color: #ffffff !important;
-    
+
     &:hover {
-      background-color: #fcfcfc !important; /* Un blanc cassé très léger au survol */
+      background-color: #fcfcfc !important;
+      /* Un blanc cassé très léger au survol */
     }
   }
 }
 
 .summary-panel {
-    display: flex;         /* Aligne les enfants (mat-card) en ligne */
-    gap: 16px;            /* Espace entre les cartes */
-    width: 100%;          /* Utilise toute la largeur */
-    margin-bottom: 24px;  /* Espace avec le graphique en dessous */
+  display: flex;
+  /* Aligne les enfants (mat-card) en ligne */
+  gap: 16px;
+  /* Espace entre les cartes */
+  width: 100%;
+  /* Utilise toute la largeur */
+  margin-bottom: 24px;
+  /* Espace avec le graphique en dessous */
 
-    mat-card {
-        flex: 1;           /* Force chaque carte à prendre une part égale de la largeur */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        text-align: center; /* Centre le texte à l'intérieur des cartes */
-        
-        // Ajustement pour réduire les marges internes par défaut de mat-card-header si besoin
-        mat-card-header {
-            padding-bottom: 0;
-            justify-content: center;
-        }
-        
-        mat-card-title {
-            font-size: 1.25rem !important;
-            font-weight: bold;
-            margin-bottom: 0 !important;
-        }
+  mat-card {
+    flex: 1;
+    /* Force chaque carte à prendre une part égale de la largeur */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    /* Centre le texte à l'intérieur des cartes */
 
-        mat-card-content {
-            padding-top: 8px;
-            color: #666;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
+    // Ajustement pour réduire les marges internes par défaut de mat-card-header si besoin
+    mat-card-header {
+      padding-bottom: 0;
+      justify-content: center;
     }
+
+    mat-card-title {
+      font-size: 1.25rem !important;
+      font-weight: bold;
+      margin-bottom: 0 !important;
+    }
+
+    mat-card-content {
+      padding-top: 8px;
+      color: #666;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+  }
 }
 
 /* Version responsive : on empile les cartes sur mobiles */
 @media (max-width: 768px) {
-    .summary-panel {
-        flex-direction: column;
-    }
+  .summary-panel {
+    flex-direction: column;
+  }
 }
 
 h2 {
-  color:#3A4752;
+  color: #3A4752;
 }
 
 .main-content-area {
   .main-content {
+
     // Cible la balise button ou le sélecteur de base d'Angular Material
-    button[mat-flat-button], 
+    button[mat-flat-button],
     button[mat-raised-button],
     .mat-mdc-button-base {
       margin-bottom: 12px; // Espace sous le bouton
-      margin-right: 8px;   // Espace entre deux boutons côte à côte
+      margin-right: 8px; // Espace entre deux boutons côte à côte
     }
   }
+}
+
+
+/* --- Personnalisation globale des Chips (MDC) --- */
+:root {
+  /* 1. Chips sélectionnées (Normales) */
+  --mat-chip-elevated-selected-container-color: #1f4e8094;
+  --mat-chip-selected-label-text-color: #ffffff;
+  --mat-chip-with-icon-selected-icon-color: white;
+
+  /* 2. Chips sélectionnées MAIS désactivées */
+  --mat-chip-flat-disabled-selected-container-color: #1f4e8071;
 }
