@@ -191,14 +191,27 @@ export class LifeInsuranceStatement implements OnInit {
   }
 
   saveData(result: any) {
-    const payload = result.items.map((row: any) => ({
-      lifeInsuranceLineId: row.lineId,
-      date: result.date,
-      unitCount: row.isScpi ? row.lastUnitCount : 1,
-      unitValue: row.lastUnitValue
-    }));
+    const formattedItems = result.items.map((row: any) => {
+      // On utilise les noms exacts vus dans ton log "Row issue de la grille"
+      return {
+        lifeInsuranceLineId: row.lifeInsuranceLineId || 0,
+        label: row.label,
+        isScpi: row.isScpi,
+        // On prend unitCount et unitValue DIRECTEMENT (sans le 'last')
+        unitCount: row.isScpi ? (row.unitCount || 0) : 1,
+        unitValue: row.unitValue || 0
+      };
+    });
 
-    this.liService.saveSaisie(payload).subscribe(() => this.loadAllHistory());
+    const globalPayload = {
+      accountId: result.accountId,
+      date: result.date,
+      items: formattedItems
+    };
+
+    this.liService.saveSaisie(globalPayload).subscribe(() => {
+      this.loadAllHistory();
+    });
   }
 
   onCellValueChanged(event: any) {

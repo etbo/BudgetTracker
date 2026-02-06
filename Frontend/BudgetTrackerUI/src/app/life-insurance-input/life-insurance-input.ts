@@ -1,16 +1,24 @@
-import { Component, Inject, signal, computed, inject } from '@angular/core';
+import { Component, Inject, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { AgGridModule } from 'ag-grid-angular';
-import { ColDef, CellValueChangedEvent } from 'ag-grid-community'; // Ajout de CellValueChangedEvent
+import { ColDef, CellValueChangedEvent } from 'ag-grid-community';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { LifeInsuranceService } from '../services/life-insurance.service';
 
 @Component({
   selector: 'app-life-insurance-input',
   standalone: true,
-  imports: [CommonModule, AgGridModule, MatDialogModule, MatButtonModule, FormsModule],
+  imports: [
+    CommonModule,
+    AgGridModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,
+    FormsModule
+  ],
   templateUrl: './life-insurance-input.html'
 })
 export class LifeInsuranceInput {
@@ -26,37 +34,53 @@ export class LifeInsuranceInput {
       headerName: 'Actif',
       field: 'label',
       flex: 1,
+      editable: true,
       cellRenderer: (params: any) => {
+        if (!params.value) return `<span style="color: #999; font-style: italic">Saisir un nom...</span>`;
         const icon = params.data.isScpi ? 'domain' : 'euro_symbol';
         return `<span><i class="material-icons" style="font-size:18px; vertical-align:middle; margin-right:8px">${icon}</i>${params.value}</span>`;
       }
     },
     {
+      headerName: 'Type',
+      field: 'isScpi',
+      width: 130,
+      editable: true,
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: {
+        values: [true, false]
+      },
+      valueFormatter: params => params.value ? 'SCPI (Parts)' : 'Euro / UC (Montant)'
+    },
+    {
       headerName: 'Nb Parts',
       field: 'lastUnitCount',
-      editable: p => p.data.isScpi,
-      valueParser: p => Number(p.newValue), // Force la conversion en nombre lors de la saisie
-      valueFormatter: p => p.value?.toFixed(5)
+      width: 120,
+      editable: (params) => params.data.isScpi,
+      valueParser: params => Number(params.newValue),
+      valueFormatter: params => params.value?.toFixed(5)
     },
     {
       headerName: 'Valeur/Montant',
       field: 'lastUnitValue',
+      width: 140,
       editable: true,
-      valueParser: p => Number(p.newValue), // Force la conversion en nombre lors de la saisie
-      valueFormatter: p => p.value?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
+      valueParser: params => Number(params.newValue),
+      valueFormatter: params => params.value?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
+    },
+    {
+      headerName: '',
+      width: 50,
+      cellRenderer: () => `<i class="material-icons" style="color: #f44336; cursor: pointer; margin-top: 10px">delete</i>`,
+      onCellClicked: (params) => this.removeLine(params.node.rowIndex!)
     }
   ];
 
-  // CALCUL DYNAMIQUE
   public totalSaisie = computed(() => {
     const rows = this.rowData();
-    if (!rows || rows.length === 0) return 0;
-
     return rows.reduce((acc, row) => {
       const count = Number(row.lastUnitCount) || 0;
       const value = Number(row.lastUnitValue) || 0;
-
-      // Si c'est une SCPI : Parts x Valeur, sinon direct le Montant (Fonds Euro)
       const ligneTotal = row.isScpi ? (count * value) : value;
       return acc + ligneTotal;
     }, 0);
@@ -75,51 +99,67 @@ export class LifeInsuranceInput {
   onAccountChange(accountId: number) {
     this.selectedAccountId.set(accountId);
     this.liService.getPrepareSaisie(accountId).subscribe(prepData => {
-      console.log('Données reçues du serveur :', prepData[0]);
-      this.rowData.set(prepData);
-
-      if (prepData.length > 0 && prepData[0].lastStatementDate) {
-        this.saisieDate = this.calculateSmartDate(new Date(prepData[0].lastStatementDate));
+      if (!prepData || prepData.length === 0) {
+        this.rowData.set([]);
+        this.addLine(); // On force une ligne vide si rien n'existe
       } else {
-        this.saisieDate = new Date().toISOString().split('T')[0];
+        this.rowData.set(prepData);
+        if (prepData[0].lastStatementDate) {
+          this.saisieDate = this.calculateSmartDate(new Date(prepData[0].lastStatementDate));
+        }
       }
     });
   }
 
-  private calculateSmartDate(lastDate: Date): string {
-    const today = new Date();
-
-    console.log('lastDate', lastDate);
-
-    // 1. Calculer Date Dernière + 3 mois
-    const targetDate = new Date(lastDate);
-    targetDate.setMonth(targetDate.getMonth() + 3);
-
-    // 2. Vérifier si l'écart entre aujourd'hui et la date cible est faible 
-    // (par exemple, si on est à moins de 15 jours de la cible, on peut la proposer)
-    // Ou si la date cible est déjà passée.
-    if (targetDate > today) {
-      // Si la date cible (+3 mois) est encore dans le futur, 
-      // on propose la date du jour pour permettre une saisie anticipée.
-      return today.toISOString().split('T')[0];
-    }
-
-    // Sinon, on propose pile poil +3 mois pour garder une régularité parfaite
-    return targetDate.toISOString().split('T')[0];
+  addLine() {
+    const newLine = {
+      label: '',
+      isScpi: false,
+      lastUnitCount: 1,
+      lastUnitValue: 0
+    };
+    this.rowData.set([...this.rowData(), newLine]);
   }
 
-  // CETTE MÉTHODE DÉCLENCHE LA MISE À JOUR DU TOTAL
+  removeLine(index: number) {
+    const current = this.rowData();
+    current.splice(index, 1);
+    this.rowData.set([...current]);
+  }
+
   onCellValueChanged(event: CellValueChangedEvent) {
-    console.log('Cellule modifiée, nouveau tableau :', this.rowData());
-    // On propage le changement pour que le computed() se relance
+    // Si on change le type (isScpi), on s'assure que le Nb de parts est cohérent
+    if (event.column.getColId() === 'isScpi' && !event.newValue) {
+      event.data.lastUnitCount = 1;
+    }
     this.rowData.set([...this.rowData()]);
   }
 
+  private calculateSmartDate(lastDate: Date): string {
+    const today = new Date();
+    const targetDate = new Date(lastDate);
+    targetDate.setMonth(targetDate.getMonth() + 3);
+    return (targetDate > today) ? today.toISOString().split('T')[0] : targetDate.toISOString().split('T')[0];
+  }
+
   onSave() {
-    this.dialogRef.close({
+    // On filtre les lignes sans nom
+    const items = this.rowData()
+      .filter(item => item.label && item.label.trim() !== '')
+      .map(item => ({
+        lifeInsuranceLineId: item.lineId || 0, // Utilise lineId (le nom dans ton DTO)
+        label: item.label,
+        isScpi: item.isScpi,
+        unitCount: item.lastUnitCount,
+        unitValue: item.lastUnitValue
+      }));
+
+    const payload = {
+      accountId: this.selectedAccountId(),
       date: this.saisieDate,
-      items: this.rowData(),
-      accountId: this.selectedAccountId()
-    });
+      items: items
+    };
+
+    this.dialogRef.close(payload);
   }
 }

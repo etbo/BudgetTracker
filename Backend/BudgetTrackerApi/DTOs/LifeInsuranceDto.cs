@@ -14,8 +14,19 @@ namespace BudgetTrackerApi.DTOs
     public class SaveStatementDto
     {
         public int LifeInsuranceLineId { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; } // <--- L'erreur CS1061 venait d'ici
         public decimal UnitCount { get; set; }
         public decimal UnitValue { get; set; }
+        
+        // On ajoute string.Empty pour régler le warning de non-nullable
+        public string Label { get; set; } = string.Empty; 
+        public bool IsScpi { get; set; }
+    }
+
+    public class GlobalSaveStatementDto 
+    {
+        public int AccountId { get; set; }
+        public DateTime Date { get; set; }
+        public List<SaveStatementDto> Items { get; set; } = new();
     }
 }

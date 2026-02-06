@@ -50,21 +50,54 @@ public class LifeInsuranceController : ControllerBase
     }
 
     [HttpPost("save-statement")]
-    public async Task<IActionResult> SaveStatement(List<SaveStatementDto> dtos)
+    public async Task<IActionResult> SaveStatement([FromBody] GlobalSaveStatementDto dto)
     {
-        if (dtos == null || !dtos.Any()) return BadRequest("Aucune donnée à enregistrer.");
+        if (dto == null || !dto.Items.Any()) return BadRequest("Aucune donnée à enregistrer.");
 
-        var statements = dtos.Select(d => new LifeInsuranceStatement
+        using var transaction = await _db.Database.BeginTransactionAsync();
+
+        try
         {
-            LifeInsuranceLineId = d.LifeInsuranceLineId,
-            Date = d.Date,
-            UnitCount = d.UnitCount,
-            UnitValue = d.UnitValue
-        }).ToList();
+            foreach (var item in dto.Items)
+            {
+                int lineId = item.LifeInsuranceLineId;
 
-        _db.LifeInsuranceStatements.AddRange(statements);
-        await _db.SaveChangesAsync();
-        return Ok();
+                // SI LA LIGNE EST NOUVELLE (ID = 0 ou n'existe pas)
+                if (lineId <= 0)
+                {
+                    var newLine = new LifeInsuranceLine
+                    {
+                        LifeInsuranceAccountId = dto.AccountId,
+                        Label = item.Label,
+                        IsScpi = item.IsScpi
+                    };
+                    _db.LifeInsuranceLines.Add(newLine);
+                    
+                    // On sauvegarde pour générer l'ID de la nouvelle ligne
+                    await _db.SaveChangesAsync();
+                    lineId = newLine.Id;
+                }
+
+                // ON AJOUTE LE RELEVÉ
+                var statement = new LifeInsuranceStatement
+                {
+                    LifeInsuranceLineId = lineId,
+                    Date = dto.Date, // On utilise la date globale du DTO
+                    UnitCount = item.UnitCount,
+                    UnitValue = item.UnitValue
+                };
+                _db.LifeInsuranceStatements.Add(statement);
+            }
+
+            await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, $"Erreur lors de la sauvegarde : {ex.Message}");
+        }
     }
 
     [HttpGet("history/{accountId}")]

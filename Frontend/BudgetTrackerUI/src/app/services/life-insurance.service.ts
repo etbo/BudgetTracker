@@ -32,8 +32,9 @@ export class LifeInsuranceService {
   /**
    * Enregistre les nouveaux relevés
    */
-  saveSaisie(statements: any[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/save-statement`, statements);
+  saveSaisie(payload: any): Observable<any> {
+    // payload doit être { accountId: number, date: string, items: any[] }
+    return this.http.post(`${this.apiUrl}/save-statement`, payload);
   }
 
   updateStatement(id: number, data: any): Observable<any> {
