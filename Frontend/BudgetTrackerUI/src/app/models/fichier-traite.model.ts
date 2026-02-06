@@ -7,6 +7,6 @@ export interface FichierTraite {
   parser: string | null;
   dateMin: string | null;
   dateMax: string | null;
-  tempsDeTraitementMs: number;
+  ProcessingTimeMs: number;
   dateImport?: Date;        // Optionnel pour le frontend
 }

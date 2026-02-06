@@ -63,8 +63,8 @@ export class CcCategories implements OnInit {
       editable: true
     },
     { 
-      headerName: 'Type', 
-      field: 'type', 
+      headerName: 'Macro catégorie', 
+      field: 'macroCategory', 
       flex: 1, 
       editable: true 
     },

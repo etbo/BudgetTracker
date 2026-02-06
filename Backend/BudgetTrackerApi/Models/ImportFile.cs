@@ -14,7 +14,7 @@ namespace BudgetTrackerApi.Models
         // Dates de la période couverte par le fichier
         public DateTime? DateMin { get; set; }
         public DateTime? DateMax { get; set; }
-        public double TempsDeTraitementMs { get; set; }
+        public double ProcessingTimeMs { get; set; }
 
         // Relation : Un import a plusieurs opérations
         public ICollection<CcOperation> Operations { get; set; } = new List<CcOperation>();

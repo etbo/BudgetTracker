@@ -64,12 +64,12 @@ export class PeaOperations implements OnInit {
       valueFormatter: customDateFormatter,
       valueSetter: localDateSetter
     },
-    { headerName: 'Titulaire', field: 'titulaire', editable: true, flex: 1 },
+    { headerName: 'Titulaire', field: 'owner', editable: true, flex: 1 },
     { headerName: 'Code', field: 'code', editable: true, width: 120 },
     {
       headerName: 'Quantité',
       type: 'rightAligned',
-      field: 'quantite',
+      field: 'quantity',
       editable: true,
       width: 200,
       valueParser: params => Number(params.newValue)

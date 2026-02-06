@@ -75,16 +75,16 @@ namespace BudgetTrackerApi.Services
                 if (!operation.Date.HasValue) continue;
 
                 // Mise à jour des cumuls d'achats
-                cumulAchatGlobal += (double)(operation.Quantité * operation.NetAmount);
+                cumulAchatGlobal += (double)(operation.Quantity * operation.NetAmount);
 
                 // Mise à jour des quantités détenues par Ticker
                 if (quantitesPossedees.ContainsKey(operation.Code))
                 {
-                    quantitesPossedees[operation.Code] += operation.Quantité;
+                    quantitesPossedees[operation.Code] += operation.Quantity;
                 }
                 else
                 {
-                    quantitesPossedees[operation.Code] = operation.Quantité;
+                    quantitesPossedees[operation.Code] = operation.Quantity;
                 }
 
                 // Enregistrement de l'état du portefeuille pour cette date.

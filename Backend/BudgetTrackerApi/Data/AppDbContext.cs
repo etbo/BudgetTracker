@@ -76,7 +76,7 @@ namespace BudgetTrackerApi.Data
                   {
                         entity.ToTable("pea_operations");
                         // Exception manuelle pour l'accent : sinon le snake_case ferait "quantit_é" ou "quantit"
-                        entity.Property(e => e.Quantité).HasColumnName("quantite");
+                        entity.Property(e => e.Quantity).HasColumnName("quantite");
                   });
 
                   modelBuilder.Entity<CcCategoryRule>(entity =>

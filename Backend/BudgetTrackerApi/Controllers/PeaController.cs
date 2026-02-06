@@ -27,7 +27,7 @@ public class PeaController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, PeaOperation op)
     {
-        Console.WriteLine($"PeaOperation : {op.Id}, {op.Date}, {op.Titulaire}");
+        Console.WriteLine($"PeaOperation : {op.Id}, {op.Date}, {op.Owner}");
         if (id != op.Id) return BadRequest();
         _db.Entry(op).State = EntityState.Modified;
         await _db.SaveChangesAsync();

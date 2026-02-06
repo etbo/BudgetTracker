@@ -65,7 +65,7 @@ namespace BudgetTrackerApi.Services
                     try
                     {
                         importLog.IsSuccessful = true;
-                        importLog.TempsDeTraitementMs = (DateTime.Now - startTime).TotalMilliseconds;
+                        importLog.ProcessingTimeMs = (DateTime.Now - startTime).TotalMilliseconds;
 
                         _db.CcImportLogs.Add(importLog);
                         await _db.SaveChangesAsync();
@@ -96,7 +96,7 @@ namespace BudgetTrackerApi.Services
                 Console.WriteLine($"Erreur : {e.Message}");
                 importLog.IsSuccessful = false;
                 importLog.MsgErreur = e.Message;
-                importLog.TempsDeTraitementMs = (DateTime.Now - startTime).TotalMilliseconds;
+                importLog.ProcessingTimeMs = (DateTime.Now - startTime).TotalMilliseconds;
 
                 if (_db.Entry(importLog).State == EntityState.Detached)
                 {
@@ -112,7 +112,7 @@ namespace BudgetTrackerApi.Services
                     0, 0,
                     importLog.BankName,
                     null, null,
-                    importLog.TempsDeTraitementMs,
+                    importLog.ProcessingTimeMs,
                     importLog.ImportDate
                 );
             }
@@ -131,7 +131,7 @@ namespace BudgetTrackerApi.Services
                     i.BankName,
                     i.DateMin,
                     i.DateMax,
-                    i.TempsDeTraitementMs,
+                    i.ProcessingTimeMs,
                     i.ImportDate))
                 .ToListAsync();
         }
@@ -147,7 +147,7 @@ namespace BudgetTrackerApi.Services
                 log.BankName,
                 log.DateMin,
                 log.DateMax,
-                log.TempsDeTraitementMs,
+                log.ProcessingTimeMs,
                 log.ImportDate
             );
         }

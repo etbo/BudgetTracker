@@ -3,6 +3,7 @@ using System;
 using BudgetTrackerApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetTrackerApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260206192746_RenameProcessingTime")]
+    partial class RenameProcessingTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -1336,13 +1339,14 @@ namespace BudgetTrackerApi.Migrations
                         .HasColumnType("REAL")
                         .HasColumnName("net_amount");
 
-                    b.Property<string>("Owner")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("owner");
-
-                    b.Property<int>("Quantity")
+                    b.Property<int>("Quantité")
                         .HasColumnType("INTEGER")
-                        .HasColumnName("quantite");
+                        .HasColumnName("quantite")
+                        .HasAnnotation("Relational:JsonPropertyName", "quantite");
+
+                    b.Property<string>("Titulaire")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("titulaire");
 
                     b.HasKey("Id");
 

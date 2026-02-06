@@ -28,7 +28,7 @@ public class GlobalPatrimonyController : ControllerBase
 
         var peaStocks = await _db.PeaOperations
             .Where(s => s.Date != null)
-            .Select(s => new { Date = (DateTime)s.Date!, Ticker = s.Code, Quantity = (decimal)s.Quantité }).ToListAsync();
+            .Select(s => new { Date = (DateTime)s.Date!, Ticker = s.Code, Quantity = (decimal)s.Quantity }).ToListAsync();
 
         var peaPrices = await _db.PeaCachedStockPrices
             .Select(s => new { Date = s.Date!, Ticker = s.Ticker, Price = (decimal)s.Price }).ToListAsync();

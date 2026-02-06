@@ -59,7 +59,7 @@ export class CcInput implements OnInit {
     },
     {
       headerName: 'Temps',
-      field: 'tempsDeTraitementMs',
+      field: 'processingTimeMs',
       valueFormatter: (p) => p.value ? `${p.value.toFixed(0)} ms` : '0 ms',
       width: 100
     },
@@ -146,7 +146,7 @@ export class CcInput implements OnInit {
       parser: null,
       dateMin: null,
       dateMax: null,
-      tempsDeTraitementMs: 0
+      ProcessingTimeMs: 0
     };
   }
 }
