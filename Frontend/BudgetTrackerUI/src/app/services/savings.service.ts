@@ -38,15 +38,15 @@ export class SavingsService {
 
     // Retourne tous les statements de tous les comptes avec le nom du compte inclus
     getFlattenedStatements(): Observable<any[]> {
-        return this.http.get<SavingAccount[]>(this.apiUrl).pipe(
+        return this.http.get<any[]>(this.apiUrl).pipe( // Le type retourné est désormais Account[]
             map(accounts => {
                 const allStatements: any[] = [];
                 accounts.forEach(acc => {
-                    acc.statements?.forEach(st => {
+                    acc.savingStatements?.forEach((st: any) => {
                         allStatements.push({
                             ...st,
-                            accountName: acc.name, // On ajoute le nom pour la grille
-                            owner: acc.owner       // On ajoute le propriétaire pour le filtre
+                            accountName: acc.name,
+                            owner: acc.owner
                         });
                     });
                 });
@@ -55,14 +55,13 @@ export class SavingsService {
         );
     }
 
-    saveStatement(statement: SavingStatement): Observable<any> {
-        // Si le statement a déjà un ID, c'est une modification (PUT)
+    saveStatement(statement: any): Observable<any> {
+        const accountId = statement.accountId;
+
         if (statement.id && statement.id > 0) {
-            return this.http.put(`${environment.apiUrl}/SavingAccounts/${statement.savingAccountId}/statements/${statement.id}`, statement);
-        }
-        // Sinon, c'est une création (POST)
-        else {
-            return this.http.post(`${environment.apiUrl}/SavingAccounts/${statement.savingAccountId}/statements`, statement);
+            return this.http.put(`${this.apiUrl}/${accountId}/statements/${statement.id}`, statement);
+        } else {
+            return this.http.post(`${this.apiUrl}/${accountId}/statements`, statement);
         }
     }
 

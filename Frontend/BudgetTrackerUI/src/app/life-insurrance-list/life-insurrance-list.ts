@@ -30,14 +30,14 @@ export class LifeInsurranceList implements OnInit {
       field: 'isActive', 
       headerName: 'Actif', 
       editable: true, 
-      cellEditor: 'agCheckboxCellEditor', 
+      cellDataType: 'boolean', 
       width: 100,
       flex: 0,
-      cellClass: 'text-center'
+      cellStyle: { 'display': 'flex', 'justify-content': 'center' }
     },
     { field: 'name', headerName: 'Nom du Contrat', editable: true, minWidth: 200 },
     { field: 'owner', headerName: 'Propriétaire', editable: true, minWidth: 200 },
-    { field: 'provider', headerName: 'Assureur / Plateforme', editable: true, filter: true }, // Ex: Spirica, Bourso...
+    { field: 'bankName', headerName: 'Assureur / Plateforme', editable: true, filter: true }, // Ex: Spirica, Bourso...
     {
       headerName: 'Fréquence MàJ',
       field: 'updateFrequencyInMonths',
@@ -70,10 +70,11 @@ export class LifeInsurranceList implements OnInit {
   addAccount() {
     const newAccount = { 
       name: 'Nouveau Contrat AV', 
-      provider: 'Assureur', 
+      bankName: 'Assureur', 
       owner: 'À définir',
       isActive: true, 
-      updateFrequencyInMonths: 3 
+      updateFrequencyInMonths: 3,
+      type: 2
     };
     
     // On appelle la méthode createAccount que nous avons ajoutée au service précédemment

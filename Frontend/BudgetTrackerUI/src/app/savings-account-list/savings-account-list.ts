@@ -18,10 +18,10 @@ export class SavingsAccountList implements OnInit {
   accounts = this.savingsService.accounts;
 
   public columnDefs: ColDef[] = [
+    { field: 'isActive', headerName: 'Actif', editable: true, cellDataType: 'boolean', width: 100, flex: 0, cellStyle: { 'display': 'flex', 'justify-content': 'center' }},
     { field: 'name', headerName: 'Nom du Livret', editable: true },
     { field: 'owner', headerName: 'Propriétaire', editable: true, filter: true },
     { field: 'bankName', headerName: 'Bank', editable: true, filter: true },
-    { field: 'isActive', headerName: 'Actif', editable: true, cellEditor: 'agCheckboxCellEditor', width: 100 },
     {
       headerName: 'Fréquence MàJ',
       field: 'updateFrequencyInMonths',
@@ -62,7 +62,14 @@ export class SavingsAccountList implements OnInit {
   }
 
   addAccount() {
-    const newAccount = { name: 'Nouveau Livret', owner: 'Nom', bank: 'Bank', isActive: true };
+    const newAccount = {
+      name: 'Nouveau Livret',
+      owner: 'Nom',
+      bankName: 'Banque', // Corrigé : 'bankName' au lieu de 'bank'
+      isActive: true,
+      updateFrequencyInMonths: 1,
+      type: 1 // 1 = Savings dans ton Enum C#
+    };
     this.savingsService.createAccount(newAccount as any).subscribe();
   }
 

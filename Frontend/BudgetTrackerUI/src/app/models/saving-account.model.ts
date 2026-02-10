@@ -9,7 +9,7 @@ export interface SavingAccount {
 
 export interface SavingStatement {
     id?: number;
-    savingAccountId: number;
+    accountId: number;
     date: string;
     amount: number;
     note?: string;

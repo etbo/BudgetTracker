@@ -1,5 +1,6 @@
 using BudgetTrackerApi.Data;
 using BudgetTrackerApi.DTOs;
+using BudgetTrackerApi.Models;
 using BudgetTrackerApi.Models.LifeInsurance;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,22 +19,22 @@ public class LifeInsuranceController : ControllerBase
     [HttpGet("last-values/{accountId}")]
     public async Task<ActionResult> GetLastValues(int accountId)
     {
-        // 1. On cherche la date du relevé le plus récent pour ce contrat
+        // 1. On cherche la date du relevé le plus récent (via AccountId)
         var lastDate = await _db.LifeInsuranceStatements
-            .Where(s => s.Line.LifeInsuranceAccountId == accountId)
+            .Where(s => s.Line.AccountId == accountId)
             .OrderByDescending(s => s.Date)
-            .Select(s => (DateTime?)s.Date) // Cast en nullable pour éviter les erreurs si vide
+            .Select(s => (DateTime?)s.Date)
             .FirstOrDefaultAsync();
 
-        // 2. On projette les lignes avec cette date
+        // 2. On projette les lignes (via AccountId)
         var lines = await _db.LifeInsuranceLines
-            .Where(l => l.LifeInsuranceAccountId == accountId)
+            .Where(l => l.AccountId == accountId)
             .Select(l => new LifeInsuranceSaisieDto
             {
                 LineId = l.Id,
                 Label = l.Label,
                 IsScpi = l.IsScpi,
-                LastStatementDate = lastDate, // On injecte la date trouvée plus haut
+                LastStatementDate = lastDate,
                 LastUnitCount = _db.LifeInsuranceStatements
                     .Where(s => s.LifeInsuranceLineId == l.Id)
                     .OrderByDescending(s => s.Date)
@@ -55,34 +56,29 @@ public class LifeInsuranceController : ControllerBase
         if (dto == null || !dto.Items.Any()) return BadRequest("Aucune donnée à enregistrer.");
 
         using var transaction = await _db.Database.BeginTransactionAsync();
-
         try
         {
             foreach (var item in dto.Items)
             {
                 int lineId = item.LifeInsuranceLineId;
 
-                // SI LA LIGNE EST NOUVELLE (ID = 0 ou n'existe pas)
                 if (lineId <= 0)
                 {
                     var newLine = new LifeInsuranceLine
                     {
-                        LifeInsuranceAccountId = dto.AccountId,
+                        AccountId = dto.AccountId, // Renommé
                         Label = item.Label,
                         IsScpi = item.IsScpi
                     };
                     _db.LifeInsuranceLines.Add(newLine);
-                    
-                    // On sauvegarde pour générer l'ID de la nouvelle ligne
                     await _db.SaveChangesAsync();
                     lineId = newLine.Id;
                 }
 
-                // ON AJOUTE LE RELEVÉ
                 var statement = new LifeInsuranceStatement
                 {
                     LifeInsuranceLineId = lineId,
-                    Date = dto.Date, // On utilise la date globale du DTO
+                    Date = dto.Date,
                     UnitCount = item.UnitCount,
                     UnitValue = item.UnitValue
                 };
@@ -96,7 +92,7 @@ public class LifeInsuranceController : ControllerBase
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return StatusCode(500, $"Erreur lors de la sauvegarde : {ex.Message}");
+            return StatusCode(500, $"Erreur : {ex.Message}");
         }
     }
 
@@ -108,28 +104,26 @@ public class LifeInsuranceController : ControllerBase
             .ThenInclude(l => l.Account)
             .AsQueryable();
 
-        // Si accountId > 0, on filtre. Si c'est 0, on prend tout.
         if (accountId > 0)
         {
-            query = query.Where(s => s.Line.LifeInsuranceAccountId == accountId);
+            query = query.Where(s => s.Line.AccountId == accountId);
         }
 
         var history = await query
-        .OrderByDescending(s => s.Date)
-        .Select(s => new
-        {
-            Id = s.Id,
-            Date = s.Date,
-            UnitCount = s.UnitCount,
-            UnitValue = s.UnitValue,
-            LineLabel = s.Line.Label,
-            IsScpi = s.Line.IsScpi,
-            AccountName = s.Line.Account.Name,
-            AccountOwner = s.Line.Account.Owner,
-            // Clé de groupage : AccountId et Date complète
-            GroupKey = $"{s.Line.LifeInsuranceAccountId}_{s.Date}"
-        })
-        .ToListAsync();
+            .OrderByDescending(s => s.Date)
+            .Select(s => new
+            {
+                Id = s.Id,
+                Date = s.Date,
+                UnitCount = s.UnitCount,
+                UnitValue = s.UnitValue,
+                LineLabel = s.Line.Label,
+                IsScpi = s.Line.IsScpi,
+                AccountName = s.Line.Account.Name,
+                AccountOwner = s.Line.Account.Owner,
+                GroupKey = $"{s.Line.AccountId}_{s.Date}"
+            })
+            .ToListAsync();
 
         return Ok(history);
     }
@@ -137,67 +131,47 @@ public class LifeInsuranceController : ControllerBase
     [HttpGet("accounts")]
     public async Task<ActionResult> GetAccounts()
     {
-        // Récupère tous les contrats avec leur Owner
-        return Ok(await _db.LifeInsuranceAccounts
+        // Filtre uniquement sur le type LifeInsurance
+        return Ok(await _db.Accounts
+            .Where(a => a.Type == AccountType.LifeInsurance)
             .Select(a => new { a.Id, a.Name, a.Owner, a.IsActive, a.UpdateFrequencyInMonths })
             .ToListAsync());
     }
 
-    [HttpPut("update-statement/{id}")]
-    public async Task<IActionResult> UpdateStatement(int id, [FromBody] SaveStatementDto dto)
-    {
-        var statement = await _db.LifeInsuranceStatements.FindAsync(id);
-        if (statement == null) return NotFound();
-
-        // On met à jour uniquement les valeurs numériques
-        statement.UnitCount = dto.UnitCount;
-        statement.UnitValue = dto.UnitValue;
-        // On peut aussi permettre la date si besoin : statement.Date = dto.Date;
-
-        await _db.SaveChangesAsync();
-        return Ok();
-    }
-
-    // POST: api/LifeInsurance/accounts
     [HttpPost("accounts")]
-    public async Task<ActionResult> CreateAccount([FromBody] LifeInsuranceAccount account)
+    public async Task<ActionResult> CreateAccount([FromBody] Account account)
     {
         if (account == null) return BadRequest();
-
-        _db.LifeInsuranceAccounts.Add(account);
+        
+        account.Type = AccountType.LifeInsurance; // On force le type
+        _db.Accounts.Add(account);
         await _db.SaveChangesAsync();
-
         return Ok(account);
     }
 
-    // PUT: api/LifeInsurance/accounts/{id}
     [HttpPut("accounts/{id}")]
-    public async Task<IActionResult> UpdateAccount(int id, [FromBody] LifeInsuranceAccount updatedAccount)
+    public async Task<IActionResult> UpdateAccount(int id, [FromBody] Account updatedAccount)
     {
-        var account = await _db.LifeInsuranceAccounts.FindAsync(id);
+        var account = await _db.Accounts.FindAsync(id);
         if (account == null) return NotFound();
 
-        // Mise à jour des champs éditables dans ta grille AG-Grid
         account.Name = updatedAccount.Name;
         account.Owner = updatedAccount.Owner;
         account.IsActive = updatedAccount.IsActive;
         account.UpdateFrequencyInMonths = updatedAccount.UpdateFrequencyInMonths;
-        // Ajoute ici bankName ou Provider si tu as ajouté ces colonnes en BDD
+        account.BankName = updatedAccount.BankName; // Ajouté pour la cohérence
 
         await _db.SaveChangesAsync();
         return Ok();
     }
 
-    // DELETE: api/LifeInsurance/accounts/{id}
     [HttpDelete("accounts/{id}")]
     public async Task<IActionResult> DeleteAccount(int id)
     {
-        var account = await _db.LifeInsuranceAccounts.FindAsync(id);
+        var account = await _db.Accounts.FindAsync(id);
         if (account == null) return NotFound();
 
-        // Attention : la suppression peut échouer si des 'Lines' ou 'Statements' y sont liés.
-        // Optionnel : Passer IsActive à false au lieu de supprimer (Soft Delete)
-        _db.LifeInsuranceAccounts.Remove(account);
+        _db.Accounts.Remove(account);
         await _db.SaveChangesAsync();
         return Ok();
     }

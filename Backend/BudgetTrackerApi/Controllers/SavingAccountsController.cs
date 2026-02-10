@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BudgetTrackerApi.Data; // À ajuster selon ton namespace
+using BudgetTrackerApi.Data;
+using BudgetTrackerApi.Models; // Pour accéder à Account et AccountType
 using BudgetTrackerApi.Models.Savings;
 
 [ApiController]
@@ -15,19 +16,24 @@ public class SavingAccountsController : ControllerBase
     }
 
     // GET: api/SavingAccounts
+    // On ne récupère que les comptes dont le type est "Savings"
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SavingAccount>>> GetAccounts()
+    public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
     {
-        return await _db.SavingAccounts
-            .Include(a => a.Statements) // On inclut l'historique
+        return await _db.Accounts
+            .Where(a => a.Type == AccountType.Savings) // Filtrage par type
+            .Include(a => a.SavingStatements) 
             .ToListAsync();
     }
 
     // POST: api/SavingAccounts
     [HttpPost]
-    public async Task<ActionResult<SavingAccount>> CreateAccount(SavingAccount account)
+    public async Task<ActionResult<Account>> CreateAccount(Account account)
     {
-        _db.SavingAccounts.Add(account);
+        // On force le type au cas où le front ne l'envoie pas
+        account.Type = AccountType.Savings;
+        
+        _db.Accounts.Add(account);
         await _db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetAccounts), new { id = account.Id }, account);
     }
@@ -36,21 +42,36 @@ public class SavingAccountsController : ControllerBase
     [HttpPost("{id}/statements")]
     public async Task<IActionResult> AddStatement(int id, SavingStatement statement)
     {
-        if (id != statement.SavingAccountId) return BadRequest();
+        // Attention : on utilise désormais 'AccountId' (le nom unifié)
+        if (id != statement.AccountId) return BadRequest();
 
         _db.SavingStatements.Add(statement);
         await _db.SaveChangesAsync();
         return Ok(statement);
     }
 
-    [HttpPost("api/Statements")]
-    public async Task<ActionResult<SavingStatement>> PostStatement(SavingStatement statement)
+    // PUT: api/SavingAccounts/accounts/{id}
+    [HttpPut("accounts/{id}")]
+    public async Task<IActionResult> UpdateAccount(int id, Account account)
     {
-        _db.SavingStatements.Add(statement);
-        await _db.SaveChangesAsync();
-        return Ok(statement);
+        if (id != account.Id) return BadRequest();
+
+        _db.Entry(account).State = EntityState.Modified;
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!_db.Accounts.Any(e => e.Id == id)) return NotFound();
+            throw;
+        }
+
+        return NoContent();
     }
 
+    // PUT: api/SavingAccounts/{accountId}/statements/{id}
     [HttpPut("{accountId}/statements/{id}")]
     public async Task<IActionResult> UpdateStatement(int accountId, int id, SavingStatement statement)
     {
@@ -66,26 +87,6 @@ public class SavingAccountsController : ControllerBase
         {
             if (!_db.SavingStatements.Any(e => e.Id == id)) return NotFound();
             else throw;
-        }
-
-        return NoContent();
-    }
-
-    [HttpPut("accounts/{id}")]
-    public async Task<IActionResult> UpdateAccount(int id, SavingAccount account)
-    {
-        if (id != account.Id) return BadRequest();
-
-        _db.Entry(account).State = EntityState.Modified;
-
-        try
-        {
-            await _db.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_db.SavingAccounts.Any(e => e.Id == id)) return NotFound();
-            throw;
         }
 
         return NoContent();

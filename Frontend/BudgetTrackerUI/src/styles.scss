@@ -158,3 +158,25 @@ h2 {
   /* 2. Chips sélectionnées MAIS désactivées */
   --mat-chip-flat-disabled-selected-container-color: #1f4e8071;
 }
+
+
+.ag-root-wrapper {
+  /* --- Couleurs de base --- */
+  --ag-input-focus-border-color: #3f51b5 !important;
+  --ag-range-selection-border-color: #3f51b5 !important;
+  
+  /* --- Checkbox (Toggle) --- */
+  --ag-checkbox-checked-background-color: #3f51b5 !important;
+  --ag-checkbox-checked-border-color: #3f51b5 !important;
+  --ag-checkbox-checked-color: #ffffff !important; // Couleur de la coche
+  
+  /* --- Éléments de sélection --- */
+  --ag-selected-row-background-color: rgba(63, 81, 181, 0.08) !important;
+  
+  /* --- Bordures générales --- */
+  --ag-border-color: #e0e0e0 !important;
+}
+
+.ag-checkbox-input-wrapper {
+  transform: scale(1.1);
+}

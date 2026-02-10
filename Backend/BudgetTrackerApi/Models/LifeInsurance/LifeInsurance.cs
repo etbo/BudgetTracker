@@ -1,26 +1,16 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace BudgetTrackerApi.Models.LifeInsurance
 {
-    public class LifeInsuranceAccount
-    {
-        public int Id { get; set; }
-        public required string Name { get; set; }        // ex: "Linxea Spirit 2"
-        public required string Owner { get; set; }       // Ton nouveau champ (ex: "Joint", "Moi")
-        public bool IsActive { get; set; } = true;
-        public int UpdateFrequencyInMonths { get; set; } = 1;
-
-        // Liste des lignes de ce contrat (Fonds Euro + les 3 SCPI)
-        public virtual ICollection<LifeInsuranceLine> Lines { get; set; } = new List<LifeInsuranceLine>();
-    }
-
     public class LifeInsuranceLine
     {
         public int Id { get; set; }
-        public int LifeInsuranceAccountId { get; set; }
+        public int AccountId { get; set; }
+        [ForeignKey("AccountId")]
+        public virtual Account Account { get; set; } = null!;
 
-
-        public required string Label { get; set; }       // ex: "Fonds Euro", "Activimmo", etc.
-        public bool IsScpi { get; set; }        // Pour différencier le fonds euro des SCPI
-        public virtual LifeInsuranceAccount Account { get; set; } = default!;
+        public string Label { get; set; } = string.Empty;
+        public bool IsScpi { get; set; }
         public virtual ICollection<LifeInsuranceStatement> Statements { get; set; } = new List<LifeInsuranceStatement>();
     }
 

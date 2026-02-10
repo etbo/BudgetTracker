@@ -85,7 +85,8 @@ export class CcRules implements OnInit {
     {
       headerName: 'Active',
       field: 'isUsed',
-      width: 90,
+      width: 100,
+      flex: 0,
       cellDataType: 'boolean',
       editable: true,
       cellStyle: { 'display': 'flex', 'justify-content': 'center' }
