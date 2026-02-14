@@ -1,0 +1,11 @@
+<h2>Gestion des Comptes</h2>
+
+<button mat-flat-button color="primary" (click)="addAccount()">
+    <mat-icon>add</mat-icon>
+    Ajouter un compte
+</button>
+
+
+<ag-grid-angular style="width: 100%; height: 600px;" class="ag-theme-alpine" [columnDefs]="columnDefs"
+    [defaultColDef]="defaultColDef" [rowData]="accounts()" (cellValueChanged)="onCellValueChanged($event)">
+</ag-grid-angular>

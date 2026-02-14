@@ -22,7 +22,7 @@ public class SavingAccountsController : ControllerBase
     {
         return await _db.Accounts
             .Where(a => a.Type == AccountType.Savings) // Filtrage par type
-            .Include(a => a.SavingStatements) 
+            .Include(a => a.SavingStatements)
             .ToListAsync();
     }
 
@@ -32,7 +32,7 @@ public class SavingAccountsController : ControllerBase
     {
         // On force le type au cas où le front ne l'envoie pas
         account.Type = AccountType.Savings;
-        
+
         _db.Accounts.Add(account);
         await _db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetAccounts), new { id = account.Id }, account);
@@ -42,8 +42,16 @@ public class SavingAccountsController : ControllerBase
     [HttpPost("{id}/statements")]
     public async Task<IActionResult> AddStatement(int id, SavingStatement statement)
     {
-        // Attention : on utilise désormais 'AccountId' (le nom unifié)
-        if (id != statement.AccountId) return BadRequest();
+        // On force l'ID de l'URL dans l'objet pour éviter les erreurs de mapping
+        statement.AccountId = id;
+
+        // On peut retirer la vérification stricte 'if (id != statement.AccountId)' 
+        // car on vient de forcer la valeur juste au-dessus.
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
         _db.SavingStatements.Add(statement);
         await _db.SaveChangesAsync();

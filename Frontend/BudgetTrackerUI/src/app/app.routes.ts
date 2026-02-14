@@ -6,13 +6,10 @@ import { CcOperations } from './cc-operations/cc-operations';
 import { CcCategories } from './cc-categories/cc-categories';
 import { PeaDashboard } from './pea-dashboard/pea-dashboard';
 import { CcRules } from './cc-rules/cc-rules';
-import { Home } from './home/home';
 import { SavingsStatement } from './savings-statement/savings-statement';
-import { SavingsAccountList } from './savings-account-list/savings-account-list';
-import { AccountsStatus } from './accounts-status/accounts-status';
 import { LifeInsuranceStatement } from './life-insurance-statement/life-insurance-statement';
 import { GlobalDashboard } from './global-dashboard/global-dashboard';
-import { LifeInsurranceList } from './life-insurrance-list/life-insurrance-list';
+import { AccountList } from './account-list/account-list';
 
 export const routes: Routes = [
   // { path: '', component: Home },
@@ -21,7 +18,7 @@ export const routes: Routes = [
   { path: '', component: GlobalDashboard },
 
   // All accounts
-  { path: 'account-status', component: AccountsStatus },
+  { path: 'account-list', component: AccountList },
 
   // Comptes courant : cc
   { path: 'cc-dashboard', component: CcDashboard },
@@ -36,11 +33,9 @@ export const routes: Routes = [
 
   // savings
   { path: 'savings-statement', component: SavingsStatement },
-  { path: 'savings-account-list', component: SavingsAccountList },
   
   // Assurance vie
   { path: 'li-statement', component: LifeInsuranceStatement },
-  { path: 'li-list', component: LifeInsurranceList },
   
   // Redirection si l'URL est inconnue
   { path: '**', redirectTo: '' }

@@ -10,7 +10,7 @@ namespace BudgetTrackerApi.Models.Savings
         public int AccountId { get; set; }
         [ForeignKey("AccountId")]
         [JsonIgnore]
-        public virtual Account Account { get; set; } = null!;
+        public virtual Account? Account { get; set; } = null!;
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }

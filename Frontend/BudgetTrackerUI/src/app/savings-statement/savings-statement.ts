@@ -1,27 +1,28 @@
-import { Component, effect, OnInit, signal } from '@angular/core';
-import { AgGridAngular, AgGridModule } from 'ag-grid-angular';
-import { ColDef, GridReadyEvent, CellValueChangedEvent, GridApi, ValueFormatterParams } from 'ag-grid-community';
+import { Component, effect, OnInit, signal, inject } from '@angular/core'; // Ajout de inject
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef, GridReadyEvent, GridApi, ValueFormatterParams } from 'ag-grid-community';
 import { SavingsService } from '../services/savings.service';
-import { SavingStatement } from '../models/saving-account.model';
 import { customDateFormatter, localDateSetter } from '../shared/utils/grid-utils';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'; // Ajout des imports Material
 
 @Component({
   selector: 'app-savings-statement',
-  imports: [AgGridAngular, MatIconModule, MatButtonModule],
+  standalone: true, // Assure-toi qu'il est standalone si tu l'utilises ainsi
+  imports: [AgGridAngular, MatIconModule, MatButtonModule, MatSnackBarModule], // Ajout du module
   templateUrl: './savings-statement.html',
   styleUrl: './savings-statement.scss',
 })
 export class SavingsStatement implements OnInit {
+  private savingsService = inject(SavingsService);
+  private snackBar = inject(MatSnackBar); // Injection de la snackbar
+
   public columnDefs: ColDef[] = [];
   private gridApi!: GridApi;
   rowData = signal<any[]>([]);
 
-  accounts = signal<{ id: number, name: string }[]>([]);
-
-  constructor(public savingsService: SavingsService) {
-    // Cet effect va se déclencher dès que 'accounts' reçoit les données du serveur
+  constructor() {
     effect(() => {
       const accounts = this.savingsService.accounts();
       if (accounts.length > 0) {
@@ -32,7 +33,6 @@ export class SavingsStatement implements OnInit {
 
   ngOnInit() {
     this.savingsService.loadAccounts();
-
     this.loadData();
   }
 
@@ -52,7 +52,7 @@ export class SavingsStatement implements OnInit {
         },
       },
       {
-        field: 'savingAccountId',
+        field: 'accountId',
         headerName: 'Livret',
         editable: true,
         cellEditor: 'agSelectCellEditor',
@@ -65,7 +65,7 @@ export class SavingsStatement implements OnInit {
         },
         filter: 'agTextColumnFilter',
         filterValueGetter: params => {
-          const account = accounts.find(a => a.id === params.data.savingAccountId);
+          const account = accounts.find(a => a.id === params.data.accountId);
           return account ? `${account.name} ${account.owner}` : '';
         }
       },
@@ -75,7 +75,6 @@ export class SavingsStatement implements OnInit {
       },
       { field: 'note', headerName: 'Note', editable: true }
     ];
-
     // On force AG Grid à redessiner les colonnes avec les nouvelles "values"
     if (this.gridApi) {
       this.gridApi.setGridOption('columnDefs', this.columnDefs);
@@ -103,21 +102,28 @@ export class SavingsStatement implements OnInit {
   addNewRow() {
     const newRow = {
       date: new Date().toISOString().split('T')[0],
-      savingAccountId: this.accounts()[0]?.id, // Par défaut le premier compte
+      accountId: this.savingsService.accounts()[0]?.id,
       amount: 0,
       note: ''
     };
-
-    // On l'ajoute au début du tableau
     this.rowData.set([newRow, ...this.rowData()]);
   }
 
   onCellValueChanged(event: any) {
     const row = event.data;
-    // Si la ligne a déjà un ID, on fait un PUT, sinon un POST
-    this.savingsService.saveStatement(row).subscribe(() => {
-      console.log('Donnée sauvegardée !');
-      this.loadData(); // On rafraîchit pour être sûr d'avoir les IDs à jour
+    this.savingsService.saveStatement(row).subscribe({
+      next: () => {
+        this.snackBar.open('Relevé enregistré avec succès', 'OK', {
+          duration: 2000,
+          horizontalPosition: 'right',
+          verticalPosition: 'bottom'
+        });
+        this.loadData();
+      },
+      error: (err) => {
+        this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
+        console.error(err);
+      }
     });
   }
 }
