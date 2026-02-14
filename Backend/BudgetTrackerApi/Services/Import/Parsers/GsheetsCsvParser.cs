@@ -37,8 +37,8 @@ public class GsheetsCsvParser : IBankParser
         foreach (var row in rows)
         {
             if (!DateTime.TryParseExact(row.Date, "dd/MM/yyyy",
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    System.Globalization.DateTimeStyles.None,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
                     out DateTime parsedDate))
             {
                 throw new FormatException("Echec du parsing des dates");
@@ -47,9 +47,9 @@ public class GsheetsCsvParser : IBankParser
             {
                 Date = parsedDate,
                 Description = row.Description,
-                Amount = (double)row.Amount,
+                Amount = (double)row.Montant,
                 Category = row.Type,
-                Bank = row.Bank,
+                Bank = row.Banque,
                 Comment = row.Commentaires,
             };
 

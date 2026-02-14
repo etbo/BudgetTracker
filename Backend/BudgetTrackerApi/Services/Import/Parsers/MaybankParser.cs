@@ -41,8 +41,8 @@ public class MaybankCsvParser : IBankParser
         foreach (var row in rows)
         {
             if (!DateTime.TryParseExact(row.Date, "yyyy-MM-dd",
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    System.Globalization.DateTimeStyles.None,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
                     out DateTime parsedDate))
             {
                 throw new FormatException("Echec du parsing des dates");
