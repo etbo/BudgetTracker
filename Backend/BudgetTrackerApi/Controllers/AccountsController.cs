@@ -14,34 +14,46 @@ public class AccountsController : ControllerBase
         _db = context;
     }
 
-    // GET: api/Accounts
-    // Récupère TOUS les comptes (CC, Savings, AV)
     [HttpGet]
     public async Task<ActionResult> GetAccounts()
     {
         var now = DateTime.Now;
-        var accounts = await _db.Accounts.ToListAsync();
 
-        // On projette les données pour inclure le statut calculé
+        // 1. On charge les données de base
+        var accounts = await _db.Accounts.ToListAsync();
+        
+        // Dates max pour les Comptes Courants (via le nom de la banque)
+        var ccDates = await _db.CcOperations
+            .Where(o => o.Bank != null)
+            .GroupBy(o => o.Bank)
+            .Select(g => new { BankName = g.Key, LastDate = g.Max(o => o.Date) })
+            .ToListAsync();
+
+        // 2. Projection finale
         var result = accounts.Select(a =>
         {
-            DateTime? lastDate = a.Type switch
+            DateTime? lastDate = null;
+
+            if (a.Type == AccountType.Checking)
             {
-                AccountType.Checking => _db.CcOperations.Where(o => o.Bank == a.BankName).Max(o => (DateTime?)o.Date),
-                AccountType.Savings => _db.SavingStatements.Where(s => s.AccountId == a.Id).Max(s => (DateTime?)s.Date),
-                AccountType.LifeInsurance => _db.LifeInsuranceStatements.Where(s => s.Line.AccountId == a.Id).Max(s => (DateTime?)s.Date),
-                _ => null
-            };
+                lastDate = ccDates.FirstOrDefault(d => d.BankName == a.BankName)?.LastDate;
+            }
+            else if (a.Type == AccountType.Savings)
+            {
+                lastDate = _db.SavingStatements
+                    .Where(s => s.AccountId == a.Id)
+                    .Max(s => (DateTime?)s.Date);
+            }
+            else if (a.Type == AccountType.LifeInsurance)
+            {
+                // Pour l'AV, on cherche la date max parmi tous les relevés de tous les fonds liés à ce compte
+                lastDate = _db.LifeInsuranceStatements
+                    .Where(s => s.Line.AccountId == a.Id)
+                    .Max(s => (DateTime?)s.Date);
+            }
 
             int months = a.UpdateFrequencyInMonths > 0 ? a.UpdateFrequencyInMonths : 1;
-
-            // LOGIQUE CORRIGÉE : Si inactif, IsLate est toujours false
             bool isLate = a.IsActive && (lastDate == null || lastDate < now.AddMonths(-months));
-
-            string statusMessage = "À jour";
-            if (!a.IsActive) statusMessage = "Désactivé";
-            else if (lastDate == null) statusMessage = "Aucune donnée";
-            else if (isLate) statusMessage = "MàJ requise";
 
             return new
             {
@@ -54,14 +66,15 @@ public class AccountsController : ControllerBase
                 a.UpdateFrequencyInMonths,
                 LastEntryDate = lastDate,
                 IsLate = isLate,
-                StatusMessage = statusMessage
+                StatusMessage = !a.IsActive ? "Désactivé" : 
+                                (lastDate == null ? "Aucune donnée" : 
+                                (isLate ? "MàJ requise" : "À jour"))
             };
         });
 
         return Ok(result);
     }
 
-    // POST: api/Accounts
     [HttpPost]
     public async Task<ActionResult<Account>> CreateAccount(Account account)
     {
@@ -70,7 +83,6 @@ public class AccountsController : ControllerBase
         return CreatedAtAction(nameof(GetAccounts), new { id = account.Id }, account);
     }
 
-    // PUT: api/Accounts/{id}
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAccount(int id, Account account)
     {
@@ -78,10 +90,7 @@ public class AccountsController : ControllerBase
 
         _db.Entry(account).State = EntityState.Modified;
 
-        try
-        {
-            await _db.SaveChangesAsync();
-        }
+        try { await _db.SaveChangesAsync(); }
         catch (DbUpdateConcurrencyException)
         {
             if (!_db.Accounts.Any(e => e.Id == id)) return NotFound();
@@ -91,7 +100,6 @@ public class AccountsController : ControllerBase
         return NoContent();
     }
 
-    // DELETE: api/Accounts/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAccount(int id)
     {
