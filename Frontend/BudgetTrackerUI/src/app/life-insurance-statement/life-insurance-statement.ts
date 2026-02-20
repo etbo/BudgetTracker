@@ -6,10 +6,10 @@ import { LifeInsuranceService } from '../services/life-insurance.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LifeInsuranceInput } from '../life-insurance-input/life-insurance-input';
-import { customDateFormatter } from '../shared/utils/grid-utils';
+import { customDateFormatter, localDateSetter } from '../shared/utils/grid-utils';
 
-// Interface pour gérer la structure Header/Détail
 interface HistoryRow {
   id?: number;
   isHeader: boolean;
@@ -28,25 +28,23 @@ interface HistoryRow {
 @Component({
   selector: 'app-life-insurance-statement',
   standalone: true,
-  imports: [CommonModule, AgGridModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [CommonModule, AgGridModule, MatButtonModule, MatIconModule, MatDialogModule, MatSnackBarModule],
   templateUrl: './life-insurance-statement.html',
   styleUrl: './life-insurance-statement.scss',
 })
 export class LifeInsuranceStatement implements OnInit {
   private dialog = inject(MatDialog);
   private liService = inject(LifeInsuranceService);
+  private snackBar = inject(MatSnackBar);
 
-  // Stockage brut et état des groupes
   private rawHistoryData = signal<any[]>([]);
   private expandedGroups = signal<Set<string>>(new Set());
 
-  // Signal calculé pour AG Grid (Simulation du groupage)
   public historyData = computed(() => {
     const raw = this.rawHistoryData();
     const expanded = this.expandedGroups();
     const result: HistoryRow[] = [];
 
-    // Regroupement par GroupKey (formaté par le backend)
     const groups = new Map<string, any[]>();
     raw.forEach(item => {
       const key = item.groupKey;
@@ -55,7 +53,6 @@ export class LifeInsuranceStatement implements OnInit {
     });
 
     groups.forEach((items, key) => {
-      // 1. Ligne de résumé (Header)
       const groupTotal = items.reduce((sum, i) => sum + (i.unitCount * i.unitValue), 0);
       const isExpanded = expanded.has(key);
 
@@ -64,12 +61,11 @@ export class LifeInsuranceStatement implements OnInit {
         groupKey: key,
         expanded: isExpanded,
         total: groupTotal,
-        date: items[0].date, // Pour le tri
+        date: items[0].date,
         accountName: items[0].accountName,
         accountOwner: items[0].accountOwner
       });
 
-      // 2. Lignes de détails (si le groupe est déplié)
       if (isExpanded) {
         items.forEach(i => result.push({ ...i, isHeader: false }));
       }
@@ -83,7 +79,6 @@ export class LifeInsuranceStatement implements OnInit {
       headerName: 'Compte / Actif',
       field: 'accountName',
       flex: 1,
-      // Si c'est un header, on affiche le nom du compte, sinon le libellé de l'actif
       valueGetter: (p) => p.data.isHeader
         ? `${p.data.expanded ? '▼' : '▶'} ${p.data.accountName} (${p.data.accountOwner})`
         : `      ${p.data.lineLabel}`,
@@ -92,70 +87,57 @@ export class LifeInsuranceStatement implements OnInit {
     {
       headerName: 'Date',
       field: 'date',
-      width: 300,
-      // On n'affiche la date que sur la ligne de Header pour éviter la répétition
-      // valueFormatter: customDateFormatter,
-      valueFormatter: (p) => {
-        if (!p.value) return '';
-        if (p.data.isHeader) {
-          return customDateFormatter(p); // ou customDateFormatter(p.value) selon ta définition
-        }
-        return "";
-      },
-      cellStyle: (p): any => p.data.isHeader ? { fontWeight: 'bold' } : null
+      width: 250,
+      editable: (p) => p.data.isHeader,
+      cellEditor: 'agDateCellEditor',
+      cellDataType: false,
+      singleClickEdit: true,
+      cellStyle: (p): any => p.data.isHeader ? { fontWeight: 'bold' } : '',
+      valueParser: params => params.newValue,
+      valueFormatter: customDateFormatter,
+      valueSetter: localDateSetter
     },
     {
       headerName: 'Parts',
       field: 'unitCount',
       type: 'rightAligned',
-      width: 250,
+      width: 150,
       editable: (p) => !p.data.isHeader && p.data.isScpi,
-      valueFormatter: (p) => {
-        if (p.data.isHeader) return '';
-        // Si c'est un Fonds Euro (pas SCPI), on n'affiche rien ou un tiret
-        if (!p.data.isScpi) return '-';
-        return p.value?.toFixed(5);
-      },
-      cellStyle: (p): any => {
-        if (p.data.isHeader) return { color: '#ccc' };
-        return null;
-      }
+      valueFormatter: (p) => p.data.isHeader ? '' : (p.data.isScpi ? p.value?.toFixed(5) : '-'),
     },
     {
       headerName: 'Valeur (unitaire)',
       field: 'unitValue',
       type: 'rightAligned',
-      width: 250,
+      width: 150,
       editable: (p) => !p.data.isHeader,
       valueFormatter: (p) => p.data.isHeader ? '' : (p.value ? p.value.toFixed(2) + ' €' : ''),
-      cellStyle: (p) => p.data.isHeader
-        ? { fontWeight: 'bold', cursor: 'pointer' }
-        : null
     },
     {
       headerName: 'Total',
       type: 'rightAligned',
-      width: 250,
+      width: 150,
       valueGetter: (p) => p.data.isHeader ? p.data.total : (p.data.unitCount * p.data.unitValue),
       valueFormatter: (p) => p.value?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }),
-      cellStyle: (p): any => {
-        if (p.data.isHeader) {
-          return { fontWeight: 'bold' };
-        }
-        return { color: '#666' };
-      }
+      cellStyle: (p): any => p.data.isHeader ? { fontWeight: 'bold' } : { color: '#666' }
+    },
+    {
+      headerName: '',
+      width: 60,
+      cellRenderer: (p: any) => p.data.isHeader
+        ? `<i class="material-icons">delete_outline</i>`
+        : '',
+      onCellClicked: (p) => { if (p.data.isHeader) this.deleteGroup(p.data); }
     }
   ];
 
-  defaultColDef = {
-    resizable: true, sortable: true, filter: true,
-    filterParams: {
-      buttons: ['clear']
-    }
-  };
+  public defaultColDef: ColDef = { resizable: true, sortable: true, filter: true };
 
   public gridOptions: GridOptions = {
-    onCellClicked: (event: CellClickedEvent) => this.toggleGroup(event),
+    onCellClicked: (event: CellClickedEvent) => {
+      // On ne toggle que si on clique sur la première colonne
+      if (event.column.getColId() === 'accountName') this.toggleGroup(event);
+    },
     suppressNoRowsOverlay: false
   };
 
@@ -177,56 +159,71 @@ export class LifeInsuranceStatement implements OnInit {
     }
   }
 
+  deleteGroup(data: HistoryRow) {
+    if (confirm(`Supprimer ce relevé du ${new Date(data.date!).toLocaleDateString()} ?`)) {
+      this.liService.deleteStatementGroup(data.groupKey).subscribe({
+        next: () => {
+          this.snackBar.open('✅ Relevé supprimé', 'OK', { duration: 2000 });
+          this.loadAllHistory();
+        }
+      });
+    }
+  }
+
+  onCellValueChanged(event: any) {
+    if (event.data.isHeader && event.column.getColId() === 'date') {
+
+      // Au lieu d'envoyer event.value (qui est l'objet Date brut de l'éditeur)
+      // On envoie event.data.date (qui a été formaté par localDateSetter avec le T12:00:00)
+
+      this.liService.updateStatementGroupDate({
+        groupKey: event.data.groupKey,
+        newDate: event.data.date // <-- Utilise la donnée formatée
+      }).subscribe({
+        next: () => this.loadAllHistory(),
+        error: () => this.loadAllHistory()
+      });
+      return;
+    }
+
+    // Cas 2: Modif valeur sur une ligne détail
+    if (!event.data.isHeader) {
+      const payload = {
+        lifeInsuranceLineId: event.data.lineId,
+        date: event.data.date,
+        unitCount: event.data.unitCount,
+        unitValue: event.data.unitValue
+      };
+      this.liService.updateStatement(event.data.id, payload).subscribe({
+        next: () => this.loadAllHistory(),
+        error: () => this.loadAllHistory()
+      });
+    }
+  }
+
   openSaisie() {
     this.liService.getAccounts().subscribe(accounts => {
       const dialogRef = this.dialog.open(LifeInsuranceInput, {
         width: '700px',
         data: { accounts: accounts }
       });
-
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) this.saveData(result);
-      });
+      dialogRef.afterClosed().subscribe(result => { if (result) this.saveData(result); });
     });
   }
 
   saveData(result: any) {
-    const formattedItems = result.items.map((row: any) => {
-      // On utilise les noms exacts vus dans ton log "Row issue de la grille"
-      return {
-        lifeInsuranceLineId: row.lifeInsuranceLineId || 0,
-        label: row.label,
-        isScpi: row.isScpi,
-        // On prend unitCount et unitValue DIRECTEMENT (sans le 'last')
-        unitCount: row.isScpi ? (row.unitCount || 0) : 1,
-        unitValue: row.unitValue || 0
-      };
-    });
+    const formattedItems = result.items.map((row: any) => ({
+      lifeInsuranceLineId: row.lifeInsuranceLineId || 0,
+      label: row.label,
+      isScpi: row.isScpi,
+      unitCount: row.isScpi ? (row.unitCount || 0) : 1,
+      unitValue: row.unitValue || 0
+    }));
 
-    const globalPayload = {
+    this.liService.saveSaisie({
       accountId: result.accountId,
       date: result.date,
       items: formattedItems
-    };
-
-    this.liService.saveSaisie(globalPayload).subscribe(() => {
-      this.loadAllHistory();
-    });
-  }
-
-  onCellValueChanged(event: any) {
-    if (event.data.isHeader) return;
-
-    const payload = {
-      lifeInsuranceLineId: event.data.lineId,
-      date: event.data.date,
-      unitCount: event.data.unitCount,
-      unitValue: event.data.unitValue
-    };
-
-    this.liService.updateStatement(event.data.id, payload).subscribe({
-      next: () => this.loadAllHistory(),
-      error: () => this.loadAllHistory()
-    });
+    }).subscribe(() => this.loadAllHistory());
   }
 }

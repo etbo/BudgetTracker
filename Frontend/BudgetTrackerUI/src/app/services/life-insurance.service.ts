@@ -8,32 +8,19 @@ export class LifeInsuranceService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/LifeInsurance`;
 
-  /**
-   * Récupère la liste des comptes/contrats pour le sélecteur
-   */
   getAccounts(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/accounts`);
   }
 
-  /**
-   * Récupère les dernières valeurs pour pré-remplir la saisie
-   */
   getPrepareSaisie(accountId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/last-values/${accountId}`);
   }
 
-  /**
-   * Récupère l'historique complet (format plat)
-   */
   getHistory(accountId: number = 0): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/history/${accountId}`);
   }
 
-  /**
-   * Enregistre les nouveaux relevés
-   */
   saveSaisie(payload: any): Observable<any> {
-    // payload doit être { accountId: number, date: string, items: any[] }
     return this.http.post(`${this.apiUrl}/save-statement`, payload);
   }
 
@@ -41,11 +28,26 @@ export class LifeInsuranceService {
     return this.http.put(`${this.apiUrl}/update-statement/${id}`, data);
   }
 
+  // --- NOUVELLES MÉTHODES POUR LE GROUPAGE ---
+
+  deleteStatementGroup(groupKey: string): Observable<any> {
+    // encodeURIComponent transforme les "/" et les espaces en caractères sûrs pour l'URL
+    const safeKey = encodeURIComponent(groupKey);
+    return this.http.delete(`${this.apiUrl}/history/group/${safeKey}`);
+  }
+
+  updateStatementGroupDate(payload: { groupKey: string, newDate: string }): Observable<any> {
+    // Ici pas besoin de encodeURIComponent car on passe la clé dans le BODY (JSON) 
+    // et non dans l'URL. C'est le JSON qui sera parsé par .NET.
+    return this.http.put(`${this.apiUrl}/history/group/date`, payload);
+  }
+
+  // ------------------------------------------
+
   createAccount(account: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/accounts`, account);
   }
 
-  // Pour mettre à jour le nom, l'assureur ou la fréquence
   updateAccount(account: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/accounts/${account.id}`, account);
   }

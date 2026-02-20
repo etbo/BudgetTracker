@@ -121,7 +121,7 @@ public class LifeInsuranceController : ControllerBase
                 IsScpi = s.Line.IsScpi,
                 AccountName = s.Line.Account.Name,
                 AccountOwner = s.Line.Account.Owner,
-                GroupKey = $"{s.Line.AccountId}_{s.Date}"
+                GroupKey = $"{s.Line.AccountId}_{s.Date:yyyy-MM-dd}"
             })
             .ToListAsync();
 
@@ -142,7 +142,7 @@ public class LifeInsuranceController : ControllerBase
     public async Task<ActionResult> CreateAccount([FromBody] Account account)
     {
         if (account == null) return BadRequest();
-        
+
         account.Type = AccountType.LifeInsurance; // On force le type
         _db.Accounts.Add(account);
         await _db.SaveChangesAsync();
@@ -172,6 +172,58 @@ public class LifeInsuranceController : ControllerBase
         if (account == null) return NotFound();
 
         _db.Accounts.Remove(account);
+        await _db.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpDelete("history/group/{groupKey}")]
+    public async Task<IActionResult> DeleteHistoryGroup(string groupKey)
+    {
+        // On décode la clé (Ex: "4_20/02/2026 00:00:00")
+        var parts = groupKey.Split('_');
+        if (parts.Length < 2) return BadRequest("Format de clé invalide.");
+
+        int accountId = int.Parse(parts[0]);
+        DateTime date = DateTime.Parse(parts[1]);
+
+        // On supprime tous les relevés du compte à cette date précise
+        var statementsToDelete = await _db.LifeInsuranceStatements
+            .Where(s => s.Line.AccountId == accountId && s.Date == date)
+            .ToListAsync();
+
+        if (!statementsToDelete.Any()) return NotFound("Aucun relevé trouvé pour ce groupe.");
+
+        _db.LifeInsuranceStatements.RemoveRange(statementsToDelete);
+        await _db.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    // PUT: api/LifeInsurance/history/group/date
+    [HttpPut("history/group/date")]
+    public async Task<IActionResult> UpdateGroupDate([FromBody] UpdateGroupDateDto dto)
+    {
+        if (dto == null || string.IsNullOrEmpty(dto.GroupKey)) return BadRequest();
+
+        var parts = dto.GroupKey.Split('_');
+        int accountId = int.Parse(parts[0]);
+
+        // On parse la date provenant de la clé (format yyyy-MM-dd maintenant)
+        if (!DateTime.TryParse(parts[1], out DateTime oldDate))
+            return BadRequest("Date source invalide");
+
+        // Important : .Date permet d'ignorer les heures/minutes/secondes si besoin
+        var statements = await _db.LifeInsuranceStatements
+            .Where(s => s.Line.AccountId == accountId && s.Date.Date == oldDate.Date)
+            .ToListAsync();
+
+        if (!statements.Any()) return NotFound("Aucun relevé trouvé.");
+
+        foreach (var s in statements)
+        {
+            s.Date = dto.NewDate.Date; // On stocke la nouvelle date (sans l'heure UTC)
+        }
+
         await _db.SaveChangesAsync();
         return Ok();
     }
