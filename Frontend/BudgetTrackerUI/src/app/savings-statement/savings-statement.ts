@@ -113,15 +113,13 @@ export class SavingsStatement implements OnInit {
     const row = event.data;
     this.savingsService.saveStatement(row).subscribe({
       next: () => {
-        this.snackBar.open('Relevé enregistré avec succès', 'OK', {
-          duration: 2000,
-          horizontalPosition: 'right',
-          verticalPosition: 'bottom'
+        this.snackBar.open('✅ Relevé enregistré avec succès', 'OK', {
+          duration: 3000
         });
         this.loadData();
       },
       error: (err) => {
-        this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
+        this.snackBar.open('❌ Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
         console.error(err);
       }
     });

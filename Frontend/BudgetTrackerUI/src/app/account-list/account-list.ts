@@ -74,19 +74,19 @@ export class AccountList implements OnInit {
     };
 
     this.accountService.createAccount(newAccount).subscribe({
-      next: () => this.snackBar.open('Compte créé', 'OK', { duration: 2000 })
+      next: () => this.snackBar.open('Compte créé', 'OK', { duration: 3000 })
     });
   }
 
   onCellValueChanged(event: any) {
     this.accountService.updateAccount(event.data).subscribe({
       next: () => {
-        this.snackBar.open('Mise à jour réussie', '', { duration: 1500 });
+        this.snackBar.open('✅ Mise à jour réussie', '', { duration: 3000 });
         // ON RECHARGE ICI : Seulement quand le serveur a fini de bosser
         this.accountService.loadAccounts();
       },
       error: () => {
-        this.snackBar.open('Erreur lors de la mise à jour', 'Fermer');
+        this.snackBar.open('❌ Erreur lors de la mise à jour', 'Fermer');
         // En cas d'erreur, on recharge aussi pour remettre la checkbox 
         // dans son état réel en BDD (annulation visuelle)
         this.accountService.loadAccounts();

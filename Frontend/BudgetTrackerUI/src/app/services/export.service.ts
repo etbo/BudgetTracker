@@ -49,10 +49,8 @@ export class ExportService {
     }
 
     this.snackBar.open(message, 'Fermer', {
-      duration: 5000,
-      panelClass: ['error-snackbar'], // On applique notre classe rouge
-      horizontalPosition: 'right',
-      verticalPosition: 'top'
+      duration: 3000,
+      panelClass: ['error-snackbar']
     });
   }
 }
