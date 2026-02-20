@@ -1,6 +1,17 @@
 <h2>Situation actuelle</h2>
 
 <div class="summary-panel" *ngIf="lastPoint() as lp">
+    <mat-card appearance="outlined" class="highlight-card">
+        <mat-card-header>
+            <mat-card-title [style.color]="'var(' + getAccountColorVar('global') + ')'">
+                {{ lp.cash + lp.savings + lp.pea + lp.lifeInsurance | number:'1.0-0' }} €
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <span>Total</span>
+        </mat-card-content>
+    </mat-card>
+
     <mat-card appearance="outlined">
         <mat-card-header>
             <mat-card-title [style.color]="'var(' + getAccountColorVar('cc') + ')'">

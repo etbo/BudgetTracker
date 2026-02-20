@@ -22,6 +22,7 @@ export class ThemeService {
     getAccountColorVar(accountName: string): string {
         const name = accountName.toLowerCase();
 
+        if (name.includes('global')) return '--color-account-global';
         if (name.includes('cc')) return '--color-account-cc';
         if (name.includes('savings')) return '--color-account-savings';
         if (name.includes('pea')) return '--color-account-pea';
