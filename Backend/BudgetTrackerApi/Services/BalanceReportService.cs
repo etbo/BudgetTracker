@@ -16,7 +16,7 @@ namespace BudgetTrackerApi.Services
             _dbFactory = dbFactory;
         }
 
-        public async Task<List<DailyBalance>> GetCumulatedBalanceAsync()
+        public async Task<List<CcDailyBalance>> GetCumulatedBalanceAsync()
         {
             using var _dbContext = _dbFactory.CreateDbContext();
 
@@ -26,18 +26,18 @@ namespace BudgetTrackerApi.Services
 
             if (!operations.Any())
             {
-                Console.WriteLine($"New DailyBalance");
-                return new List<DailyBalance>();
+                Console.WriteLine($"New CcDailyBalance");
+                return new List<CcDailyBalance>();
             }
             else
             {
-                Console.WriteLine($"DailyBalance existant");
+                Console.WriteLine($"CcDailyBalance existant");
             }
             
             Console.WriteLine($"operations = {operations.Count()}");
 
             // Étape 2 : Préparer les données
-            var dailyBalances = new SortedDictionary<DateTime, double>();
+            var CcDailyBalances = new SortedDictionary<DateTime, double>();
 
             var orderedOperations = operations
                 .OrderBy(o => o.Date)
@@ -54,13 +54,13 @@ namespace BudgetTrackerApi.Services
 
                 // Si une opération a déjà eu lieu à cette date, on met à jour la balance finale de la journée.
                 // Sinon, on ajoute un nouveau point.
-                dailyBalances[op.Date] = currentBalance;
+                CcDailyBalances[op.Date] = currentBalance;
             }
 
             // Étape 4 : Conversion en liste pour le graphique
             // Nous pourrions aussi remplir les jours "vides" si besoin, mais le SortedDictionary gère l'ordre chronologique.
-            return dailyBalances
-                .Select(kvp => new DailyBalance
+            return CcDailyBalances
+                .Select(kvp => new CcDailyBalance
                 {
                     Date = kvp.Key,
                     CumulatedBalance = kvp.Value

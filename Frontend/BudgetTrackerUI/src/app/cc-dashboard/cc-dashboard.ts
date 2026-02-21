@@ -5,7 +5,7 @@ import { CcEvolutionChart } from '../charts/cc-evolution-chart/cc-evolution-char
 import { PieChart } from '../charts/pie-chart/pie-chart';
 import { TreemapColor } from '../charts/treemap-color/treemap-color';
 import { CcMonthlySummary } from '../charts/cc-monthly-summary/cc-monthly-summary';
-import { DailyBalance } from '../models/daily-balance.model';
+import { CcDailyBalance } from '../models/daily-balance.model';
 import { CategoryBalance } from '../models/category-balance.model';
 import { DateFilter } from '../date-filter/date-filter';
 import { CcOperationsList } from '../cc-operations-list/cc-operations-list';
@@ -41,7 +41,7 @@ export class CcDashboard implements OnInit {
 
   // --- 2. Signaux de données ---
   public currentFilters = signal<FilterState>(filtersService.getFilters());
-  public evolutionData = signal<DailyBalance[]>([]);
+  public evolutionData = signal<CcDailyBalance[]>([]);
   public categoryData = signal<CategoryBalance[]>([]);
   public isLoading = signal(true);
   public operations = signal<CcOperation[]>([]);

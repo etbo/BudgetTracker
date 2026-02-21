@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { DailyBalance } from '../models/daily-balance.model';
+import { CcDailyBalance } from '../models/daily-balance.model';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs/internal/Observable';
 import { CategoryBalance } from '../models/category-balance.model';
@@ -12,7 +12,7 @@ export class BalanceService {
 
   constructor(private http: HttpClient) { }
 
-  getEvolution(): Observable<DailyBalance[]> {
+  getEvolution(): Observable<CcDailyBalance[]> {
     const filters = filtersService.getFilters();
     let params = new HttpParams();
 
@@ -24,7 +24,7 @@ export class BalanceService {
       params = params.set('excludedCategories', filters.excludedCategories.join(','));
     }
 
-    return this.http.get<DailyBalance[]>(`${this.apiUrl}/evolution`, { params });
+    return this.http.get<CcDailyBalance[]>(`${this.apiUrl}/evolution`, { params });
   }
 
   getAllCategoryBalances(): Observable<CategoryBalance[]> {

@@ -1,4 +1,4 @@
-export interface DailyBalance {
+export interface CcDailyBalance {
   date: string;
   cumulatedBalance: number;
 }
