@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { AgGridModule, ICellRendererAngularComp } from 'ag-grid-angular';
-import { 
-  ModuleRegistry, 
-  AllCommunityModule, 
-  GridApi, 
+import {
+  ModuleRegistry,
+  AllCommunityModule,
+  GridApi,
   GridReadyEvent,
   CellValueChangedEvent
 } from 'ag-grid-community';
@@ -17,31 +17,9 @@ import { MatCardModule } from '@angular/material/card';
 
 import { CategoryService } from '../services/category.service';
 import { CcCategory } from '../models/category-rule.model';
+import { GridDeleteButton } from '../shared/components/grid-delete-button/grid-delete-button';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
-
-/* --- Renderer pour le bouton supprimer --- */
-@Component({
-  standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatIconModule],
-  template: `
-    <div class="flex justify-center items-center h-full">
-      <button mat-icon-button color="warn" (click)="onDelete()">
-        <mat-icon>delete_outline</mat-icon>
-      </button>
-    </div>
-  `
-})
-export class DeleteButtonRenderer implements ICellRendererAngularComp {
-  params: any;
-  agInit(params: any): void { this.params = params; }
-  refresh(): boolean { return false; }
-
-  onDelete() {
-    // On appelle la méthode de suppression du parent via le contexte
-    this.params.context.componentParent.deleteCategory(this.params.data);
-  }
-}
 
 @Component({
   selector: 'app-cc-Categories',
@@ -56,30 +34,30 @@ export class CcCategories implements OnInit {
   gridContext = { componentParent: this };
 
   columnDefs: any[] = [
-    { 
-      headerName: 'Nom', 
-      field: 'name', 
-      flex: 1, 
+    {
+      headerName: 'Nom',
+      field: 'name',
+      flex: 1,
       editable: true
     },
-    { 
-      headerName: 'Macro catégorie', 
-      field: 'macroCategory', 
-      flex: 1, 
-      editable: true 
+    {
+      headerName: 'Macro catégorie',
+      field: 'macroCategory',
+      flex: 1,
+      editable: true
     },
     {
       headerName: '',
-      width: 70,
-      cellRenderer: DeleteButtonRenderer,
-      sortable: false,
-      filter: false
+      field: 'delete',
+      width: 60,
+      cellRenderer: GridDeleteButton,
+      cellRendererParams: { methodName: 'deleteCategory' } // Nom de ta fonction
     }
   ];
 
   defaultColDef = { sortable: true, filter: true, resizable: true };
 
-  constructor(private catService: CategoryService) {}
+  constructor(private catService: CategoryService) { }
 
   ngOnInit() {
     this.load();

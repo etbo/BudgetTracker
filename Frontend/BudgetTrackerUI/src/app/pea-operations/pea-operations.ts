@@ -14,29 +14,10 @@ import { PeaService } from '../services/pea.service';
 import { PeaOperation } from '../models/operation-pea.model';
 import { MatIconModule } from '@angular/material/icon';
 import { currencyFormatter, amountParser, localDateSetter, customDateFormatter } from '../shared/utils/grid-utils';
+import { GridDeleteButton } from '../shared/components/grid-delete-button/grid-delete-button';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-@Component({
-  selector: 'app-delete-button-renderer',
-  standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
-  template: `
-    <div class="flex justify-center items-center h-full">
-      <button mat-icon-button color="warn" (click)="onDelete()">
-        <mat-icon>delete_outline</mat-icon>
-      </button>
-    </div>
-  `
-})
-export class DeleteButtonRenderer implements ICellRendererAngularComp {
-  params: any;
-  agInit(params: any): void { this.params = params; }
-  refresh(): boolean { return false; }
-  onDelete() {
-    this.params.context.componentParent.delete(this.params.data);
-  }
-}
 
 @Component({
   selector: 'app-pea-operations',
@@ -103,9 +84,8 @@ export class PeaOperations implements OnInit {
     {
       headerName: '',
       width: 60,
-      cellRenderer: DeleteButtonRenderer, // Utilisation du nouveau renderer
-      sortable: false,
-      filter: false
+      cellRenderer: GridDeleteButton,
+      cellRendererParams: { methodName: 'delete' }
     }
   ];
 

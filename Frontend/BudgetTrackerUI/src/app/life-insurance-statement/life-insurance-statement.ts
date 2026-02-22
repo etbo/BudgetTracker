@@ -9,6 +9,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LifeInsuranceInput } from '../life-insurance-input/life-insurance-input';
 import { customDateFormatter, localDateSetter } from '../shared/utils/grid-utils';
+import { GridDeleteButton } from '../shared/components/grid-delete-button/grid-delete-button';
 
 interface HistoryRow {
   id?: number;
@@ -33,6 +34,8 @@ interface HistoryRow {
   styleUrl: './life-insurance-statement.scss',
 })
 export class LifeInsuranceStatement implements OnInit {
+  gridContext = { componentParent: this };
+  
   private dialog = inject(MatDialog);
   private liService = inject(LifeInsuranceService);
   private snackBar = inject(MatSnackBar);
@@ -124,10 +127,9 @@ export class LifeInsuranceStatement implements OnInit {
     {
       headerName: '',
       width: 60,
-      cellRenderer: (p: any) => p.data.isHeader
-        ? `<i class="material-icons">delete_outline</i>`
-        : '',
-      onCellClicked: (p) => { if (p.data.isHeader) this.deleteGroup(p.data); }
+      cellRenderer: GridDeleteButton,
+      cellRendererParams: { methodName: 'deleteGroup' }
+      // Le composant gère tout seul le "if (p.data.isHeader)"
     }
   ];
 

@@ -28,37 +28,9 @@ import { CcCategory, CcCategoryRule } from '../models/category-rule.model';
 import { RulesService } from '../services/rules.service';
 
 import { currencyFormatter, amountParser, localDateSetter, customDateFormatter } from '../shared/utils/grid-utils';
+import { GridDeleteButton } from '../shared/components/grid-delete-button/grid-delete-button';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
-
-/* =========================================================
-    RENDERER : Bouton Supprimer (Hover & Warn)
-   ========================================================= */
-
-@Component({
-  selector: 'delete-button-renderer',
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule],
-  template: `
-    <div class="delete-container">
-      <button mat-icon-button (click)="onDelete()" class="delete-btn">
-        <mat-icon color="warn">delete_outline</mat-icon>
-      </button>
-    </div>
-  `,
-  styles: [`
-    .delete-container { display: flex; justify-content: center; align-items: center; height: 100%; }
-    .delete-btn { opacity: 0; transition: opacity 0.2s ease-in-out; }
-  `]
-})
-export class DeleteButtonRenderer implements ICellRendererAngularComp {
-  params: any;
-  agInit(params: any): void { this.params = params; }
-  refresh(): boolean { return true; }
-  onDelete() {
-    this.params.context.componentParent.deleteRule(this.params.data);
-  }
-}
 
 /* =========================================================
     COMPOSANT PRINCIPAL
@@ -169,11 +141,11 @@ export class CcRules implements OnInit {
       }
     },
     {
-      headerName: 'X',
-      width: 50,
-      sortable: false,
-      filter: false,
-      cellRenderer: DeleteButtonRenderer,
+      headerName: '',
+      field: 'delete',
+      width: 60,
+      cellRenderer: GridDeleteButton,
+      cellRendererParams: { methodName: 'deleteRule' }
     }
   ];
 
