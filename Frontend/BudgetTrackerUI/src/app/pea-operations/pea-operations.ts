@@ -7,7 +7,8 @@ import {
   GridApi,
   ModuleRegistry,
   AllCommunityModule,
-  CellValueChangedEvent
+  CellValueChangedEvent,
+  GridOptions
 } from 'ag-grid-community';
 import { MatButtonModule } from '@angular/material/button';
 import { PeaService } from '../services/pea.service';
@@ -30,7 +31,12 @@ export class PeaOperations implements OnInit {
   private gridApi!: GridApi;
   operations = signal<PeaOperation[]>([]);
 
-  gridContext = { componentParent: this };
+  public gridOptions: GridOptions = {
+    context: { componentParent: this },
+    stopEditingWhenCellsLoseFocus: true,
+    // sauvegarde aussi si on appuie sur Entrée :
+    undoRedoCellEditing: true
+  };
 
   // Définition des colonnes
   columnDefs: ColDef[] = [
@@ -146,7 +152,7 @@ export class PeaOperations implements OnInit {
   }
 
   delete(op: PeaOperation) {
-    if (confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
+    if(confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
       this.peaService.delete(op.id).subscribe({
         next: () => {
           // Mise à jour du signal pour retirer la ligne de l'affichage

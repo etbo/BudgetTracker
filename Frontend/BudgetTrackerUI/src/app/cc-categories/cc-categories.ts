@@ -8,7 +8,8 @@ import {
   AllCommunityModule,
   GridApi,
   GridReadyEvent,
-  CellValueChangedEvent
+  CellValueChangedEvent,
+  GridOptions
 } from 'ag-grid-community';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +32,13 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 export class CcCategories implements OnInit {
   private gridApi!: GridApi;
   CcCategories = signal<CcCategory[]>([]);
-  gridContext = { componentParent: this };
+
+  public gridOptions: GridOptions = {
+    context: { componentParent: this },
+    stopEditingWhenCellsLoseFocus: true,
+    // sauvegarde aussi si on appuie sur Entrée :
+    undoRedoCellEditing: true
+  };
 
   columnDefs: any[] = [
     {
@@ -87,7 +94,7 @@ export class CcCategories implements OnInit {
   }
 
   deleteCategory(cat: CcCategory) {
-    if (confirm(`Voulez-vous vraiment supprimer la catégorie "${cat.name}" ?`)) {
+    if(confirm(`Voulez-vous vraiment supprimer la catégorie "${cat.name}" ?`)) {
       this.catService.delete(cat.id).subscribe({
         next: () => {
           // Mise à jour immuable du signal pour retirer l'élément

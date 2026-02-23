@@ -10,7 +10,7 @@
   <mat-icon>refresh</mat-icon> Actualiser les stats
 </button>
 
-<ag-grid-angular style="width: 100%;" class="ag-theme-alpine" [rowData]="rules()" [columnDefs]="columnDefs"
-  [defaultColDef]="defaultColDef" [domLayout]="'autoHeight'" [context]="gridContext"
+<ag-grid-angular style="width: 100%;" class="ag-theme-alpine" [rowData]="rules()" [gridOptions]="gridOptions"
+  [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [domLayout]="'autoHeight'"
   (cellValueChanged)="onCellValueChanged($event)">
 </ag-grid-angular>

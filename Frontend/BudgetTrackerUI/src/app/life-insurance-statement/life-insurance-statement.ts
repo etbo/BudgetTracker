@@ -10,6 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LifeInsuranceInput } from '../life-insurance-input/life-insurance-input';
 import { customDateFormatter, localDateSetter } from '../shared/utils/grid-utils';
 import { GridDeleteButton } from '../shared/components/grid-delete-button/grid-delete-button';
+import { BaseGrid } from '../shared/base-grid';
 
 interface HistoryRow {
   id?: number;
@@ -33,8 +34,15 @@ interface HistoryRow {
   templateUrl: './life-insurance-statement.html',
   styleUrl: './life-insurance-statement.scss',
 })
-export class LifeInsuranceStatement implements OnInit {
-  gridContext = { componentParent: this };
+export class LifeInsuranceStatement extends BaseGrid implements OnInit {
+  public gridOptions: GridOptions = this.createGridOptions(this, {
+    // On ajoute ici la logique spécifique à cette page
+    onCellClicked: (event) => {
+      if (event.column.getColId() === 'accountName') {
+        this.toggleGroup(event);
+      }
+    }
+  });
   
   private dialog = inject(MatDialog);
   private liService = inject(LifeInsuranceService);
@@ -135,14 +143,6 @@ export class LifeInsuranceStatement implements OnInit {
 
   public defaultColDef: ColDef = { resizable: true, sortable: true, filter: true };
 
-  public gridOptions: GridOptions = {
-    onCellClicked: (event: CellClickedEvent) => {
-      // On ne toggle que si on clique sur la première colonne
-      if (event.column.getColId() === 'accountName') this.toggleGroup(event);
-    },
-    suppressNoRowsOverlay: false
-  };
-
   ngOnInit() {
     this.loadAllHistory();
   }
@@ -162,7 +162,7 @@ export class LifeInsuranceStatement implements OnInit {
   }
 
   deleteGroup(data: HistoryRow) {
-    if (confirm(`Supprimer ce relevé du ${new Date(data.date!).toLocaleDateString()} ?`)) {
+    if (confirm(`Voulez-vous vraiment supprimer ce relevé ?`)) {
       this.liService.deleteStatementGroup(data.groupKey).subscribe({
         next: () => {
           this.snackBar.open('✅ Relevé supprimé', 'OK', { duration: 2000 });

@@ -10,7 +10,8 @@ import {
   AllCommunityModule,
   ValueFormatterParams,
   ValueSetterParams,
-  ColDef
+  ColDef,
+  GridOptions
 } from 'ag-grid-community';
 
 // Angular Material (Uniquement pour le bouton de suppression et les icônes)
@@ -50,7 +51,13 @@ export class CcRules implements OnInit {
   rules = signal<CcCategoryRule[]>([]);
   CcCategories = signal<CcCategory[]>([]);
 
-  gridContext = { componentParent: this };
+  public gridOptions: GridOptions = {
+      context: { componentParent: this },
+      stopEditingWhenCellsLoseFocus: true,
+      // sauvegarde aussi si on appuie sur Entrée :
+      undoRedoCellEditing: true 
+    };
+    
   defaultColDef = { resizable: true, sortable: true, filter: true };
 
   columnDefs: ColDef[] = [
@@ -117,8 +124,6 @@ export class CcRules implements OnInit {
         'color': '#1565c0'
       }
     },
-    // ... à l'intérieur de columnDefs ...
-
     {
       headerName: 'Usage',
       field: 'usageCount',

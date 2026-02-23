@@ -4,7 +4,7 @@ export interface SavingAccount {
     owner: string;
     bankName?: string;
     isActive: boolean;
-    statements?: SavingStatement[];
+    savingStatements?: SavingStatement[];
 }
 
 export interface SavingStatement {

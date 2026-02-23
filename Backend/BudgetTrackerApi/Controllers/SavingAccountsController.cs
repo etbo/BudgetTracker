@@ -99,4 +99,17 @@ public class SavingAccountsController : ControllerBase
 
         return NoContent();
     }
+
+    // DELETE: api/SavingAccounts/statements/{id}
+    [HttpDelete("statements/{id}")]
+    public async Task<IActionResult> DeleteStatement(int id)
+    {
+        var statement = await _db.SavingStatements.FindAsync(id);
+        if (statement == null) return NotFound();
+
+        _db.SavingStatements.Remove(statement);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
 }

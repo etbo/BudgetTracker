@@ -6,6 +6,6 @@
 </button>
 
 <ag-grid-angular style="width: 100%; height: 600px;" class="ag-theme-alpine" [rowData]="rowData()"
-    [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" (gridReady)="onGridReady($event)"
+    [gridOptions]="gridOptions" [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [domLayout]="'autoHeight'" (gridReady)="onGridReady($event)"
     (cellValueChanged)="onCellValueChanged($event)">
 </ag-grid-angular>

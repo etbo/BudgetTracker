@@ -1,11 +1,13 @@
 import { Component, effect, OnInit, signal, inject } from '@angular/core'; // Ajout de inject
 import { AgGridAngular } from 'ag-grid-angular';
-import { ColDef, GridReadyEvent, GridApi, ValueFormatterParams } from 'ag-grid-community';
+import { ColDef, GridReadyEvent, GridApi, ValueFormatterParams, GridOptions } from 'ag-grid-community';
 import { SavingsService } from '../services/savings.service';
 import { customDateFormatter, localDateSetter } from '../shared/utils/grid-utils';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'; // Ajout des imports Material
+import { GridDeleteButton } from '../shared/components/grid-delete-button/grid-delete-button';
+import { BaseGrid } from '../shared/base-grid';
 
 @Component({
   selector: 'app-savings-statement',
@@ -14,19 +16,78 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'; //
   templateUrl: './savings-statement.html',
   styleUrl: './savings-statement.scss',
 })
-export class SavingsStatement implements OnInit {
+export class SavingsStatement extends BaseGrid implements OnInit {
+  private snackBar = inject(MatSnackBar);
   private savingsService = inject(SavingsService);
-  private snackBar = inject(MatSnackBar); // Injection de la snackbar
 
-  public columnDefs: ColDef[] = [];
+  // On initialise les options en passant 'this'
+  public gridOptions: GridOptions = this.createGridOptions(this);
+
   private gridApi!: GridApi;
   rowData = signal<any[]>([]);
 
+  defaultColDef = { resizable: true, sortable: true, filter: true, flex: 1 };
+
+  // On l'initialise vide, l'effect va le remplir
+  columnDefs: ColDef[] = [];
+
   constructor() {
+    super();
+    
+    // L'effect surveille le signal savingsService.accounts()
     effect(() => {
       const accounts = this.savingsService.accounts();
-      if (accounts.length > 0) {
-        this.refreshColumnDefs(accounts);
+
+      // On définit les colonnes à l'intérieur pour avoir accès à 'accounts'
+      const newDefs: ColDef[] = [
+        {
+          field: 'date',
+          headerName: 'Date',
+          editable: true,
+          cellDataType: false,
+          cellEditor: 'agDateCellEditor',
+          valueFormatter: customDateFormatter,
+          valueSetter: localDateSetter,
+          filter: 'agTextColumnFilter',
+          filterValueGetter: params => customDateFormatter({ value: params.data.date } as any),
+        },
+        {
+          field: 'accountId',
+          headerName: 'Livret',
+          editable: true,
+          cellEditor: 'agSelectCellEditor',
+          cellEditorParams: {
+            values: accounts.map(a => a.id) // Plus d'erreur ici !
+          },
+          valueFormatter: params => {
+            const account = accounts.find(a => a.id === params.value);
+            return account ? `${account.name} (${account.owner})` : 'Choisir...';
+          },
+          filter: 'agTextColumnFilter',
+          filterValueGetter: params => {
+            const account = accounts.find(a => a.id === params.data.accountId);
+            return account ? `${account.name} ${account.owner}` : '';
+          }
+        },
+        {
+          field: 'amount', headerName: 'Solde', editable: true, type: 'rightAligned',
+          valueFormatter: (p: ValueFormatterParams) => p.value?.toFixed(2) + ' €',
+        },
+        { field: 'note', headerName: 'Note', editable: true },
+        {
+          headerName: '',
+          width: 60,
+          flex: 0,
+          cellRenderer: GridDeleteButton,
+          cellRendererParams: { methodName: 'deleteStatement' }
+        }
+      ];
+
+      this.columnDefs = newDefs;
+
+      // Si la grille est déjà prête, on lui pousse les nouvelles définitions
+      if (this.gridApi) {
+        this.gridApi.setGridOption('columnDefs', newDefs);
       }
     });
   }
@@ -36,61 +97,9 @@ export class SavingsStatement implements OnInit {
     this.loadData();
   }
 
-  private refreshColumnDefs(accounts: any[]) {
-    this.columnDefs = [
-      {
-        field: 'date',
-        headerName: 'Date',
-        editable: true,
-        cellDataType: false,
-        cellEditor: 'agDateCellEditor',
-        valueFormatter: customDateFormatter,
-        valueSetter: localDateSetter,
-        filter: 'agTextColumnFilter',
-        filterValueGetter: params => {
-          return customDateFormatter({ value: params.data.date } as any);
-        },
-      },
-      {
-        field: 'accountId',
-        headerName: 'Livret',
-        editable: true,
-        cellEditor: 'agSelectCellEditor',
-        cellEditorParams: {
-          values: accounts.map(a => a.id)
-        },
-        valueFormatter: params => {
-          const account = accounts.find(a => a.id === params.value);
-          return account ? `${account.name} (${account.owner})` : 'Choisir...';
-        },
-        filter: 'agTextColumnFilter',
-        filterValueGetter: params => {
-          const account = accounts.find(a => a.id === params.data.accountId);
-          return account ? `${account.name} ${account.owner}` : '';
-        }
-      },
-      {
-        field: 'amount', headerName: 'Solde', editable: true, type: 'rightAligned',
-        valueFormatter: (p: ValueFormatterParams) => p.value?.toFixed(2) + ' €',
-      },
-      { field: 'note', headerName: 'Note', editable: true }
-    ];
-    // On force AG Grid à redessiner les colonnes avec les nouvelles "values"
-    if (this.gridApi) {
-      this.gridApi.setGridOption('columnDefs', this.columnDefs);
-    }
-  }
-
-  public defaultColDef: ColDef = {
-    sortable: true,
-    filter: true,
-    resizable: true,
-    floatingFilter: true,
-    flex: 1
-  };
-
   loadData() {
     this.savingsService.getFlattenedStatements().subscribe(data => {
+      console.log('Données reçues du serveur:', data);
       this.rowData.set(data);
     });
   }
@@ -123,5 +132,23 @@ export class SavingsStatement implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  deleteStatement(row: any) {
+    if (!row.id) {
+        // Si c'est une ligne locale pas encore sauvée, on l'enlève juste du signal
+        this.rowData.set(this.rowData().filter(r => r !== row));
+        return;
+    }
+
+    if(confirm('Voulez-vous vraiment supprimer ce relevé ?')) {
+      this.savingsService.deleteStatement(row.id).subscribe({
+        next: () => {
+          this.snackBar.open('✅ Relevé supprimé', 'OK', { duration: 3000 });
+          this.loadData();
+        },
+        error: () => this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer')
+      });
+    }
   }
 }

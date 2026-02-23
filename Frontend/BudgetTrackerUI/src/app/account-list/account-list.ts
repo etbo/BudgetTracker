@@ -1,14 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AgGridModule } from 'ag-grid-angular';
-import { ColDef } from 'ag-grid-community';
+import { ColDef, GridOptions } from 'ag-grid-community';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AccountManagementService } from '../services/account-management.service';
+import { GridDeleteButton } from '../shared/components/grid-delete-button/grid-delete-button';
 
 @Component({
   selector: 'app-account-list',
+  standalone: true, // Ajouté pour cohérence
   imports: [CommonModule, AgGridModule, MatButtonModule, MatIconModule],
   templateUrl: './account-list.html',
   styleUrl: './account-list.scss',
@@ -18,6 +20,13 @@ export class AccountList implements OnInit {
   private snackBar = inject(MatSnackBar);
 
   accounts = this.accountService.accounts;
+
+  public gridOptions: GridOptions = {
+    context: { componentParent: this },
+    stopEditingWhenCellsLoseFocus: true,
+    // sauvegarde aussi si on appuie sur Entrée :
+    undoRedoCellEditing: true 
+  };
 
   public columnDefs: ColDef[] = [
     {
@@ -38,7 +47,7 @@ export class AccountList implements OnInit {
       }
     },
     {
-      field: 'type', headerName: 'Type', width: 150,
+      field: 'type', headerName: 'Type', width: 120,
       editable: true,
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: { values: [0, 1, 2] },
@@ -49,11 +58,18 @@ export class AccountList implements OnInit {
     { field: 'owner', headerName: 'Propriétaire', editable: true },
     { field: 'lastEntryDate', headerName: 'Dernier relevé', valueFormatter: p => p.value ? new Date(p.value).toLocaleDateString() : '-' },
     {
-      field: 'updateFrequencyInMonths', headerName: 'Fréq.', width: 100,
+      field: 'updateFrequencyInMonths', headerName: 'Fréq.', width: 80,
       editable: true,
       cellEditor: 'agSelectCellEditor',
       cellEditorParams: { values: [1, 3, 6, 12] },
       valueFormatter: params => params.value + 'm'
+    },
+    {
+      headerName: '',
+      width: 60,
+      flex: 0,
+      cellRenderer: GridDeleteButton,
+      cellRendererParams: { methodName: 'deleteAccount' }
     }
   ];
 
@@ -70,25 +86,37 @@ export class AccountList implements OnInit {
       bankName: 'Banque',
       isActive: true,
       updateFrequencyInMonths: 1,
-      type: 0 // Par défaut Compte Courant
+      type: 0 
     };
 
     this.accountService.createAccount(newAccount).subscribe({
-      next: () => this.snackBar.open('Compte créé', 'OK', { duration: 3000 })
+      next: () => {
+        this.snackBar.open('✅ Compte créé', 'OK', { duration: 3000 });
+        this.accountService.loadAccounts();
+      }
     });
+  }
+
+  deleteAccount(account: any) {
+    if(confirm(`Voulez-vous vraiment supprimer le compte "${account.name}" ?`)) {
+      this.accountService.deleteAccount(account.id).subscribe({
+        next: () => {
+          this.snackBar.open('✅ Compte supprimé', 'OK', { duration: 3000 });
+          this.accountService.loadAccounts();
+        },
+        error: () => this.snackBar.open('❌ Erreur lors de la suppression', 'Fermer')
+      });
+    }
   }
 
   onCellValueChanged(event: any) {
     this.accountService.updateAccount(event.data).subscribe({
       next: () => {
         this.snackBar.open('✅ Mise à jour réussie', '', { duration: 3000 });
-        // ON RECHARGE ICI : Seulement quand le serveur a fini de bosser
         this.accountService.loadAccounts();
       },
       error: () => {
         this.snackBar.open('❌ Erreur lors de la mise à jour', 'Fermer');
-        // En cas d'erreur, on recharge aussi pour remettre la checkbox 
-        // dans son état réel en BDD (annulation visuelle)
         this.accountService.loadAccounts();
       }
     });
