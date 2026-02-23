@@ -43,7 +43,7 @@ export class LifeInsuranceStatement extends BaseGrid implements OnInit {
       }
     }
   });
-  
+
   private dialog = inject(MatDialog);
   private liService = inject(LifeInsuranceService);
   private snackBar = inject(MatSnackBar);
@@ -206,7 +206,9 @@ export class LifeInsuranceStatement extends BaseGrid implements OnInit {
   openSaisie() {
     this.liService.getAccounts().subscribe(accounts => {
       const dialogRef = this.dialog.open(LifeInsuranceInput, {
-        width: '700px',
+        width: '1000px',
+        maxWidth: '95vw', // Permet de rester responsive sur petit écran
+        // panelClass: 'large-dialog', // Applique la classe globale
         data: { accounts: accounts }
       });
       dialogRef.afterClosed().subscribe(result => { if (result) this.saveData(result); });
