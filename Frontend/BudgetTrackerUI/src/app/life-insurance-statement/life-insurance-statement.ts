@@ -216,18 +216,6 @@ export class LifeInsuranceStatement extends BaseGrid implements OnInit {
   }
 
   saveData(result: any) {
-    const formattedItems = result.items.map((row: any) => ({
-      lifeInsuranceLineId: row.lifeInsuranceLineId || 0,
-      label: row.label,
-      isScpi: row.isScpi,
-      unitCount: row.isScpi ? (row.unitCount || 0) : 1,
-      unitValue: row.unitValue || 0
-    }));
-
-    this.liService.saveSaisie({
-      accountId: result.accountId,
-      date: result.date,
-      items: formattedItems
-    }).subscribe(() => this.loadAllHistory());
-  }
+  this.liService.saveSaisie(result).subscribe(() => this.loadAllHistory());
+}
 }

@@ -9,24 +9,40 @@ namespace BudgetTrackerApi.Data
 {
     public class AppDbContext : DbContext
     {
-        private readonly string _connectionString;
+        private readonly DatabaseSelectorService _dbSelector;
 
-        public AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration config, DatabaseSelectorService dbSelector)
+        public AppDbContext(DbContextOptions<AppDbContext> options, DatabaseSelectorService dbSelector)
             : base(options)
         {
-            var dataDir = Path.GetFullPath(Path.Combine("..", "Database"));
-
-            _connectionString = dbSelector.CurrentDatabase switch
-            {
-                "Test" => $"Data Source={Path.Combine(dataDir, "BudgetTrackerTest.db")}",
-                _ => $"Data Source={Path.Combine(dataDir, "BudgetTracker.db")}"
-            };
+            _dbSelector = dbSelector;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-                optionsBuilder.UseSqlite(_connectionString);
+            {
+                // On cherche le dossier Database à partir de la racine de la solution
+                var executionDir = AppDomain.CurrentDomain.BaseDirectory;
+                // On remonte jusqu'à trouver le dossier "Database"
+                var dataDir = Path.Combine(executionDir, "..", "..", "..", "Database");
+
+                // Si ça ne marche pas en debug, on utilise le chemin relatif direct
+                if (!Directory.Exists(dataDir))
+                {
+                    dataDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "Database"));
+                }
+
+                string dbFileName = _dbSelector.CurrentDatabase == "Test"
+                    ? "BudgetTrackerTest.db"
+                    : "BudgetTracker.db";
+
+                string fullPath = Path.Combine(dataDir, dbFileName);
+
+                // LOG DE DEBUG : Très important pour voir où l'API cherche vraiment
+                Console.WriteLine($"---> Connexion à la base : {fullPath}");
+
+                optionsBuilder.UseSqlite($"Data Source={fullPath}");
+            }
         }
 
         // --- Table Unifiée des Comptes ---
@@ -66,8 +82,6 @@ namespace BudgetTrackerApi.Data
             }
 
             // 2. Ajustements manuels et Relations
-
-            // Relation SavingStatements -> Account
             modelBuilder.Entity<SavingStatement>(entity =>
             {
                 entity.HasOne(s => s.Account)
@@ -76,7 +90,6 @@ namespace BudgetTrackerApi.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Relation LifeInsuranceLines -> Account
             modelBuilder.Entity<LifeInsuranceLine>(entity =>
             {
                 entity.HasOne(l => l.Account)
@@ -111,7 +124,7 @@ namespace BudgetTrackerApi.Data
                 new CcCategory { Id = 14, Name = "Revenu", MacroCategory = "Revenu" }
             );
 
-            // 4. Seed Data des Règles (Exemple réduit pour la clarté, conserve tes 100+ règles ici)
+            // 4. Seed Data des Règles
             modelBuilder.Entity<CcCategoryRule>().HasData(
                 new CcCategoryRule { Id = 1, IsUsed = true, Pattern = "VIR GENERATION", Category = "Santé", Comment = "" },
                 new CcCategoryRule { Id = 2, IsUsed = true, Pattern = "MAISON LEGUI", Category = "Courses", Comment = "" },

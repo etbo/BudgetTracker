@@ -62,27 +62,44 @@ public class LifeInsuranceController : ControllerBase
             {
                 int lineId = item.LifeInsuranceLineId;
 
+                // 1. Gérer la création de la ligne si elle n'existe pas
                 if (lineId <= 0)
                 {
-                    var newLine = new LifeInsuranceLine
+                    var existingLine = await _db.LifeInsuranceLines
+                        .FirstOrDefaultAsync(l => l.AccountId == dto.AccountId && l.Label.ToLower() == item.Label.ToLower());
+
+                    if (existingLine != null) lineId = existingLine.Id;
+                    else
                     {
-                        AccountId = dto.AccountId, // Renommé
-                        Label = item.Label,
-                        IsScpi = item.IsScpi
-                    };
-                    _db.LifeInsuranceLines.Add(newLine);
-                    await _db.SaveChangesAsync();
-                    lineId = newLine.Id;
+                        var newLine = new LifeInsuranceLine { AccountId = dto.AccountId, Label = item.Label, IsScpi = item.IsScpi };
+                        _db.LifeInsuranceLines.Add(newLine);
+                        await _db.SaveChangesAsync();
+                        lineId = newLine.Id;
+                    }
                 }
 
-                var statement = new LifeInsuranceStatement
+                // 2. GESTION DU DOUBLON : Vérifier si un relevé existe déjà à cette DATE précise
+                var existingStatement = await _db.LifeInsuranceStatements
+                    .FirstOrDefaultAsync(s => s.LifeInsuranceLineId == lineId && s.Date.Date == dto.Date.Date);
+
+                if (existingStatement != null)
                 {
-                    LifeInsuranceLineId = lineId,
-                    Date = dto.Date,
-                    UnitCount = item.UnitCount,
-                    UnitValue = item.UnitValue
-                };
-                _db.LifeInsuranceStatements.Add(statement);
+                    // On met à jour l'existant au lieu d'en créer un nouveau
+                    existingStatement.UnitCount = item.UnitCount;
+                    existingStatement.UnitValue = item.UnitValue;
+                }
+                else
+                {
+                    // On crée un nouveau relevé
+                    var statement = new LifeInsuranceStatement
+                    {
+                        LifeInsuranceLineId = lineId,
+                        Date = dto.Date.Date,
+                        UnitCount = item.UnitCount,
+                        UnitValue = item.UnitValue
+                    };
+                    _db.LifeInsuranceStatements.Add(statement);
+                }
             }
 
             await _db.SaveChangesAsync();

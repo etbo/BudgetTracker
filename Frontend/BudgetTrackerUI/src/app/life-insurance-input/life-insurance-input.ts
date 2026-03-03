@@ -10,7 +10,7 @@ import { LifeInsuranceService } from '../services/life-insurance.service';
 import { BaseGrid } from '../shared/base-grid';
 import { GridDeleteButton } from '../shared/components/grid-delete-button/grid-delete-button';
 
-// MODULES COMPILATION FIX (NG8001, NG8002)
+// Material Modules
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -44,8 +44,8 @@ export class LifeInsuranceInput extends BaseGrid {
   public accounts = signal<any[]>([]);
   public selectedAccountId = signal<number | null>(null);
   public rowData = signal<any[]>([]);
-  
-  // FIX: Passage en Signal de type Date pour (ngModelChange) et saisieDate()
+
+  // Utilisation d'un signal Date
   public saisieDate = signal<Date>(new Date());
 
   public gridOptions = this.createGridOptions(this);
@@ -63,14 +63,14 @@ export class LifeInsuranceInput extends BaseGrid {
     },
     {
       headerName: 'Nb Parts',
-      field: 'lastUnitCount',
+      field: 'unitCount',
       width: 120,
       editable: (params) => params.data.isScpi,
       valueParser: params => Number(params.newValue),
     },
     {
       headerName: 'Valeur/Montant',
-      field: 'lastUnitValue',
+      field: 'unitValue',
       width: 140,
       editable: true,
       valueParser: params => Number(params.newValue),
@@ -86,8 +86,8 @@ export class LifeInsuranceInput extends BaseGrid {
 
   public totalSaisie = computed(() => {
     return this.rowData().reduce((acc, row) => {
-      const count = Number(row.lastUnitCount) || 0;
-      const value = Number(row.lastUnitValue) || 0;
+      const count = Number(row.unitCount) || 0;
+      const value = Number(row.unitValue) || 0;
       return acc + (row.isScpi ? (count * value) : value);
     }, 0);
   });
@@ -110,7 +110,14 @@ export class LifeInsuranceInput extends BaseGrid {
         this.rowData.set([]);
         this.addLine();
       } else {
-        this.rowData.set(prepData);
+        const mappedData = prepData.map(d => ({
+          lineId: d.lineId,
+          label: d.label,
+          isScpi: d.isScpi,
+          unitCount: d.lastUnitCount,
+          unitValue: d.lastUnitValue
+        }));
+        this.rowData.set(mappedData);
         if (prepData[0].lastStatementDate) {
           this.saisieDate.set(new Date(prepData[0].lastStatementDate));
         }
@@ -119,7 +126,8 @@ export class LifeInsuranceInput extends BaseGrid {
   }
 
   addLine() {
-    this.rowData.set([...this.rowData(), { label: '', isScpi: false, lastUnitCount: 1, lastUnitValue: 0 }]);
+    // Utilisation de unitCount ici pour correspondre aux columnDefs
+    this.rowData.set([...this.rowData(), { label: '', isScpi: false, unitCount: 1, unitValue: 0 }]);
   }
 
   removeLine(row: any) {
@@ -128,20 +136,39 @@ export class LifeInsuranceInput extends BaseGrid {
 
   onCellValueChanged(event: CellValueChangedEvent) {
     if (event.column.getColId() === 'isScpi' && !event.newValue) {
-      event.data.lastUnitCount = 1;
+      event.data.unitCount = 1;
     }
     this.rowData.set([...this.rowData()]);
   }
 
+  onDateChange(event: any) {
+    if (event.value) {
+      this.saisieDate.set(event.value);
+    }
+  }
+
   onSave() {
     const d = this.saisieDate();
-    // Formatage manuel YYYY-MM-DD pour éviter les décalages de fuseau horaire
+
+    // Si la date est invalide (NaN), on ne sauve pas
+    if (!d || isNaN(d.getTime())) {
+      return;
+    }
+
     const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
     this.dialogRef.close({
       accountId: this.selectedAccountId(),
       date: dateStr,
-      items: this.rowData().filter(item => item.label?.trim())
+      items: this.rowData()
+        .filter(item => item.label?.trim())
+        .map(item => ({
+          lifeInsuranceLineId: item.lineId || 0,
+          label: item.label,
+          isScpi: item.isScpi,
+          unitCount: item.unitCount,
+          unitValue: item.unitValue
+        }))
     });
   }
 }

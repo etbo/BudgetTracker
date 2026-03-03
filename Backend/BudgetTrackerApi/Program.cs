@@ -5,7 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- CONFIGURATION DE BASE ---
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngular",
@@ -14,38 +18,33 @@ builder.Services.AddCors(options => {
                         .AllowAnyHeader());
 });
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// --- INFRASTRUCTURE ---
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<DatabaseSelectorService>();
 
-// --- SERVICES ---
+// --- BASE DE DONNÉES ---
+builder.Services.AddDbContext<AppDbContext>();
+
+// --- SERVICES APPLICATIFS ---
 builder.Services.AddScoped<CcOperationService>();
-builder.Services.AddSingleton<FiltersState>();
-builder.Services.AddSingleton<DatabaseSelectorService>();
-builder.Services.AddSingleton<MyDataService>();
 builder.Services.AddScoped<CategoryService>();
-
-// Utilise UNIQUEMENT l'interface pour PeaService
-builder.Services.AddScoped<IPeaService, PeaService>(); 
-
-// FinanceService doit être enregistré via AddHttpClient (ne pas rajouter AddScoped après)
-builder.Services.AddHttpClient<FinanceService>();
-
+builder.Services.AddScoped<IPeaService, PeaService>();
 builder.Services.AddScoped<BalanceReportService>();
 builder.Services.AddScoped<ImportService>();
 builder.Services.AddScoped<DatabaseExportService>();
 builder.Services.AddScoped<IRuleService, RuleService>();
 
-builder.Services.AddDbContextFactory<AppDbContext>();
+// FinanceService via HttpClient (géré en Scoped par défaut)
+builder.Services.AddHttpClient<FinanceService>();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// État global (Filtres)
+builder.Services.AddSingleton<FiltersState>();
 
 var app = builder.Build();
 
+// --- PIPELINE HTTP ---
 app.UseCors("AllowAngular");
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -68,7 +67,6 @@ app.MapGet("/api/reports/evolution", async ([FromServices] BalanceReportService 
     }
 });
 
-// Active le mappage des routes des contrôleurs
 app.MapControllers();
 
 app.Run();

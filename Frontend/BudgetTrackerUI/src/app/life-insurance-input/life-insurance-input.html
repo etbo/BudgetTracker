@@ -1,9 +1,9 @@
 <h2 mat-dialog-title>Nouvelle Saisie de Relevé</h2>
 
-<mat-dialog-content>
+<mat-dialog-content style="overflow: hidden;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0 20px 0;">
         <div style="display: flex; gap: 15px; align-items: center;">
-            
+
             <mat-form-field appearance="outline" subscriptSizing="dynamic" style="width: 280px;">
                 <mat-label>Contrat</mat-label>
                 <mat-select [ngModel]="selectedAccountId()" (ngModelChange)="onAccountChange($event)">
@@ -13,10 +13,11 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" subscriptSizing="dynamic" style="width: 200px;">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Date du relevé</mat-label>
-                <input matInput [matDatepicker]="picker" [ngModel]="saisieDate()" (ngModelChange)="saisieDate.set($event)">
-                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <input matInput [matDatepicker]="picker" [value]="saisieDate()" (dateChange)="onDateChange($event)"
+                    (blur)="onDateChange({value: saisieDate()})"> <mat-datepicker-toggle matIconSuffix
+                    [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
 
@@ -27,11 +28,8 @@
         </button>
     </div>
 
-    <ag-grid-angular style="width: 100%; height: 350px;" class="ag-theme-alpine" 
-        [gridOptions]="gridOptions"
-        [columnDefs]="columnDefs" 
-        [rowData]="rowData()" 
-        [singleClickEdit]="true"
+    <ag-grid-angular style="width: 100%; height: 321px;" class="ag-theme-alpine" [gridOptions]="gridOptions"
+        [columnDefs]="columnDefs" [rowData]="rowData()" [singleClickEdit]="true"
         (cellValueChanged)="onCellValueChanged($event)">
     </ag-grid-angular>
 

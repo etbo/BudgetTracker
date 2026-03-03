@@ -3,17 +3,16 @@ using Microsoft.EntityFrameworkCore;
 
 public class CategoryService
 {
-    private readonly IDbContextFactory<AppDbContext> _dbFactory;
+    private readonly AppDbContext _context;
 
-    public CategoryService(IDbContextFactory<AppDbContext> dbFactory)
+    public CategoryService(AppDbContext context)
     {
-        _dbFactory = dbFactory;
+        _context = context;
     }
 
     public async Task<List<CcCategory>> GetAllCcCategoriesAsync()
     {
-        using var db = _dbFactory.CreateDbContext();
-        return await db.CcCategories
+        return await _context.CcCategories
                        .OrderBy(c => c.Name)
                        .ToListAsync();
     }

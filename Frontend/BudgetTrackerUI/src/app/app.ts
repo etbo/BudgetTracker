@@ -15,6 +15,8 @@ import { filtersService } from './services/filters.service';
 import { ExportService } from './services/export.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PeaGraphService } from './services/peagraph.service';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { DatabaseSelectorService } from './services/database-selector.service';
 
 @Component({
   selector: 'app-root',
@@ -28,30 +30,37 @@ import { PeaGraphService } from './services/peagraph.service';
     MatButtonModule,
     MatIconModule,
     MatFormFieldModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    MatButtonToggleModule
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
   // On ne garde que la logique de l'interface (UI)
   public isDrawerOpen = true;
   public isDarkMode = false;
 
+  selectedDatabase: string = 'Prod';
+
   private peaGraphService = inject(PeaGraphService);
   private snackBar = inject(MatSnackBar);
 
-  constructor(private exportService: ExportService) {}
+  constructor(private exportService: ExportService, private dbService: DatabaseSelectorService) { }
 
   ngOnInit() {
     // Se lancera une seule fois au démarrage de l'app
     this.peaGraphService.updatePricesIfNeeded().subscribe(results => {
       if (results && results.length > 0) {
-        this.snackBar.open(`✅ Mise à jour des valeurs PEA (${results.length} titres)`, 'OK', { 
-          duration: 3000 
+        this.snackBar.open(`✅ Mise à jour des valeurs PEA (${results.length} titres)`, 'OK', {
+          duration: 3000
         });
       }
     });
+    const savedDb = localStorage.getItem('selected_db');
+    if (savedDb) {
+      this.selectedDatabase = savedDb;
+    }
   }
 
   toggleDrawer() {
@@ -82,5 +91,17 @@ export class AppComponent implements OnInit{
 
   onExportDatabase() {
     this.exportService.downloadDatabaseBackup();
+  }
+
+  onDatabaseChange(value: string) {
+    // 1. On met à jour le service (qui doit gérer le localStorage et le Signal)
+    this.dbService.currentDb.set(value);
+    localStorage.setItem('selected_db', value);
+
+    // 2. On change la variable locale pour l'UI (le toggle-group)
+    this.selectedDatabase = value;
+
+    // 3. On recharge pour que l'interceptor capte la nouvelle valeur au prochain démarrage
+    window.location.reload();
   }
 }

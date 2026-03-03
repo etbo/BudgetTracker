@@ -1,10 +1,17 @@
 <div class="app-wrapper">
-  <mat-toolbar class="app-toolbar">
+  <mat-toolbar class="app-toolbar" [class.test-mode]="selectedDatabase === 'Test'">
     <button mat-icon-button (click)="toggleDrawer()">
       <mat-icon>menu</mat-icon>
     </button>
     <span class="app-brand">BudgetTracker</span>
     <span class="spacer"></span>
+    <mat-button-toggle-group 
+      [value]="selectedDatabase" 
+      (change)="onDatabaseChange($event.value)"
+      class="db-selector-group">
+      <mat-button-toggle value="Prod">Production</mat-button-toggle>
+      <mat-button-toggle value="Test">Test</mat-button-toggle>
+    </mat-button-toggle-group>
     <button mat-icon-button 
           color="accent" 
           (click)="onExportDatabase()" 

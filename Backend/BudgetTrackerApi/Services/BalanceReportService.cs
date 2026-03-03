@@ -9,19 +9,18 @@ namespace BudgetTrackerApi.Services
 {
     public class BalanceReportService
     {
-        private readonly IDbContextFactory<AppDbContext> _dbFactory;
+        private readonly AppDbContext _context;
 
-        public BalanceReportService(IDbContextFactory<AppDbContext> dbFactory)
+        public BalanceReportService(AppDbContext context)
         {
-            _dbFactory = dbFactory;
+            _context = context;
         }
 
         public async Task<List<CcDailyBalance>> GetCumulatedBalanceAsync()
         {
-            using var _dbContext = _dbFactory.CreateDbContext();
 
             // Étape 1 : Récupérer toutes les opérations
-            var operations = await _dbContext.CcOperations
+            var operations = await _context.CcOperations
                 .ToListAsync();
 
             if (!operations.Any())

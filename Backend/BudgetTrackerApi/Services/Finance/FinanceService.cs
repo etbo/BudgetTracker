@@ -11,16 +11,15 @@ namespace BudgetTrackerApi.Services
     public class FinanceService
     {
         private readonly HttpClient _httpClient;
+        private readonly AppDbContext _context;
         private const string ApiKey = "R7X494CD5T90RSEE";
         private const int CacheDurationHours = 24; // Durée de validité du cache
 
-        private readonly IDbContextFactory<AppDbContext> _dbFactory;
-
         // Mise à jour du constructeur pour accepter le DbContext
-        public FinanceService(HttpClient httpClient, IDbContextFactory<AppDbContext> dbFactory)
+        public FinanceService(HttpClient httpClient, AppDbContext context)
         {
             _httpClient = httpClient;
-            _dbFactory = dbFactory;
+            _context = context;
         }
 
         public enum UpdateStatus
@@ -37,10 +36,8 @@ namespace BudgetTrackerApi.Services
 
         public async Task<List<TickerPurchaseDate>> GetTickerList()
         {
-            using var _dbContext = _dbFactory.CreateDbContext();
-
             // Étape 1 : Récupérer toutes les opérations
-            var operations = await _dbContext.PeaOperations.ToListAsync();
+            var operations = await _context.PeaOperations.ToListAsync();
 
             var tickerMap = new Dictionary<string, TickerPurchaseDate>();
 
@@ -71,10 +68,7 @@ namespace BudgetTrackerApi.Services
             if (string.IsNullOrEmpty(ticker) || !startDate.HasValue)
                 throw new Exception($"Ticker vide");
 
-            // Lecture dans la base de données de la dernière mise à jour du ticker
-            using var _dbContext = _dbFactory.CreateDbContext();
-
-            var dateMinimale = await _dbContext.PeaCachedStockPrices
+            var dateMinimale = await _context.PeaCachedStockPrices
                     .Where(o => o.Ticker == ticker)
                     .OrderBy(o => o.CacheTimestamp) // Trie par ordre croissant (du plus ancien au plus récent)
                     .FirstOrDefaultAsync();
@@ -139,7 +133,7 @@ namespace BudgetTrackerApi.Services
             var now = DateTime.Now;
 
             // Effacer l'ancien cache pour le ticker avant d'insérer les nouvelles données
-            _dbContext.PeaCachedStockPrices.RemoveRange(_dbContext.PeaCachedStockPrices.Where(c => c.Ticker == ticker));
+            _context.PeaCachedStockPrices.RemoveRange(_context.PeaCachedStockPrices.Where(c => c.Ticker == ticker));
 
             foreach (var entry in response.MonthlyTimeSeries)
             {
@@ -161,8 +155,8 @@ namespace BudgetTrackerApi.Services
             }
 
             // Sauvegarde dans la base de données
-            await _dbContext.PeaCachedStockPrices.AddRangeAsync(newCacheEntries);
-            await _dbContext.SaveChangesAsync();
+            await _context.PeaCachedStockPrices.AddRangeAsync(newCacheEntries);
+            await _context.SaveChangesAsync();
 
             // retour info Succès
             return new UpdateStocksValuesResult(UpdateStatus.Success, $"Mise à jour effectuée");

@@ -67,3 +67,22 @@
   padding: 5px;
 
 }
+
+/* Navbar en rouge si BDD de test */
+.app-toolbar {
+  
+  &.test-mode {
+    background-color: #d32f2f !important; // Un rouge "Material" bien visible
+    color: white !important;
+
+    // Optionnel : si tu veux que les icônes restent blanches
+    ::v-deep .mat-icon {
+      color: white !important;
+    }
+
+    // Optionnel : ajuste le contour du sélecteur pour qu'il reste lisible
+    .db-selector-group {
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
