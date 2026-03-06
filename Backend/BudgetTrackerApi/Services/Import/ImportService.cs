@@ -17,7 +17,8 @@ namespace BudgetTrackerApi.Services
             {
                 FileName = file.FileName,
                 ImportDate = DateTime.Now,
-                IsSuccessful = false
+                IsSuccessful = false,
+                BankName = "Inconnu"
             };
 
             try
@@ -43,7 +44,14 @@ namespace BudgetTrackerApi.Services
                 };
 
                 var parser = ParserFactory.GetParser(ctx);
-                if (parser == null) throw new Exception("Parser non trouvé pour ce type de fichier");
+                if (parser != null)
+                {
+                    importLog.BankName = parser.BankName;
+                }
+                else
+                {
+                    throw new Exception("Parser non trouvé pour ce type de fichier");
+                }
 
                 var operations = parser.Parse(ctx);
                 importLog.BankName = parser.BankName;

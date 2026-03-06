@@ -18,6 +18,11 @@ public static class CsvParserFactory
             return new MaybankCsvParser();
         }
 
+        if (fileContent.StartsWith("Type,Produit,Date de début,Date de fin,Description,Montant,Frais,Devise,État,Solde")) // ou analyser colonnes
+        {
+            return new RevolutParser();
+        }
+
         return null;
     }
 }
