@@ -31,36 +31,60 @@ export class GlobalDashboard implements OnInit {
     const data = this.rawData();
     if (data.length === 0) return [];
 
+    let series: any[] = [];
     if (this.viewMode() === 'accountType') {
-      return [
+      series = [
         { name: "Liquidités (CC)", data: data.map(d => d.cash) },
         { name: "Épargne", data: data.map(d => d.savings) },
         { name: "PEA", data: data.map(d => d.pea) },
         { name: "Assurance Vie", data: data.map(d => d.lifeInsurance) }
       ];
     } else {
-      return [
+      series = [
         { name: "Liquide", data: data.map(d => d.cash + d.savings) },
         { name: "Non Liquide", data: data.map(d => d.lifeInsurance + d.pea) }
       ];
     }
+
+    // On ne garde que les séries qui ont au moins une valeur > 0 sur la période
+    // Cela évite d'empiler des "lignes à zéro" qui créent des artéfacts visuels (traits sombres)
+    return series.filter(s => s.data.some((v: number) => v > 0));
   });
 
   // --- COULEURS SYNCHRONISÉES (THEME SERVICE) ---
   public chartColors = computed(() => {
+    const data = this.rawData();
+    if (data.length === 0) return [];
+
+    let allColors: string[] = [];
+    let seriesActive: boolean[] = [];
+
     if (this.viewMode() === 'accountType') {
-      return [
+      allColors = [
         this.themeService.getAccountColor('cc'),
         this.themeService.getAccountColor('savings'),
         this.themeService.getAccountColor('pea'),
-        this.themeService.getAccountColor('life-insurrance'),
-        this.themeService.getVariableColor('--color-autre')
+        this.themeService.getAccountColor('life-insurrance')
+      ];
+      seriesActive = [
+        data.some(d => d.cash > 0),
+        data.some(d => d.savings > 0),
+        data.some(d => d.pea > 0),
+        data.some(d => d.lifeInsurance > 0)
+      ];
+    } else {
+      allColors = [
+        this.themeService.getVariableColor('--color-success'),
+        this.themeService.getVariableColor('--color-danger')
+      ];
+      seriesActive = [
+        data.some(d => (d.cash + d.savings) > 0),
+        data.some(d => (d.lifeInsurance + d.pea) > 0)
       ];
     }
-    return [
-      this.themeService.getVariableColor('--color-success'),
-      this.themeService.getVariableColor('--color-danger')
-    ];
+
+    // On ne garde que les couleurs des séries qui ont des données
+    return allColors.filter((_, idx) => seriesActive[idx]);
   });
 
   // --- AXE X ---
@@ -80,20 +104,33 @@ export class GlobalDashboard implements OnInit {
       stacked: true,
       height: '100%',
       zoom: { enabled: false },
-      toolbar: { show: false }
+      toolbar: { show: false },
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 800,
+        animateGradually: {
+            enabled: false // IMPRESSIONNANT : On désactive la montée couche par couche qui créait les artéfacts
+        },
+        dynamicAnimation: {
+            enabled: true,
+            speed: 350
+        }
+      }
     },
     dataLabels: { enabled: false },
     stroke: { curve: "smooth", width: 2 },
     fill: {
       type: "solid",
-      gradient: {
-        shadeIntensity: 1,
-        opacityFrom: 0.5,
-        opacityTo: 0.1,
-        stops: [0, 90, 100]
-      }
+      opacity: 0.8 // Couleurs solides et bien visibles
     },
-    legend: { position: 'top', horizontalAlign: 'right' },
+    legend: { 
+      show: true,
+      position: 'top', 
+      horizontalAlign: 'right',
+      showForSingleSeries: true, // IMPORTANT : Sinon la légende disparait s'il n'y a qu'une série (ex: que du CC)
+      offsetY: -10 // Remonte un peu pour laisser de la place
+    },
     yaxis: {
       labels: { formatter: (v: number) => (v / 1000).toFixed(0) + ' k€' }
     },
