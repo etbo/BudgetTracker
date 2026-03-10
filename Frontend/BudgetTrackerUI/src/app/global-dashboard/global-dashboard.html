@@ -5,7 +5,7 @@
     <div class="summary-panel" *ngIf="currentSummary() as summary">
       <mat-card appearance="outlined" class="highlight-card">
         <mat-card-header>
-          <mat-card-title [style.color]="'var(' + getAccountColorVar('global') + ')'">
+          <mat-card-title [style.color]="'var(' + getGlobalColorVar() + ')'">
             {{ summary.totalGlobal | number:'1.0-0' }} €
           </mat-card-title>
         </mat-card-header>

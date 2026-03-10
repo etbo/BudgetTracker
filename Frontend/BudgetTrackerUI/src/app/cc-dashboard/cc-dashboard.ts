@@ -18,6 +18,7 @@ import { OperationsService } from '../services/operations.service';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { MatCard, MatCardHeader, MatCardModule, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { CcMacroCategoriesMonthly } from '../charts/cc-macro-categories-monthly/cc-macro-categories-monthly';
+import { ThemeService } from '../services/theme.service';
 import { distinctUntilChanged } from 'rxjs';
 
 @Component({
@@ -68,8 +69,25 @@ export class CcDashboard implements OnInit {
 
   constructor(
     private balanceService: BalanceService,
-    private operationsService: OperationsService
+    private operationsService: OperationsService,
+    private themeService: ThemeService
   ) { }
+
+  getAccountColorVar(name: string) {
+    return this.themeService.getAccountColorVar(name);
+  }
+
+  getSuccessColorVar() {
+    return this.themeService.getSuccessColorVar();
+  }
+
+  getDangerColorVar() {
+    return this.themeService.getDangerColorVar();
+  }
+
+  getGlobalColorVar() {
+    return this.themeService.getGlobalColorVar();
+  }
 
   ngOnInit() {
     // Écoute les changements globaux (URL, Filtres de période)

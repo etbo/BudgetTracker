@@ -18,14 +18,12 @@
 
     .summary-panel {
         display: flex;
-        gap: 15px;
         flex-wrap: wrap;
-        margin-bottom: 20px;
+        margin-bottom: 0px;
     }
 }
 
 .grid-section {
     display: flex;
     flex-direction: column;
-    gap: 20px;
 }

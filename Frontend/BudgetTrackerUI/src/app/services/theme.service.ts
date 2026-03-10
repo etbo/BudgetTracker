@@ -33,6 +33,27 @@ export class ThemeService {
     }
 
     /**
+     * Retourne la variable CSS pour le succès (vert)
+     */
+    getSuccessColorVar(): string {
+        return '--color-success';
+    }
+
+    /**
+     * Retourne la variable CSS pour le danger (rouge)
+     */
+    getDangerColorVar(): string {
+        return '--color-danger';
+    }
+
+    /**
+     * Retourne la variable CSS pour le global (bleu foncé)
+     */
+    getGlobalColorVar(): string {
+        return '--color-account-global';
+    }
+
+    /**
      * Retourne la couleur réelle (HEX/RGB) pour les outils type ApexCharts
      */
     getAccountColor(accountName: string): string {

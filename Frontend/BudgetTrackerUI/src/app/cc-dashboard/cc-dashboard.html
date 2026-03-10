@@ -14,12 +14,16 @@
         </mat-chip-option>
       </mat-chip-listbox>
     </div>
+  </div>
 
+  <div class="header-section">
     <h2>Bilan financier</h2>
     <div class="summary-panel">
-      <mat-card appearance="outlined">
+      <mat-card appearance="outlined" class="highlight-card">
         <mat-card-header>
-          <mat-card-title>{{ balance() | number:'1.2-2' }} €</mat-card-title>
+          <mat-card-title [style.color]="'var(' + getGlobalColorVar() + ')'">
+            {{ balance() | number:'1.2-2' }} €
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <span>Solde période</span>
@@ -28,7 +32,9 @@
 
       <mat-card appearance="outlined">
         <mat-card-header>
-          <mat-card-title>{{ totalRevenues() | number:'1.2-2' }} €</mat-card-title>
+          <mat-card-title [style.color]="'var(' + getSuccessColorVar() + ')'">
+            {{ totalRevenues() | number:'1.2-2' }} €
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <span>Recettes</span>
@@ -37,7 +43,9 @@
 
       <mat-card appearance="outlined">
         <mat-card-header>
-          <mat-card-title>{{ totalExpenses() | number:'1.2-2' }} €</mat-card-title>
+          <mat-card-title [style.color]="'var(' + getDangerColorVar() + ')'">
+            {{ totalExpenses() | number:'1.2-2' }} €
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <span>Dépenses</span>
@@ -112,4 +120,4 @@
       </mat-expansion-panel>
     </mat-accordion>
   </div>
-</div>
+</div>
