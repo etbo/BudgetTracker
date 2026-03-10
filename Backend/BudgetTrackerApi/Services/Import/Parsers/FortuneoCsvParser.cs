@@ -35,11 +35,15 @@ public class FortuneoCsvParser : IBankParser
                 throw new FormatException("Echec du parsing des dates");
             }
 
+            var amountDebit = values[3].Replace(',', '.');
+            var amountCredit = values[4].Replace(',', '.');
+
             var operation = new CcOperation
             {
-                Date = parsedDate, // Sur que ce n'est pas null
+                Date = parsedDate, 
                 Description = values[2],
-                Amount = double.Parse(string.IsNullOrWhiteSpace(values[3]) ? "0" : values[3]) + double.Parse(string.IsNullOrWhiteSpace(values[4]) ? "0" : values[4]),
+                Amount = double.Parse(string.IsNullOrWhiteSpace(amountDebit) ? "0" : amountDebit, System.Globalization.CultureInfo.InvariantCulture) 
+                       + double.Parse(string.IsNullOrWhiteSpace(amountCredit) ? "0" : amountCredit, System.Globalization.CultureInfo.InvariantCulture),
                 Bank = "Fortuneo",
                 Comment = "",
             };
