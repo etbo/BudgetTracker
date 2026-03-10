@@ -37,31 +37,10 @@ namespace BudgetTrackerApi.Services
 
         public async Task<List<TickerPurchaseDate>> GetTickerList()
         {
-            // Étape 1 : Récupérer toutes les opérations
-            var operations = await _context.PeaOperations.ToListAsync();
-
-            var tickerMap = new Dictionary<string, TickerPurchaseDate>();
-
-            foreach (var op in operations)
-            {
-                if (tickerMap.ContainsKey(op.Code))
-                {
-                    var existingInfo = tickerMap[op.Code];
-
-                    if (op.Date < existingInfo.OldestDate)
-                    {
-                        tickerMap[op.Code] = existingInfo with { OldestDate = op.Date };
-                    }
-                }
-                else
-                {
-                    var ticker = new TickerPurchaseDate(op.Code, op.Date);
-                    tickerMap.Add(op.Code, ticker);
-                }
-
-            }
-
-            return tickerMap.Values.ToList();
+            return await _context.PeaOperations
+                .GroupBy(o => o.Code)
+                .Select(g => new TickerPurchaseDate(g.Key, g.Min(o => o.Date)))
+                .ToListAsync();
         }
 
         public async Task<UpdateStocksValuesResult> UpdatePeaCachedStockPrice(string ticker, DateTime? startDate, bool simulateJson)
