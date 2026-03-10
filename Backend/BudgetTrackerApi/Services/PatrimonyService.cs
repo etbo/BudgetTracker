@@ -77,5 +77,87 @@ namespace BudgetTrackerApi.Services
 
             return summary;
         }
+
+        public async Task<IEnumerable<GlobalHistoryDto>> GetGlobalHistoryAsync()
+        {
+            // 1. Récupération des données unifiées
+            var savings = await _db.SavingStatements
+                .Select(s => new { s.Date, s.Amount, Cat = "Savings", Id = s.AccountId.ToString() })
+                .ToListAsync();
+
+            var lifeInsurance = await _db.LifeInsuranceStatements
+                .Select(s => new { s.Date, Amount = s.UnitCount * s.UnitValue, Cat = "AV", Id = s.Line.AccountId.ToString() })
+                .ToListAsync();
+
+            var ccOperations = await _db.CcOperations
+                .Select(s => new { s.Date, s.Amount })
+                .ToListAsync();
+
+            var peaStocks = await _db.PeaOperations
+                .Select(s => new { s.Date, Ticker = s.Code, Quantity = (decimal)s.Quantity })
+                .ToListAsync();
+
+            var peaPrices = await _db.PeaCachedStockPrices
+                .Select(s => new { s.Date, s.Ticker, s.Price })
+                .ToListAsync();
+
+            // 2. Collecte de toutes les dates pour définir la plage
+            var allDates = savings.Select(x => x.Date)
+                .Concat(lifeInsurance.Select(x => x.Date))
+                .Concat(ccOperations.Select(x => x.Date))
+                .Concat(peaStocks.Where(x => x.Date.HasValue).Select(x => x.Date!.Value))
+                .ToList();
+
+            if (!allDates.Any()) return new List<GlobalHistoryDto>();
+
+            var startDate = new DateTime(allDates.Min().Year, allDates.Min().Month, 1);
+            var history = new List<GlobalHistoryDto>();
+            var lastBalances = new Dictionary<string, decimal>();
+
+            for (var date = startDate; date <= DateTime.Now; date = date.AddMonths(1))
+            {
+                var endOfMonth = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month), 23, 59, 59);
+
+                // --- PEA ---
+                var currentQuantities = peaStocks.Where(x => x.Date <= endOfMonth)
+                    .GroupBy(x => x.Ticker)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
+
+                decimal currentPeaValue = 0;
+                foreach (var stock in currentQuantities)
+                {
+                    var priceAtDate = peaPrices
+                        .Where(p => p.Ticker == stock.Key && p.Date <= endOfMonth)
+                        .OrderByDescending(p => p.Date)
+                        .FirstOrDefault()?.Price ?? 0;
+                    currentPeaValue += stock.Value * priceAtDate;
+                }
+
+                // --- CASH ---
+                decimal currentCcBalance = ccOperations.Where(op => op.Date <= endOfMonth).Sum(op => (decimal)op.Amount);
+
+                // --- SAVINGS & AV ---
+                var monthEntries = savings.Concat(lifeInsurance)
+                    .Where(x => x.Date.Year == date.Year && x.Date.Month == date.Month)
+                    .ToList();
+
+                foreach (var entry in monthEntries)
+                {
+                    lastBalances[$"{entry.Cat}_{entry.Id}"] = entry.Amount;
+                }
+
+                history.Add(new GlobalHistoryDto
+                {
+                    Label = $"{date.Month:D2}/{date.Year}",
+                    Date = date,
+                    Cash = currentCcBalance,
+                    Savings = lastBalances.Where(x => x.Key.StartsWith("Savings_")).Sum(x => x.Value),
+                    LifeInsurance = lastBalances.Where(x => x.Key.StartsWith("AV_")).Sum(x => x.Value),
+                    Pea = currentPeaValue
+                });
+            }
+
+            return history;
+        }
     }
 }
