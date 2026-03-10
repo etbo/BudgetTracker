@@ -5,7 +5,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { PatrimonyService } from '../services/patrimony.service';
+import { PatrimonyService, PatrimonySummaryDto, GlobalHistoryPoint } from '../services/patrimony.service';
 import { ThemeService } from '../services/theme.service';
 
 type ViewMode = 'accountType' | 'liquidity';
@@ -22,19 +22,9 @@ export class GlobalDashboard implements OnInit {
   private patrimonyService = inject(PatrimonyService);
 
   // --- ÉTATS ---
-  public rawData = signal<any[]>([]);
+  public rawData = signal<GlobalHistoryPoint[]>([]);
+  public currentSummary = signal<PatrimonySummaryDto | null>(null);
   public viewMode = signal<ViewMode>('accountType');
-
-  // --- CALCULS DU PATRIMOINE ---
-  public lastPoint = computed(() => {
-    const data = this.rawData();
-    return data.length > 0 ? data[data.length - 1] : null;
-  });
-
-  public currentTotal = computed(() => {
-    const p = this.lastPoint();
-    return p ? (p.cash + p.savings + p.lifeInsurance + p.pea) : 0;
-  });
 
   // --- SÉRIES DU GRAPHIQUE ---
   public chartSeries = computed(() => {
@@ -144,6 +134,10 @@ export class GlobalDashboard implements OnInit {
 
     this.patrimonyService.getGlobalHistory().subscribe(res => {
       this.rawData.set(res);
+    });
+
+    this.patrimonyService.getCurrentSummary().subscribe(res => {
+      this.currentSummary.set(res);
     });
   }
 

@@ -7,6 +7,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
+import { errorInterceptor } from './interceptors/error.interceptor';
 import { dbSelectorInterceptor } from './interceptors/db-selector.interceptor';
 registerLocaleData(localeFr);
 
@@ -15,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([dbSelectorInterceptor])
+      withInterceptors([dbSelectorInterceptor, errorInterceptor])
     ),
     provideNativeDateAdapter(),
     { provide: LOCALE_ID, useValue: 'fr-FR' }

@@ -12,6 +12,15 @@ export interface GlobalHistoryPoint {
   pea: number;           // Quantité x Prix
 }
 
+export interface PatrimonySummaryDto {
+  totalGlobal: number;
+  cash: number;
+  savings: number;
+  lifeInsurance: number;
+  pea: number;
+  details: { [key: string]: number };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,5 +30,9 @@ export class PatrimonyService {
 
   getGlobalHistory(): Observable<GlobalHistoryPoint[]> {
     return this.http.get<GlobalHistoryPoint[]>(`${this.apiUrl}/history`);
+  }
+
+  getCurrentSummary(): Observable<PatrimonySummaryDto> {
+    return this.http.get<PatrimonySummaryDto>(`${this.apiUrl}/summary`);
   }
 }

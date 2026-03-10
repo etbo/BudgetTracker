@@ -8,10 +8,19 @@ using Microsoft.EntityFrameworkCore;
 public class GlobalPatrimonyController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly BudgetTrackerApi.Services.PatrimonyService _patrimonyService;
 
-    public GlobalPatrimonyController(AppDbContext context)
+    public GlobalPatrimonyController(AppDbContext context, BudgetTrackerApi.Services.PatrimonyService patrimonyService)
     {
         _db = context;
+        _patrimonyService = patrimonyService;
+    }
+
+    [HttpGet("summary")]
+    public async Task<ActionResult<PatrimonySummaryDto>> GetCurrentSummary()
+    {
+        var summary = await _patrimonyService.GetCurrentSummaryAsync();
+        return Ok(summary);
     }
 
     [HttpGet("history")]
