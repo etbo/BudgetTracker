@@ -133,7 +133,7 @@ export class CcMonthlySummary implements OnChanges {
       },
       legend: { position: 'top' },
       dataLabels: {
-        enabled: true,
+        enabled: sortedMonths.length <= 24, // On masque si plus de 2 ans
         enabledOnSeries: [2],
         style: { fontSize: '12px', colors: ["#3b82f6"] },
         formatter: (val: number) => {
