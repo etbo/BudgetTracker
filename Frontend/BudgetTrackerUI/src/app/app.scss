@@ -29,18 +29,35 @@
 .main-content-area {
   background-color: var(--azure-bg-color);
   display: flex;
+  flex-direction: column; // Changement pour mieux gérer les enfants flex
   align-items: stretch;
   box-sizing: border-box;
+  flex: 1; // Prend tout l'espace disponible
   height: 100%;
+  overflow-y: auto; // LE SCROLLBAR EST ICI : Il sera au bord droit de l'écran
+  overflow-x: hidden;
 
   >* {
     width: 100%;
+    // On ne met pas flex: 1 ici car c'est le conteneur du mat-sidenav-content
   }
 
 }
 
 .main-content {
   padding: 30px;
+  min-height: 100%; // Retour à min-height pour permettre la croissance
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  // Cible n'importe quel composant injecté pour le forcer à s'étirer
+  > *:not(router-outlet) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
 }
 
 .sidenav-container {
