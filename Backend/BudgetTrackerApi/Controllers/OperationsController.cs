@@ -101,10 +101,16 @@ public class OperationsController : ControllerBase
             };
         }).ToList();
 
-        // --- 6. Filtre final "Suggestions" sur les DTOs ---
+        // --- 6. Filtres finaux sur les DTOs (Suggestions et Exclusions) ---
         if (suggestedCat)
         {
             results = results.Where(dto => dto.IsSuggested).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(excludedCategories))
+        {
+            var excludedList = excludedCategories.Split(',').ToList();
+            results = results.Where(dto => !excludedList.Contains(dto.Category)).ToList();
         }
 
         return Ok(results);

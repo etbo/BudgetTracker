@@ -109,15 +109,13 @@ export class CcDashboard implements OnInit {
     };
 
     // 1. Appel Evolution (Graphique linéaire)
-    this.balanceService.getEvolution().subscribe(data => {
+    this.balanceService.getEvolution(dashboardFilters).subscribe(data => {
       this.evolutionData.set(data);
     });
 
     // 2. Appel Balances par Category (Pie Chart / Treemap)
-    this.balanceService.getAllCategoryBalances().subscribe(data => {
-      // Filtrage manuel des catégories ignorées localement
-      const filtered = data.filter(c => !localExclusions.includes(c.category));
-      this.categoryData.set(filtered);
+    this.balanceService.getAllCategoryBalances(dashboardFilters).subscribe(data => {
+      this.categoryData.set(data);
     });
 
     // 3. Appel Opérations (Tableau Zoom et Macro Graphes)
