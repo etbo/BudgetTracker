@@ -77,21 +77,85 @@
 
 }
 
-/* Navbar en rouge si BDD de test */
-.app-toolbar {
-  
-  &.test-mode {
-    background-color: #d32f2f !important; // Un rouge "Material" bien visible
-    color: white !important;
+/* Sélecteur de base de données (Production / Test) */
+.db-selector-group {
+  background-color: rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  height: 30px;
+  border-radius: 6px !important;
+  padding: 0 !important; // Suppression du padding interne pour coller aux bords
+  overflow: hidden;
+  display: flex;
+  align-items: stretch; // Force les enfants à prendre toute la hauteur
 
-    // Optionnel : si tu veux que les icônes restent blanches
-    ::v-deep .mat-icon {
-      color: white !important;
+  mat-button-toggle {
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+
+    background-color: transparent !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 0.8rem;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    border-radius: 0 !important; // Pas d'angle arrondi sur les boutons internes
+    transition: all 0.2s ease;
+
+    &:last-child {
+      border-right: none !important;
     }
 
-    // Optionnel : ajuste le contour du sélecteur pour qu'il reste lisible
+    &.mat-button-toggle-checked {
+      background-color: rgba(255, 255, 255, 0.3) !important; // Un peu plus opaque pour bien "remplir"
+      color: #ffffff !important;
+
+
+      ::ng-deep {
+        .mat-button-toggle-focus-overlay {
+          display: none;
+        }
+
+        svg {
+          fill: #ffffff !important;
+          color: #ffffff !important;
+        }
+
+        .mat-pseudo-checkbox-checked::after {
+          border-color: #ffffff !important;
+        }
+      }
+    }
+
+    ::ng-deep .mat-button-toggle-button {
+      border-radius: 0 !important;
+      height: 100% !important;
+    }
+
+    ::ng-deep .mat-button-toggle-label-content {
+      padding: 0 14px !important;
+      line-height: 28px !important; // Aligné avec les 30px moins les bordures
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+  }
+}
+
+/* Navbar en rouge si BDD de test */
+.app-toolbar {
+  transition: background-color 0.3s ease;
+
+  &.test-mode {
+    background-color: #d32f2f !important;
+    color: white !important;
+
     .db-selector-group {
-        border-color: rgba(255, 255, 255, 0.5);
+      border-color: rgba(255, 255, 255, 0.4) !important;
+      background-color: rgba(0, 0, 0, 0.2) !important;
     }
   }
 }
