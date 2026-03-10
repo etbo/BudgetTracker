@@ -12,14 +12,15 @@ namespace BudgetTrackerApi.Services
     {
         private readonly HttpClient _httpClient;
         private readonly AppDbContext _context;
-        private const string ApiKey = "R7X494CD5T90RSEE";
+        private readonly string _apiKey;
         private const int CacheDurationHours = 24; // Durée de validité du cache
 
-        // Mise à jour du constructeur pour accepter le DbContext
-        public FinanceService(HttpClient httpClient, AppDbContext context)
+        // Mise à jour du constructeur pour accepter le DbContext et IConfiguration
+        public FinanceService(HttpClient httpClient, AppDbContext context, IConfiguration config)
         {
             _httpClient = httpClient;
             _context = context;
+            _apiKey = config["AlphaVantage:ApiKey"] ?? string.Empty;
         }
 
         public enum UpdateStatus
@@ -94,7 +95,7 @@ namespace BudgetTrackerApi.Services
             else
             {
                 // Construction requête API
-                string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={ticker}&apikey={ApiKey}";
+                string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={ticker}&apikey={_apiKey}";
                 Console.WriteLine($"apiUrl = {apiUrl}");
                 // Récupération des données via l'API
                 var httpResponse = await _httpClient.GetAsync(apiUrl);
