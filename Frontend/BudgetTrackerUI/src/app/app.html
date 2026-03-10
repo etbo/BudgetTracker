@@ -1,4 +1,5 @@
 <div class="app-wrapper">
+  <mat-progress-bar *ngIf="loadingService.isLoading()" mode="indeterminate" color="accent" class="global-loading-bar"></mat-progress-bar>
   <mat-toolbar class="app-toolbar" [class.test-mode]="selectedDatabase === 'Test'">
     <button mat-icon-button (click)="toggleDrawer()">
       <mat-icon>menu</mat-icon>

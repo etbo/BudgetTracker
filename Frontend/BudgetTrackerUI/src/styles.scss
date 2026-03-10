@@ -181,3 +181,12 @@ h2 {
 .ag-checkbox-input-wrapper {
   transform: scale(1.1);
 }
+
+/* Styles pour le SnackBar global d'erreur */
+.error-snackbar {
+    --mdc-snackbar-container-color: var(--color-danger);
+    --mdc-snackbar-supporting-text-color: #ffffff;
+    --mat-snack-bar-button-color: #ffffff;
+    font-weight: 500;
+}
+

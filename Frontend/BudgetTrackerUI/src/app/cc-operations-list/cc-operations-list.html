@@ -1,13 +1,9 @@
-<div *ngIf="isLoading()" class="flex flex-col items-center justify-center p-10 bg-white rounded-lg shadow-sm">
-    <p>Loading</p>
-</div>
-
-<button mat-flat-button color="primary" *ngIf="showSaveAll()" (click)="saveAllSuggested()" [disabled]="isLoading()">
+<button mat-flat-button color="primary" *ngIf="showSaveAll()" (click)="saveAllSuggested()">
     <mat-icon>done_all</mat-icon>
     Sauvegarder toutes les suggestions affichées
 </button>
 
-<div class="grid-wrapper" [class.hidden]="isLoading()">
+<div class="grid-wrapper">
     <ag-grid-angular style="width: 100%;" class="ag-theme-alpine shadow-sm" [preventDefaultOnContextMenu]="true"
         [rowData]="operations" [defaultColDef]="defaultColDef" [columnDefs]="columnDefs" [domLayout]="domLayout"
         [context]="gridContext" [getRowId]="getRowId" [pagination]="true" [paginationPageSize]="pageSize"

@@ -1,10 +1,6 @@
 <h2>Évolution du Portefeuille PEA</h2>
 
-<div *ngIf="isLoading()" class="flex justify-center p-10">
-  <p>Loading</p>
-</div>
-
-<div *ngIf="!isLoading() && chartSeries().length > 0">
+<div *ngIf="chartSeries().length > 0">
   <mat-card appearance="outlined">
     <mat-card-content>
         <apx-chart [series]="chartSeries()" [chart]="chartOptions.chart" [xaxis]="chartOptions.xaxis"

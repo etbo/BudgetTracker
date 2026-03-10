@@ -5,6 +5,15 @@
   overflow: hidden;
 }
 
+.global-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2000;
+  height: 4px;
+}
+
 .app-toolbar {
   height: 48px;
   min-height: 48px;

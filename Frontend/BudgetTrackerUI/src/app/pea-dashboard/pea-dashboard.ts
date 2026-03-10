@@ -18,7 +18,6 @@ export class PeaDashboard implements OnInit {
   // --- États ---
   public listeCumulsPea = signal<any[]>([]);
   public chartSeries = signal<any[]>([]);
-  public isLoading = signal(true);
   public chartOptions: any;
 
   constructor() {
@@ -38,7 +37,6 @@ export class PeaDashboard implements OnInit {
     this.peaGraphService.getCalculerCumul().subscribe(data => {
       this.listeCumulsPea.set(data);
       this.processChartData(data);
-      this.isLoading.set(false);
     });
   }
 

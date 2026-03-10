@@ -14,7 +14,6 @@ import {
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { OperationsService } from '../services/operations.service';
@@ -117,7 +116,7 @@ export class CreateRuleDialog {
 @Component({
   selector: 'app-cc-operations-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, AgGridModule, MatProgressSpinnerModule, FormsModule, MatIconModule, MatButtonModule, MatInputModule],
+  imports: [CommonModule, FormsModule, AgGridModule, FormsModule, MatIconModule, MatButtonModule, MatInputModule],
   templateUrl: './cc-operations-list.html',
   styleUrl: './cc-operations-list.scss',
 })
@@ -139,7 +138,6 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
 
   searchString = '';
 
-  isLoading = signal(false);
   showSaveAll = signal(false); // Signal pour piloter l'affichage du bouton global
 
   gridContext = { componentParent: this };
@@ -327,7 +325,6 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
   }
 
   private executeBulkSave(operationsToSave: CcOperation[]) {
-    this.isLoading.set(true);
     import('rxjs').then(({ forkJoin }) => {
       const requests = operationsToSave.map(op => this.opService.updateOperation(op));
       forkJoin(requests).subscribe({
@@ -335,11 +332,9 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
           operationsToSave.forEach(op => op.isSuggested = false);
           this.gridApi.applyTransaction({ update: operationsToSave });
           this.updateSaveAllVisibility();
-          this.isLoading.set(false);
 
           this.refresh.emit();
-        },
-        error: () => this.isLoading.set(false)
+        }
       });
     });
   }

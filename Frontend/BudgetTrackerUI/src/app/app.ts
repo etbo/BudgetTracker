@@ -17,6 +17,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { PeaGraphService } from './services/peagraph.service';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { DatabaseSelectorService } from './services/database-selector.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { LoadingService } from './services/loading.service';
 
 @Component({
   selector: 'app-root',
@@ -31,7 +33,8 @@ import { DatabaseSelectorService } from './services/database-selector.service';
     MatIconModule,
     MatFormFieldModule,
     MatDatepickerModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatProgressBarModule
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss'
@@ -45,6 +48,7 @@ export class AppComponent implements OnInit {
 
   private peaGraphService = inject(PeaGraphService);
   private snackBar = inject(MatSnackBar);
+  public loadingService = inject(LoadingService);
 
   constructor(private exportService: ExportService, private dbService: DatabaseSelectorService) { }
 

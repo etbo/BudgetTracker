@@ -43,7 +43,6 @@ export class CcDashboard implements OnInit {
   public currentFilters = signal<FilterState>(filtersService.getFilters());
   public evolutionData = signal<CcDailyBalance[]>([]);
   public categoryData = signal<CategoryBalance[]>([]);
-  public isLoading = signal(true);
   public operations = signal<CcOperation[]>([]);
   public zoomFilters = signal<FilterState | undefined>(undefined);
 
@@ -91,7 +90,6 @@ export class CcDashboard implements OnInit {
    * les filtres globaux + les filtres locaux du Dashboard.
    */
   public loadAllData() {
-    this.isLoading.set(true);
     const fullFilters = filtersService.getFilters();
 
     // Préparation des exclusions Dashboard
@@ -113,7 +111,6 @@ export class CcDashboard implements OnInit {
     // 1. Appel Evolution (Graphique linéaire)
     this.balanceService.getEvolution().subscribe(data => {
       this.evolutionData.set(data);
-      this.isLoading.set(false);
     });
 
     // 2. Appel Balances par Category (Pie Chart / Treemap)
