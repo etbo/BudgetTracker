@@ -1,51 +1,56 @@
-<h2>Liste des opérations</h2>
+<div class="page-container">
+  <div class="header-section">
+    <h2>Liste des opérations</h2>
 
-<div class="layout-container">
-  <div class="left-column">
-    <app-date-filter 
-      [showLastImportOption]="true" 
-      (filterChanged)="onFilterChanged($event)">
-    </app-date-filter>
+    <div class="layout-container">
+      <div class="left-column">
+        <app-date-filter [showLastImportOption]="true" (filterChanged)="onFilterChanged($event)">
+        </app-date-filter>
 
-    <mat-chip-listbox multiple>
-      <mat-chip-option [selected]="filterMissingCat" (click)="toggleExtraFilter('missing')" color="accent">
-        <mat-icon matChipAvatar>quiz</mat-icon>
-        Categories manquantes
-      </mat-chip-option>
-      <mat-chip-option [selected]="filterSuggestedCat" (click)="toggleExtraFilter('suggested')" color="accent">
-        <mat-icon matChipAvatar>category</mat-icon>
-        Categories suggérées
-      </mat-chip-option>
-      <mat-chip-option [selected]="filterOnlyCheques" (click)="toggleExtraFilter('cheque')" color="accent">
-        <mat-icon matChipAvatar>payments</mat-icon>
-        Chèques
-      </mat-chip-option>
-    </mat-chip-listbox>
+        <mat-chip-listbox multiple>
+          <mat-chip-option [selected]="filterMissingCat" (click)="toggleExtraFilter('missing')" color="accent">
+            <mat-icon matChipAvatar>quiz</mat-icon>
+            Categories manquantes
+          </mat-chip-option>
+          <mat-chip-option [selected]="filterSuggestedCat" (click)="toggleExtraFilter('suggested')" color="accent">
+            <mat-icon matChipAvatar>category</mat-icon>
+            Categories suggérées
+          </mat-chip-option>
+          <mat-chip-option [selected]="filterOnlyCheques" (click)="toggleExtraFilter('cheque')" color="accent">
+            <mat-icon matChipAvatar>payments</mat-icon>
+            Chèques
+          </mat-chip-option>
+        </mat-chip-listbox>
+      </div>
+
+      <div class="right-column">
+        <mat-form-field appearance="outline" class="full-height-search">
+          <mat-label>Recherche globale</mat-label>
+          <input matInput [(ngModel)]="parentSearchString" placeholder="Ex: Courses, 15.50, Auchan...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <span class="stat-item">
+        <strong>{{ totalOperations() }}</strong> opérations
+      </span>
+      <span class="stat-divider"> | </span>
+      <span class="stat-item" [class.warning]="missingCategoriesCount() > 0">
+        <strong>{{ missingCategoriesCount() }}</strong> sans catégorie
+      </span>
+      <span class="stat-divider"> | </span>
+      <span class="stat-item">
+        <strong>{{ suggestedCategoriesCount() }}</strong> suggérées
+      </span>
+    </div>
   </div>
 
-  <div class="right-column">
-    <mat-form-field appearance="outline" class="full-height-search">
-      <mat-label>Recherche globale</mat-label>
-      <input matInput [(ngModel)]="parentSearchString" placeholder="Ex: Courses, 15.50, Auchan...">
-      <mat-icon matSuffix>search</mat-icon>
-    </mat-form-field>
+  <div class="grid-section">
+    <app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="100"
+      domLayout="normal" sortColumn="date" [SaveAllSuggestedButton]="true" [externalSearch]="parentSearchString"
+      (refresh)="onListRefresh()">
+    </app-cc-operations-list>
   </div>
 </div>
-
-<div class="stats-bar">
-    <span class="stat-item">
-      <strong>{{ totalOperations() }}</strong> opérations
-    </span>
-    <span class="stat-divider"> | </span>
-    <span class="stat-item" [class.warning]="missingCategoriesCount() > 0">
-      <strong>{{ missingCategoriesCount() }}</strong> sans catégorie
-    </span>
-    <span class="stat-divider"> | </span>
-    <span class="stat-item">
-      <strong>{{ suggestedCategoriesCount() }}</strong> suggérées
-    </span>
-  </div>
-
-<app-cc-operations-list [operations]="operations()" [customFilters]="zoomFilters()" [pageSize]="50"
-  domLayout="autoHeight" sortColumn="date" [SaveAllSuggestedButton]="true" [externalSearch]="parentSearchString" (refresh)="onListRefresh()">
-</app-cc-operations-list>

@@ -83,7 +83,14 @@ export class CcInput implements OnInit {
     },
   ];
 
-  defaultColDef: ColDef = { sortable: true, filter: true, resizable: true };
+  defaultColDef: ColDef = { 
+    sortable: true, 
+    filter: true, 
+    resizable: true,
+    filterParams: {
+      buttons: ['clear']
+    }
+  };
 
   constructor(private importService: ImportService) { }
 

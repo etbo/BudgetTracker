@@ -63,7 +63,7 @@ export class PeaDashboard implements OnInit {
     this.chartOptions = {
       chart: { 
         type: "line", 
-        height: 600, 
+        height: '100%', 
         animations: { enabled: true },
         toolbar: { show: false }
       },

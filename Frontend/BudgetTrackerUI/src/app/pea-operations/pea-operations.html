@@ -1,10 +1,18 @@
-<h2>Saisie d'opération sur le PEA</h2>
+<div class="page-container">
+  <div class="header-section">
+    <h2>Saisie d'opération sur le PEA</h2>
 
-<button mat-flat-button color="primary" (click)="addOperation()">
-  <mat-icon class="mr-1">add</mat-icon> Ajouter une opération
-</button>
+    <div class="button-bar">
+      <button mat-flat-button color="primary" (click)="addOperation()">
+        <mat-icon class="mr-1">add</mat-icon> Ajouter une opération
+      </button>
+    </div>
+  </div>
 
-<ag-grid-angular style="width: 100%; height: 600px;" class="ag-theme-alpine" [columnDefs]="columnDefs"
-  [defaultColDef]="defaultColDef" [rowData]="operations()" [getRowId]="getRowId" [gridOptions]="gridOptions"
-  (gridReady)="onGridReady($event)" (cellValueChanged)="onCellValueChanged($event)">
-</ag-grid-angular>
+  <div class="grid-section">
+    <ag-grid-angular style="width: 100%; height: 100%;" class="ag-theme-alpine" [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef" [rowData]="operations()" [getRowId]="getRowId" [gridOptions]="gridOptions"
+      (gridReady)="onGridReady($event)" (cellValueChanged)="onCellValueChanged($event)" [domLayout]="'normal'">
+    </ag-grid-angular>
+  </div>
+</div>

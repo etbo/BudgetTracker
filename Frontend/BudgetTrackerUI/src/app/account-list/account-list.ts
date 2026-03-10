@@ -73,7 +73,15 @@ export class AccountList implements OnInit {
     }
   ];
 
-  public defaultColDef: ColDef = { flex: 1, sortable: true, resizable: true, filter: true };
+  public defaultColDef: ColDef = { 
+    flex: 1, 
+    sortable: true, 
+    resizable: true, 
+    filter: true,
+    filterParams: {
+      buttons: ['clear']
+    }
+  };
 
   ngOnInit() {
     this.accountService.loadAccounts();

@@ -1,11 +1,19 @@
-<h2>Historique de l'épargne</h2>
+<div class="page-container">
+  <div class="header-section">
+    <h2>Historique de l'épargne</h2>
 
-<button mat-flat-button color="primary" (click)="addNewRow()">
-    <mat-icon>add</mat-icon>
-    Ajouter une saisie
-</button>
+    <div class="button-bar">
+      <button mat-flat-button color="primary" (click)="addNewRow()">
+        <mat-icon>add</mat-icon>
+        Ajouter une saisie
+      </button>
+    </div>
+  </div>
 
-<ag-grid-angular style="width: 100%; height: 600px;" class="ag-theme-alpine" [rowData]="rowData()"
-    [gridOptions]="gridOptions" [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [domLayout]="'autoHeight'" (gridReady)="onGridReady($event)"
-    (cellValueChanged)="onCellValueChanged($event)">
-</ag-grid-angular>
+  <div class="grid-section">
+    <ag-grid-angular style="width: 100%; height: 100%;" class="ag-theme-alpine" [rowData]="rowData()"
+      [gridOptions]="gridOptions" [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [domLayout]="'normal'"
+      (gridReady)="onGridReady($event)" (cellValueChanged)="onCellValueChanged($event)">
+    </ag-grid-angular>
+  </div>
+</div>

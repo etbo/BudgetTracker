@@ -78,7 +78,7 @@ export class GlobalDashboard implements OnInit {
     chart: {
       type: "area",
       stacked: true,
-      height: 500,
+      height: '100%',
       zoom: { enabled: false },
       toolbar: { show: false }
     },

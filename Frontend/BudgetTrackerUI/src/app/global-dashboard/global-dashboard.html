@@ -1,81 +1,91 @@
-<h2>Situation actuelle</h2>
+<div class="dashboard-container">
+  <div class="summary-section">
+    <h2>Situation actuelle</h2>
 
-<div class="summary-panel" *ngIf="currentSummary() as summary">
-    <mat-card appearance="outlined" class="highlight-card">
+    <div class="summary-panel" *ngIf="currentSummary() as summary">
+      <mat-card appearance="outlined" class="highlight-card">
         <mat-card-header>
-            <mat-card-title [style.color]="'var(' + getAccountColorVar('global') + ')'">
-                {{ summary.totalGlobal | number:'1.0-0' }} €
-            </mat-card-title>
+          <mat-card-title [style.color]="'var(' + getAccountColorVar('global') + ')'">
+            {{ summary.totalGlobal | number:'1.0-0' }} €
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <span>Total</span>
+          <span>Total</span>
         </mat-card-content>
-    </mat-card>
+      </mat-card>
 
-    <mat-card appearance="outlined">
+      <mat-card appearance="outlined">
         <mat-card-header>
-            <mat-card-title [style.color]="'var(' + getAccountColorVar('cc') + ')'">
-                {{ summary.cash | number:'1.0-0' }} €
-            </mat-card-title>
+          <mat-card-title [style.color]="'var(' + getAccountColorVar('cc') + ')'">
+            {{ summary.cash | number:'1.0-0' }} €
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <span>Liquidités</span>
+          <span>Liquidités</span>
         </mat-card-content>
-    </mat-card>
+      </mat-card>
 
-    <mat-card appearance="outlined">
+      <mat-card appearance="outlined">
         <mat-card-header>
-            <mat-card-title [style.color]="'var(' + getAccountColorVar('savings') + ')'">
-                {{ summary.savings | number:'1.0-0' }} €
-            </mat-card-title>
+          <mat-card-title [style.color]="'var(' + getAccountColorVar('savings') + ')'">
+            {{ summary.savings | number:'1.0-0' }} €
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <span>Épargne</span>
+          <span>Épargne</span>
         </mat-card-content>
-    </mat-card>
+      </mat-card>
 
-    <mat-card appearance="outlined">
+      <mat-card appearance="outlined">
         <mat-card-header>
-            <mat-card-title [style.color]="'var(' + getAccountColorVar('pea') + ')'">
-                {{ summary.pea | number:'1.0-0' }} €
-            </mat-card-title>
+          <mat-card-title [style.color]="'var(' + getAccountColorVar('pea') + ')'">
+            {{ summary.pea | number:'1.0-0' }} €
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <span>PEA</span>
+          <span>PEA</span>
         </mat-card-content>
-    </mat-card>
+      </mat-card>
 
-    <mat-card appearance="outlined">
+      <mat-card appearance="outlined">
         <mat-card-header>
-            <mat-card-title [style.color]="'var(' + getAccountColorVar('life-insurrance') + ')'">
-                {{ summary.lifeInsurance | number:'1.0-0' }} €
-            </mat-card-title>
+          <mat-card-title [style.color]="'var(' + getAccountColorVar('life-insurrance') + ')'">
+            {{ summary.lifeInsurance | number:'1.0-0' }} €
+          </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <span>Assur. Vie</span>
+          <span>Assur. Vie</span>
         </mat-card-content>
-    </mat-card>
-</div>
+      </mat-card>
+    </div>
+  </div>
 
-<h2>Historique</h2>
+  <div class="history-section">
+    <h2>Historique</h2>
 
-<mat-card appearance="outlined">
-    <mat-card-content>
-        <div id="chart" *ngIf="rawData().length > 0">
+    <mat-card appearance="outlined" class="history-card">
+      <mat-card-content class="history-card-content">
+        <div id="chart" *ngIf="rawData().length > 0" class="chart-wrapper">
+          <div class="chart-header">
             <mat-radio-group [ngModel]="viewMode()" (ngModelChange)="viewMode.set($event)"
-                class="view-mode-radio-group">
-                <mat-radio-button value="accountType">Par type de compte</mat-radio-button>
-                <mat-radio-button value="liquidity">Par liquidité</mat-radio-button>
+              class="view-mode-radio-group">
+              <mat-radio-button value="accountType">Par type de compte</mat-radio-button>
+              <mat-radio-button value="liquidity">Par liquidité</mat-radio-button>
             </mat-radio-group>
+          </div>
 
+          <div class="chart-container-inner">
             <apx-chart [series]="chartSeries()" [chart]="chartOptions.chart!" [xaxis]="chartXAxis()"
-                [colors]="chartColors()" [stroke]="chartOptions.stroke!" [dataLabels]="chartOptions.dataLabels!"
-                [yaxis]="chartOptions.yaxis!" [fill]="chartOptions.fill!" [tooltip]="chartOptions.tooltip!"
-                [legend]="chartOptions.legend!">
+              [colors]="chartColors()" [stroke]="chartOptions.stroke!" [dataLabels]="chartOptions.dataLabels!"
+              [yaxis]="chartOptions.yaxis!" [fill]="chartOptions.fill!" [tooltip]="chartOptions.tooltip!"
+              [legend]="chartOptions.legend!">
             </apx-chart>
+          </div>
         </div>
-    </mat-card-content>
-</mat-card>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
 
 
 

@@ -1,16 +1,24 @@
-<h2>Règles de catégorisation</h2>
+<div class="page-container">
+  <div class="header-section">
+    <h2>Règles de catégorisation</h2>
 
-<button mat-flat-button color="primary" (click)="addRule()">
-  <mat-icon>add</mat-icon>
-  Ajouter une règle
-</button>
+    <div class="button-bar">
+      <button mat-flat-button color="primary" (click)="addRule()">
+        <mat-icon>add</mat-icon>
+        Ajouter une règle
+      </button>
 
-<button mat-stroked-button color="accent" (click)="recalculateStats()"
-  matTooltip="Recalculer les stats d'usage depuis les opérations">
-  <mat-icon>refresh</mat-icon> Actualiser les stats
-</button>
+      <button mat-stroked-button color="accent" (click)="recalculateStats()"
+        matTooltip="Recalculer les stats d'usage depuis les opérations">
+        <mat-icon>refresh</mat-icon> Actualiser les stats
+      </button>
+    </div>
+  </div>
 
-<ag-grid-angular style="width: 100%;" class="ag-theme-alpine" [rowData]="rules()" [gridOptions]="gridOptions"
-  [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [domLayout]="'autoHeight'"
-  (cellValueChanged)="onCellValueChanged($event)">
-</ag-grid-angular>
+  <div class="grid-section">
+    <ag-grid-angular style="width: 100%; height: 100%;" class="ag-theme-alpine" [rowData]="rules()"
+      [gridOptions]="gridOptions" [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [domLayout]="'normal'"
+      (cellValueChanged)="onCellValueChanged($event)">
+    </ag-grid-angular>
+  </div>
+</div>

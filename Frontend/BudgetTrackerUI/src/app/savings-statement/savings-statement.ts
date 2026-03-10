@@ -31,7 +31,15 @@ export class SavingsStatement extends BaseGrid implements OnInit {
 
   rowData = signal<any[]>([]);
   columnDefs: ColDef[] = [];
-  defaultColDef = { resizable: true, sortable: true, filter: true, flex: 1 };
+  defaultColDef = { 
+    resizable: true, 
+    sortable: true, 
+    filter: true, 
+    flex: 1,
+    filterParams: {
+      buttons: ['clear']
+    }
+  };
 
   constructor() {
     super();

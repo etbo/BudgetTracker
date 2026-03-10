@@ -98,7 +98,10 @@ export class PeaOperations implements OnInit {
   defaultColDef: ColDef = {
     resizable: true,
     sortable: true,
-    filter: true
+    filter: true,
+    filterParams: {
+      buttons: ['clear']
+    }
   };
 
   constructor(private peaService: PeaService) { }

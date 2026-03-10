@@ -1,11 +1,15 @@
-<h2>Évolution du Portefeuille PEA</h2>
+<div class="pea-dashboard-container">
+  <div class="header-section">
+    <h2>Évolution du Portefeuille PEA</h2>
+  </div>
 
-<div *ngIf="chartSeries().length > 0">
-  <mat-card appearance="outlined">
-    <mat-card-content>
-        <apx-chart [series]="chartSeries()" [chart]="chartOptions.chart" [xaxis]="chartOptions.xaxis"
-          [yaxis]="chartOptions.yaxis" [stroke]="chartOptions.stroke" [tooltip]="chartOptions.tooltip">
-        </apx-chart>
-    </mat-card-content>
-  </mat-card>
+  <div class="chart-section" *ngIf="chartSeries().length > 0">
+    <mat-card appearance="outlined" class="pea-chart-card">
+      <mat-card-content class="pea-chart-card-content">
+          <apx-chart [series]="chartSeries()" [chart]="chartOptions.chart" [xaxis]="chartOptions.xaxis"
+            [yaxis]="chartOptions.yaxis" [stroke]="chartOptions.stroke" [tooltip]="chartOptions.tooltip">
+          </apx-chart>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

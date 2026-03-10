@@ -1,10 +1,10 @@
-<button mat-flat-button color="primary" *ngIf="showSaveAll()" (click)="saveAllSuggested()">
+<button mat-flat-button color="primary" *ngIf="showSaveAll()" (click)="saveAllSuggested()" class="mb-4">
     <mat-icon>done_all</mat-icon>
     Sauvegarder toutes les suggestions affichées
 </button>
 
 <div class="grid-wrapper">
-    <ag-grid-angular style="width: 100%;" class="ag-theme-alpine shadow-sm" [preventDefaultOnContextMenu]="true"
+    <ag-grid-angular style="width: 100%; height: 100%;" class="ag-theme-alpine shadow-sm" [preventDefaultOnContextMenu]="true"
         [rowData]="operations" [defaultColDef]="defaultColDef" [columnDefs]="columnDefs" [domLayout]="domLayout"
         [context]="gridContext" [getRowId]="getRowId" [pagination]="true" [paginationPageSize]="pageSize"
         [paginationPageSizeSelector]="[10, 20, 50, 100]" (gridReady)="onGridReady($event)"

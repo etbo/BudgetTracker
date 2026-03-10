@@ -58,7 +58,14 @@ export class CcRules implements OnInit {
       undoRedoCellEditing: true 
     };
     
-  defaultColDef = { resizable: true, sortable: true, filter: true };
+  defaultColDef = { 
+    resizable: true, 
+    sortable: true, 
+    filter: true,
+    filterParams: {
+      buttons: ['clear']
+    }
+  };
 
   columnDefs: ColDef[] = [
     {

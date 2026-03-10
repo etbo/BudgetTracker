@@ -141,7 +141,14 @@ export class LifeInsuranceStatement extends BaseGrid implements OnInit {
     }
   ];
 
-  public defaultColDef: ColDef = { resizable: true, sortable: true, filter: true };
+  public defaultColDef: ColDef = { 
+    resizable: true, 
+    sortable: true, 
+    filter: true,
+    filterParams: {
+      buttons: ['clear']
+    }
+  };
 
   ngOnInit() {
     this.loadAllHistory();

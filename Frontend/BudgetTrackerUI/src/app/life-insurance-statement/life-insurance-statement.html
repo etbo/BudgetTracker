@@ -1,11 +1,19 @@
-<h2>Historique des Relevés</h2>
+<div class="page-container">
+  <div class="header-section">
+    <h2>Historique des Relevés</h2>
 
-<button mat-flat-button color="primary" (click)="openSaisie()">
-    <mat-icon>add</mat-icon>
-    Ajouter une saisie
-</button>
+    <div class="button-bar">
+      <button mat-flat-button color="primary" (click)="openSaisie()">
+        <mat-icon>add</mat-icon>
+        Ajouter une saisie
+      </button>
+    </div>
+  </div>
 
-<ag-grid-angular style="width: 100%; height: 700px;" class="ag-theme-alpine" [columnDefs]="columnDefsHistory"
-    [defaultColDef]="defaultColDef" [rowData]="historyData()" [gridOptions]="gridOptions" [gridOptions]="gridOptions"
-    (cellValueChanged)="onCellValueChanged($event)">
-</ag-grid-angular>
+  <div class="grid-section">
+    <ag-grid-angular style="width: 100%; height: 100%;" class="ag-theme-alpine" [columnDefs]="columnDefsHistory"
+      [defaultColDef]="defaultColDef" [rowData]="historyData()" [gridOptions]="gridOptions"
+      (cellValueChanged)="onCellValueChanged($event)" [domLayout]="'normal'">
+    </ag-grid-angular>
+  </div>
+</div>

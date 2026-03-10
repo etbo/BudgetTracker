@@ -62,7 +62,14 @@ export class CcCategories implements OnInit {
     }
   ];
 
-  defaultColDef = { sortable: true, filter: true, resizable: true };
+  defaultColDef = { 
+    sortable: true, 
+    filter: true, 
+    resizable: true,
+    filterParams: {
+      buttons: ['clear']
+    }
+  };
 
   constructor(private catService: CategoryService) { }
 

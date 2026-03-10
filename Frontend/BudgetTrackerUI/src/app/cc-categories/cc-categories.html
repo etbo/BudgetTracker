@@ -1,11 +1,19 @@
-<h2>Liste des Categories</h2>
+<div class="page-container">
+  <div class="header-section">
+    <h2>Liste des Categories</h2>
 
-<button mat-flat-button color="primary" (click)="addCategory()">
-  <mat-icon>add</mat-icon>
-  Ajouter une catégorie
-</button>
+    <div class="button-bar">
+      <button mat-flat-button color="primary" (click)="addCategory()">
+        <mat-icon>add</mat-icon>
+        Ajouter une catégorie
+      </button>
+    </div>
+  </div>
 
-<ag-grid-angular style="width: 100%;" class="ag-theme-alpine" [rowData]="CcCategories()" [columnDefs]="columnDefs"
-  [defaultColDef]="defaultColDef" [domLayout]="'autoHeight'" [getRowId]="getRowId" [gridOptions]="gridOptions"
-  (gridReady)="onGridReady($event)" (cellValueChanged)="onCellValueChanged($event)">
-</ag-grid-angular>
+  <div class="grid-section">
+    <ag-grid-angular style="width: 100%; height: 100%;" class="ag-theme-alpine" [rowData]="CcCategories()"
+      [columnDefs]="columnDefs" [defaultColDef]="defaultColDef" [domLayout]="'normal'" [getRowId]="getRowId"
+      [gridOptions]="gridOptions" (gridReady)="onGridReady($event)" (cellValueChanged)="onCellValueChanged($event)">
+    </ag-grid-angular>
+  </div>
+</div>
