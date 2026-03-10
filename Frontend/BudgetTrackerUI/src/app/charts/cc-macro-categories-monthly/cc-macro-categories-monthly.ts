@@ -79,6 +79,10 @@ export class CcMacroCategoriesMonthly implements OnChanges {
       xaxis: {
         ...this.chartOptions.xaxis,
         categories: categories
+      },
+      dataLabels: {
+        ...this.chartOptions.dataLabels,
+        enabled: this.data.length <= 24
       }
     };
   }

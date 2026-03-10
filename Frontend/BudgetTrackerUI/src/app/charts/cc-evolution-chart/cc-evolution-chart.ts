@@ -71,7 +71,7 @@ export class CcEvolutionChart implements OnChanges {
         }
       },
       stroke: { width: 2 },
-      colors: ["#594ae2"]
+      colors: ["#3b82f6"]
     };
   }
 };
