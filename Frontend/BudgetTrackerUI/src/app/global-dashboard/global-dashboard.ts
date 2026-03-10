@@ -187,4 +187,8 @@ export class GlobalDashboard implements OnInit {
   getAccountColorVar(name: string) {
     return this.themeService.getAccountColorVar(name);
   }
+
+  getGlobalColorVar() {
+    return this.themeService.getGlobalColorVar();
+  }
 }
