@@ -1,23 +1,35 @@
-.dashboard-container {
+:host {
+    display: block;
+    height: 100%;
+}
+
+.page-container {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 48px - 60px); // 100vh - toolbar - padding main-content
-  gap: 20px;
+  gap: 10px; // Standard gap
 }
 
-.summary-section {
+.header-section {
     flex-shrink: 0;
+
+    h2 {
+        margin: 0 0 20px 0;
+    }
+
+    .summary-panel {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
 }
 
-.history-section {
+.grid-section {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
-
-    h2 {
-        flex-shrink: 0;
-    }
 }
 
 .history-card {
@@ -52,7 +64,7 @@
     display: flex;
     flex-direction: column;
     min-height: 0;
-    padding-top: 10px; // Espace pour la légende
+    padding-top: 10px;
 
     apx-chart {
         flex: 1;
@@ -62,17 +74,9 @@
 }
 
 .highlight-card {
-  // 1. On épaissit la bordure et on utilise la couleur globale
   border: 2px solid var(--mdc-outlined-card-outline-color, #e0e0e0); 
-  border-color: var(--color-account-global, --mat-sys-primary, #673ab7); // Ou utilise ta variable getAccountColorVar('global')
-  
-  // 2. On ajoute une ombre pour donner du relief
+  border-color: var(--color-account-global, --mat-sys-primary, #673ab7);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  
-  // 3. Optionnel : un fond très légèrement teinté pour la distinguer
-//   background-color: rgba(var(--mat-sys-primary-rgb, 103, 58, 183), 0.04);
-  
-  // 4. On peut l'agrandir très légèrement (échelle 1.02)
   transform: scale(1.1);
   transition: transform 0.2s ease-in-out;
 
@@ -80,7 +84,7 @@
   margin-left: 20px;
 
   mat-card-title {
-    font-size: 2rem; // On booste un peu la taille du montant total
+    font-size: 2rem;
     font-weight: 1000;
   }
 }

@@ -9,7 +9,8 @@ import { MatCardModule } from '@angular/material/card';
   selector: 'app-pea-dashboard',
   standalone: true,
   imports: [CommonModule, MatSnackBarModule, NgApexchartsModule, MatCardModule],
-  templateUrl: './pea-dashboard.html'
+  templateUrl: './pea-dashboard.html',
+  styleUrl: './pea-dashboard.scss'
 })
 export class PeaDashboard implements OnInit {
   // --- Services ---

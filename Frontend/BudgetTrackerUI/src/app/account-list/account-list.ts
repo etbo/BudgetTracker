@@ -24,8 +24,10 @@ export class AccountList implements OnInit {
   public gridOptions: GridOptions = {
     context: { componentParent: this },
     stopEditingWhenCellsLoseFocus: true,
-    // sauvegarde aussi si on appuie sur Entrée :
-    undoRedoCellEditing: true 
+    undoRedoCellEditing: true,
+    rowClassRules: {
+      'inactive-row': (params: any) => !params.data.isActive
+    }
   };
 
   public columnDefs: ColDef[] = [

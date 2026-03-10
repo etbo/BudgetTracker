@@ -1,19 +1,24 @@
-.pea-dashboard-container {
+:host {
+    display: block;
+    height: 100%;
+}
+
+.page-container {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 48px - 60px);
   gap: 10px;
+}
 
-  .header-section {
+.header-section {
     flex-shrink: 0;
     
     h2 {
-      margin-bottom: 5px;
+      margin: 0 0 20px 0;
     }
-  }
 }
 
-.chart-section {
+.grid-section {
   flex: 1;
   display: flex;
   flex-direction: column;
