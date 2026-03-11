@@ -23,11 +23,11 @@ import { GridDeleteButton } from '../shared/components/grid-delete-button/grid-d
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 @Component({
-  selector: 'app-cc-Categories',
+  selector: 'app-cc-categories',
   standalone: true,
   imports: [CommonModule, FormsModule, AgGridModule, MatButtonModule, MatIconModule, MatCardModule],
-  templateUrl: './cc-Categories.html',
-  styleUrl: './cc-Categories.scss',
+  templateUrl: './cc-categories.html',
+  styleUrl: './cc-categories.scss',
 })
 export class CcCategories implements OnInit {
   private gridApi!: GridApi;

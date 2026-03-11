@@ -1,121 +1,29 @@
-.health-container {
-  padding: 24px;
-  animation: fadeIn 0.5s ease-out;
-
-  .header {
-    margin-bottom: 24px;
-    h1 {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 0;
-      color: #2c3e50;
-      font-weight: 300;
-      font-size: 2rem;
-      mat-icon {
-        font-size: 2rem;
-        width: 2rem;
-        height: 2rem;
-        color: #3f51b5;
-      }
-    }
-    .subtitle {
-      color: #7f8c8d;
-      margin-top: 4px;
-    }
-  }
-
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-    gap: 24px;
-  }
-
-  .health-card {
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    border: none;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-
-    mat-card-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 1.1rem;
-      font-weight: 500;
-    }
-
-    mat-card-content {
-      padding-top: 16px;
-    }
-  }
-
-  .no-issue {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #27ae60;
-    font-size: 0.95rem;
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .account-issue {
-    margin-bottom: 20px;
-    h3 {
-      font-size: 1rem;
-      margin-bottom: 8px;
-      color: #34495e;
-    }
-  }
-
-  .months-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .month-chip {
-    background: #fdf2f2;
-    color: #c0392b;
-    border: 1px solid #f5b7b1;
-    padding: 4px 10px;
-    border-radius: 16px;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
-
-  .full-width-table {
-    width: 100%;
-    background: transparent;
-
-    .text-right {
-      text-align: right;
-    }
-    
-    td {
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-  }
-
-  .error-message {
-    background: #fdf2f2;
-    color: #c0392b;
-    padding: 16px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
+:host {
+    display: block;
+    height: 100%;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.header-section {
+    flex-shrink: 0;
+
+    h2 {
+        margin: 0 0 20px 0;
+    }
+
+    .summary-panel {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 0px;
+    }
+}
+
+.grid-section {
+    display: flex;
+    flex-direction: column;
 }

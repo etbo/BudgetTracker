@@ -1,6 +1,6 @@
-<div class="health-container">
-  <div class="header">
-    <h1><mat-icon>health_and_safety</mat-icon> Santé de la base de données</h1>
+<div class="page-container">
+  <div class="header-section">
+    <h2>Santé de la base de données</h2>
     <p class="subtitle">Vérification de l'intégrité et de la cohérence des données</p>
   </div>
 
@@ -13,7 +13,7 @@
   <div *ngIf="!loading && !error && report" class="dashboard-grid">
 
     <!-- Section: Mois manquants -->
-    <mat-card class="health-card">
+    <mat-card appearance="outlined">
       <mat-card-header>
         <mat-card-title>
           <mat-icon color="warn">calendar_today</mat-icon> Lacunes temporelles (Imports manquants)
@@ -34,7 +34,7 @@
     </mat-card>
 
     <!-- Section: Catégories inconnues -->
-    <mat-card class="health-card">
+    <mat-card appearance="outlined">
       <mat-card-header>
         <mat-card-title>
           <mat-icon color="accent">category</mat-icon> Catégories non référencées
