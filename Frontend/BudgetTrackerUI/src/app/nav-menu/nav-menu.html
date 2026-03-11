@@ -12,6 +12,11 @@
       <mat-icon matListItemIcon>list</mat-icon>
       <span matListItemTitle>Liste des comptes</span>
     </a>
+
+    <a mat-list-item routerLink="/db-health" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
+      <mat-icon matListItemIcon>health_and_safety</mat-icon>
+      <span matListItemTitle>Santé BDD</span>
+    </a>
   </div>
 
   <div class="nav-group">

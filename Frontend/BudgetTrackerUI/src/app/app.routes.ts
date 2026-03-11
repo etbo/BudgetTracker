@@ -10,6 +10,7 @@ import { SavingsStatement } from './savings-statement/savings-statement';
 import { LifeInsuranceStatement } from './life-insurance-statement/life-insurance-statement';
 import { GlobalDashboard } from './global-dashboard/global-dashboard';
 import { AccountList } from './account-list/account-list';
+import { DatabaseHealth } from './database-health/database-health';
 
 export const routes: Routes = [
   // { path: '', component: Home },
@@ -19,6 +20,7 @@ export const routes: Routes = [
 
   // All accounts
   { path: 'account-list', component: AccountList },
+  { path: 'db-health', component: DatabaseHealth },
 
   // Comptes courant : cc
   { path: 'cc-dashboard', component: CcDashboard },

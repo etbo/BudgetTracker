@@ -1,0 +1,67 @@
+<div class="health-container">
+  <div class="header">
+    <h1><mat-icon>health_and_safety</mat-icon> Santé de la base de données</h1>
+    <p class="subtitle">Vérification de l'intégrité et de la cohérence des données</p>
+  </div>
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+  <div *ngIf="error" class="error-message">
+    <mat-icon>error</mat-icon> {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && report" class="dashboard-grid">
+
+    <!-- Section: Mois manquants -->
+    <mat-card class="health-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon color="warn">calendar_today</mat-icon> Lacunes temporelles (Imports manquants)
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p *ngIf="report.missingMonths.length === 0" class="no-issue">
+          <mat-icon>check_circle</mat-icon> Aucune lacune détectée dans les imports.
+        </p>
+
+        <div *ngFor="let account of report.missingMonths" class="account-issue">
+          <h3>{{ account.accountName }}</h3>
+          <div class="months-chips">
+            <span *ngFor="let month of account.missingMonths" class="month-chip">{{ month }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Section: Catégories inconnues -->
+    <mat-card class="health-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon color="accent">category</mat-icon> Catégories non référencées
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p *ngIf="report.unknownCategories.length === 0" class="no-issue">
+          <mat-icon>check_circle</mat-icon> Toutes les catégories utilisées sont référencées.
+        </p>
+
+        <table mat-table [dataSource]="report.unknownCategories" *ngIf="report.unknownCategories.length > 0" class="full-width-table">
+
+          <ng-container matColumnDef="categoryName">
+            <th mat-header-cell *matHeaderCellDef>Nom</th>
+            <td mat-cell *matCellDef="let element"><b>{{ element.categoryName }}</b></td>
+          </ng-container>
+
+          <ng-container matColumnDef="operationCount">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let element" class="text-right">{{ element.operationCount }} opérations</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['categoryName', 'operationCount']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['categoryName', 'operationCount'];"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>

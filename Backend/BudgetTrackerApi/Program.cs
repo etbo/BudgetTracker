@@ -35,6 +35,7 @@ builder.Services.AddScoped<DatabaseExportService>();
 builder.Services.AddScoped<IRuleService, RuleService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<PatrimonyService>();
+builder.Services.AddScoped<DatabaseHealthService>();
 
 // FinanceService via HttpClient (géré en Scoped par défaut)
 builder.Services.AddHttpClient<FinanceService>();

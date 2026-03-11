@@ -42,7 +42,7 @@ namespace BudgetTrackerApi.Data
                 // LOG DE DEBUG : Très important pour voir où l'API cherche vraiment
                 Console.WriteLine($"---> Connexion à la base : {fullPath}");
 
-                optionsBuilder.UseSqlite($"Data Source={fullPath}");
+                optionsBuilder.UseSqlite($"Data Source={fullPath};Pooling=False");
             }
         }
 
