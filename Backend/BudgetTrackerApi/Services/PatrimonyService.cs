@@ -86,7 +86,7 @@ namespace BudgetTrackerApi.Services
                 .ToListAsync();
 
             var lifeInsurance = await _db.LifeInsuranceStatements
-                .Select(s => new { s.Date, Amount = s.UnitCount * s.UnitValue, Cat = "AV", Id = s.Line.AccountId.ToString() })
+                .Select(s => new { s.Date, Amount = s.UnitCount * s.UnitValue, Cat = "AV", Id = s.LifeInsuranceLineId.ToString() })
                 .ToListAsync();
 
             var ccOperations = await _db.CcOperations
