@@ -12,7 +12,7 @@ export class ExportService {
   constructor(
     private http: HttpClient,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   downloadDatabaseBackup() {
     this.http.get(`${environment.apiUrl}/export/database`, { responseType: 'blob' })
@@ -20,15 +20,21 @@ export class ExportService {
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
-          
+
           // Nom du fichier avec date du jour
-          const date = new Date().toISOString().split('T')[0];
+          const now = new Date();
+          const date = now.getFullYear() +
+            ('0' + (now.getMonth() + 1)).slice(-2) +
+            ('0' + now.getDate()).slice(-2) + "_" +
+            ('0' + now.getHours()).slice(-2) + "h" +
+            ('0' + now.getMinutes()).slice(-2);
+
           a.href = url;
           a.download = `BudgetTracker_Backup_${date}.zip`;
-          
+
           document.body.appendChild(a);
           a.click();
-          
+
           // Nettoyage de la mémoire et du DOM
           window.URL.revokeObjectURL(url);
           document.body.removeChild(a);

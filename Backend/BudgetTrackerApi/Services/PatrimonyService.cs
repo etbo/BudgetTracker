@@ -22,7 +22,6 @@ namespace BudgetTrackerApi.Services
             summary.Cash = (decimal)await _db.CcOperations.SumAsync(op => op.Amount);
 
             // 2. Livrets (Dernière valeur connue pour chaque compte)
-            // On récupère le dernier relevé de chaque livret
             var latestSavings = await _db.SavingStatements
                 .GroupBy(s => s.AccountId)
                 .Select(g => g.OrderByDescending(s => s.Date).FirstOrDefault())
@@ -45,32 +44,39 @@ namespace BudgetTrackerApi.Services
             // 4. PEA (Quantité totale * Dernier prix)
             var quantities = await _db.PeaOperations
                 .GroupBy(o => o.Code)
-                .Select(g => new { 
-                    Ticker = g.Key, 
-                    Quantity = g.Sum(o => (decimal)o.Quantity) 
+                .Select(g => new
+                {
+                    Ticker = g.Key,
+                    Quantity = g.Sum(o => (decimal)o.Quantity)
                 })
                 .ToListAsync();
 
             decimal totalPea = 0;
             foreach (var q in quantities)
             {
-                var latestPrice = await _db.PeaCachedStockPrices
-                    .Where(p => p.Ticker == q.Ticker)
-                    .OrderByDescending(p => p.Date)
-                    .Select(p => p.Price)
-                    .FirstOrDefaultAsync();
+                if (q.Ticker == "Appro")
+                {
+                    totalPea += q.Quantity * 1; // 1€ par unité d'Appro
+                }
+                else
+                {
+                    var latestPrice = await _db.PeaCachedStockPrices
+                        .Where(p => p.Ticker == q.Ticker)
+                        .OrderByDescending(p => p.Date)
+                        .Select(p => p.Price)
+                        .FirstOrDefaultAsync();
 
-                totalPea += q.Quantity * latestPrice;
+                    totalPea += q.Quantity * latestPrice;
+                }
             }
             summary.Pea = totalPea;
 
-            // Optionnel : Remplir les détails
-            foreach(var s in latestSavings.Where(s => s != null))
+            // Remplir les détails
+            foreach (var s in latestSavings.Where(s => s != null))
             {
                 summary.Details[$"Savings_{s!.AccountId}"] = s.Amount;
             }
-            // AV details...
-            foreach(var s in latestAV.Where(s => s != null))
+            foreach (var s in latestAV.Where(s => s != null))
             {
                 summary.Details[$"AV_{s!.LifeInsuranceLineId}"] = s.UnitCount * s.UnitValue;
             }
@@ -80,6 +86,8 @@ namespace BudgetTrackerApi.Services
 
         public async Task<IEnumerable<GlobalHistoryDto>> GetGlobalHistoryAsync()
         {
+            Console.WriteLine($"____________________________");
+
             // 1. Récupération des données unifiées
             var savings = await _db.SavingStatements
                 .Select(s => new { s.Date, s.Amount, Cat = "Savings", Id = s.AccountId.ToString() })
@@ -101,7 +109,7 @@ namespace BudgetTrackerApi.Services
                 .Select(s => new { s.Date, s.Ticker, s.Price })
                 .ToListAsync();
 
-            // 2. Collecte de toutes les dates pour définir la plage
+            // 2. Collecte des dates
             var allDates = savings.Select(x => x.Date)
                 .Concat(lifeInsurance.Select(x => x.Date))
                 .Concat(ccOperations.Select(x => x.Date))
@@ -118,19 +126,30 @@ namespace BudgetTrackerApi.Services
             {
                 var endOfMonth = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month), 23, 59, 59);
 
-                // --- PEA ---
+                // --- PEA (Calcul par ticker pour gérer l'Appro) ---
                 var currentQuantities = peaStocks.Where(x => x.Date <= endOfMonth)
                     .GroupBy(x => x.Ticker)
                     .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
 
                 decimal currentPeaValue = 0;
-                foreach (var stock in currentQuantities)
+                foreach (var kvp in currentQuantities)
                 {
-                    var priceAtDate = peaPrices
-                        .Where(p => p.Ticker == stock.Key && p.Date <= endOfMonth)
-                        .OrderByDescending(p => p.Date)
-                        .FirstOrDefault()?.Price ?? 0;
-                    currentPeaValue += stock.Value * priceAtDate;
+                    var ticker = kvp.Key;
+                    var qte = kvp.Value;
+                    decimal priceAtDate = 0;
+
+                    if (ticker == "Appro")
+                    {
+                        priceAtDate = 1;
+                    }
+                    else
+                    {
+                        priceAtDate = peaPrices
+                            .Where(p => p.Ticker == ticker && p.Date <= endOfMonth)
+                            .OrderByDescending(p => p.Date)
+                            .FirstOrDefault()?.Price ?? 0;
+                    }
+                    currentPeaValue += qte * priceAtDate;
                 }
 
                 // --- CASH ---
