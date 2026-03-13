@@ -45,46 +45,36 @@ namespace BudgetTrackerApi.Services
 
         public async Task<UpdateStocksValuesResult> UpdatePeaCachedStockPrice(string ticker, DateTime? startDate, bool simulateJson)
         {
-            if (string.IsNullOrEmpty(ticker) || !startDate.HasValue)
-                throw new Exception($"Ticker vide");
+            // 1. On cherche explicitement s'il existe AU MOINS une ligne pour ce ticker
+            bool hasData = await _context.PeaCachedStockPrices
+                .AnyAsync(o => o.Ticker == ticker);
 
-            var dateMinimale = await _context.PeaCachedStockPrices
-                    .Where(o => o.Ticker == ticker)
-                    .OrderBy(o => o.CacheTimestamp) // Trie par ordre croissant (du plus ancien au plus récent)
-                    .FirstOrDefaultAsync();
-
-
-            if (dateMinimale != null && DateTime.Now.Date == dateMinimale.CacheTimestamp.Date)
+            if (hasData)
             {
-                Console.WriteLine($"Pas de MàJ pour {ticker}");
-                // There is a dateMinimale found and it is already today : no update needed
-                return new UpdateStocksValuesResult(UpdateStatus.NotAttempted, string.Empty);
+                // 2. Si on a des données, on regarde la date de la mise en cache la plus récente
+                var derniereMaj = await _context.PeaCachedStockPrices
+                    .Where(o => o.Ticker == ticker)
+                    .MaxAsync(o => o.CacheTimestamp);
+
+                if (derniereMaj.Date == DateTime.Now.Date)
+                {
+                    Console.WriteLine($"[INFO] {ticker} est déjà à jour (Cache du {derniereMaj:dd/MM/yyyy})");
+                    return new UpdateStocksValuesResult(UpdateStatus.NotAttempted, string.Empty);
+                }
             }
 
-            Console.WriteLine($"MàJ nécessaire pour {ticker}");
+            // Si hasData est false, on arrive ici et on lance la mise à jour
+            Console.WriteLine($"[ACTION] Lancement de la mise à jour pour {ticker}...");
 
 
             string jsonContent = "{}";
 
-            if (simulateJson)
-            {
-                string filePath = "../Database/PA_CW8_Monthly.json";
-                jsonContent = await File.ReadAllTextAsync(filePath);
-            }
-            else
-            {
-                // Construction requête API
-                string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={ticker}&apikey={_apiKey}";
-                Console.WriteLine($"apiUrl = {apiUrl}");
-                // Récupération des données via l'API
-                var httpResponse = await _httpClient.GetAsync(apiUrl);
-                jsonContent = await httpResponse.Content.ReadAsStringAsync();
-            }
-            // Pour essai : simulation retour Json
-            // string filePath = "../Database/PA_CW8_Monthly.json";
-            // jsonContent = await File.ReadAllTextAsync(filePath);
-
-
+            // Construction requête API
+            string apiUrl = $"https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol={ticker}&apikey={_apiKey}";
+            Console.WriteLine($"apiUrl = {apiUrl}");
+            // Récupération des données via l'API
+            var httpResponse = await _httpClient.GetAsync(apiUrl);
+            jsonContent = await httpResponse.Content.ReadAsStringAsync();
 
 
             if (string.IsNullOrEmpty(jsonContent))

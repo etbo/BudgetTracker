@@ -62,7 +62,7 @@ export class PeaOperations implements OnInit {
       valueParser: params => Number(params.newValue)
     },
     {
-      headerName: 'Montant Brut',
+      headerName: 'Montant Brut Unitaire',
       field: 'grossUnitAmount',
       type: 'rightAligned',
       editable: true,
@@ -71,7 +71,7 @@ export class PeaOperations implements OnInit {
       valueParser: amountParser
     },
     {
-      headerName: 'Montant Net',
+      headerName: 'Montant Net Unitaire',
       type: 'rightAligned',
       field: 'netAmount',
       editable: true,
@@ -155,7 +155,7 @@ export class PeaOperations implements OnInit {
   }
 
   delete(op: PeaOperation) {
-    if(confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
+    if (confirm('Voulez-vous vraiment supprimer cette ligne ?')) {
       this.peaService.delete(op.id).subscribe({
         next: () => {
           // Mise à jour du signal pour retirer la ligne de l'affichage

@@ -49,7 +49,9 @@ namespace BudgetTrackerApi.Controllers
 
             foreach (var ticker in tickers)
             {
+                Console.WriteLine($"ticker = {ticker.Ticker}, = Appro ? : {ticker.Ticker.Equals("Appro")}");
                 if (string.IsNullOrEmpty(ticker.Ticker)) continue;
+                if (ticker.Ticker.Equals("Appro")) continue;
 
                 // On appelle ta logique existante du FinanceService
                 var res = await _financeService.UpdatePeaCachedStockPrice(ticker.Ticker, ticker.OldestDate, false);
