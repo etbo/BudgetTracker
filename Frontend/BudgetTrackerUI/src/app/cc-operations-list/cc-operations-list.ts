@@ -201,7 +201,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
     this.rulesService.getCcCategories().subscribe(cats => {
       const catCol = this.columnDefs.find(c => c.field === 'category');
       if (catCol) {
-        catCol.cellEditorParams = { values: ['', ...cats.map(c => c.name)] };
+        catCol.cellEditorParams = { values: ['', ...cats.map(c => c.name).sort((a, b) => a.localeCompare(b))] };
         this.gridApi?.setGridOption('columnDefs', [...this.columnDefs]);
       }
     });
