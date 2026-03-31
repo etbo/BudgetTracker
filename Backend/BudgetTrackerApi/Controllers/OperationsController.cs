@@ -142,7 +142,7 @@ public class OperationsController : ControllerBase
 
         // Mise à jour des champs du Model depuis le DTO
         op.Category = dto.Category;
-        // op.Comment = dto.Comment; // Si tu l'ajoutes au DTO
+        op.Comment = dto.Comment;
 
         await _db.SaveChangesAsync();
         return NoContent();
