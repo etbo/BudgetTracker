@@ -347,7 +347,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
 
   onCellContextMenu(event: any) {
     // On cible uniquement la colonne Description
-    if (event.column.getColId() !== 'description') return;
+    if (event.column.getColId() !== 'label') return;
 
     // Empêche le menu contextuel du navigateur
     event.event.preventDefault();
