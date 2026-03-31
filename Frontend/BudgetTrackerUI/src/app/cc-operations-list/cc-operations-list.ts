@@ -307,7 +307,7 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
       }
     }
     else if (field === 'comment') {
-      this.save(op);
+      this.opService.updateOperation(op).subscribe();
     }
   }
 
