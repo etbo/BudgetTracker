@@ -16,7 +16,7 @@ namespace BudgetTrackerApi.Services
 
         public async Task<IEnumerable<AccountSummaryDto>> GetAllAccountSummariesAsync()
         {
-            var now = DateTime.Now;
+            var today = DateTime.Today;
 
             // 1. On charge les données de base
             var accounts = await _db.Accounts.ToListAsync();
@@ -59,7 +59,7 @@ namespace BudgetTrackerApi.Services
                 }
 
                 int months = a.UpdateFrequencyInMonths > 0 ? a.UpdateFrequencyInMonths : 1;
-                bool isLate = a.IsActive && (lastDate == null || lastDate < now.AddMonths(-months));
+                bool isLate = a.IsActive && (lastDate == null || lastDate.Value.Date < today.AddMonths(-months));
 
                 return new AccountSummaryDto(
                     a.Id,
