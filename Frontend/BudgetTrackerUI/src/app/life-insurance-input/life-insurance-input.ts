@@ -66,14 +66,14 @@ export class LifeInsuranceInput extends BaseGrid {
       field: 'unitCount',
       width: 120,
       editable: (params) => params.data.isScpi,
-      valueParser: params => Number(params.newValue),
+      valueParser: params => Number(params.newValue?.toString().replace(',', '.')),
     },
     {
       headerName: 'Valeur/Montant',
       field: 'unitValue',
       width: 140,
       editable: true,
-      valueParser: params => Number(params.newValue),
+      valueParser: params => Number(params.newValue?.toString().replace(',', '.')),
       valueFormatter: params => params.value?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
     },
     {

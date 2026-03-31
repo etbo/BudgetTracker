@@ -114,6 +114,7 @@ export class LifeInsuranceStatement extends BaseGrid implements OnInit {
       type: 'rightAligned',
       width: 150,
       editable: (p) => !p.data.isHeader && p.data.isScpi,
+      valueParser: params => Number(params.newValue?.toString().replace(',', '.')),
       valueFormatter: (p) => p.data.isHeader ? '' : (p.data.isScpi ? p.value?.toFixed(5) : '-'),
     },
     {
@@ -122,6 +123,7 @@ export class LifeInsuranceStatement extends BaseGrid implements OnInit {
       type: 'rightAligned',
       width: 150,
       editable: (p) => !p.data.isHeader,
+      valueParser: params => Number(params.newValue?.toString().replace(',', '.')),
       valueFormatter: (p) => p.data.isHeader ? '' : (p.value ? p.value.toFixed(2) + ' €' : ''),
     },
     {
