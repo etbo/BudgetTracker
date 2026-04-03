@@ -1,7 +1,14 @@
-<button mat-flat-button color="primary" *ngIf="showSaveAll()" (click)="saveAllSuggested()" class="mb-4">
-    <mat-icon>done_all</mat-icon>
-    Sauvegarder toutes les suggestions affichées
-</button>
+<div class="flex flex-row gap-4 mb-4">
+  <button mat-flat-button color="primary" *ngIf="showSaveAll()" (click)="saveAllSuggested()">
+      <mat-icon>done_all</mat-icon>
+      Sauvegarder toutes les suggestions affichées
+  </button>
+
+  <button mat-flat-button color="accent" (click)="openAdjustBalanceDialog()">
+      <mat-icon>account_balance_wallet</mat-icon>
+      Réaligner le solde
+  </button>
+</div>
 
 <div class="grid-wrapper">
     <ag-grid-angular style="width: 100%; height: 100%;" class="ag-theme-alpine shadow-sm" [preventDefaultOnContextMenu]="true"

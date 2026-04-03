@@ -168,4 +168,39 @@ public class OperationsController : ControllerBase
 
         return Ok(new { category = "", isSuggested = false });
     }
+
+    [HttpPost("adjust-balance")]
+    public async Task<IActionResult> AdjustBalance([FromBody] AdjustBalanceRequestDto request)
+    {
+        if (request == null || string.IsNullOrEmpty(request.Bank)) return BadRequest();
+
+        // On prend la date sans tenir compte de l'heure
+        var targetDate = request.Date.Date;
+
+        // Calcul du solde théorique de ce compte jusqu'à cette date
+        // On somme toutes les opérations dont la date (sans l'heure) est <= targetDate
+        var theoreticalBalance = await _db.CcOperations
+            .Where(o => o.Bank == request.Bank && o.Date.Date <= targetDate)
+            .SumAsync(o => o.Amount);
+
+        var adjustmentAmount = request.ActualBalance - theoreticalBalance;
+
+        // Si la différence est nulle, pas besoin d'ajustement
+        if (Math.Abs(adjustmentAmount) < 0.01) return Ok(new { message = "Solde déjà aligné." });
+
+        var op = new CcOperation
+        {
+            Bank = request.Bank,
+            Date = targetDate,
+            Amount = adjustmentAmount,
+            Description = $"Ajustement Solde (Calculé: {theoreticalBalance:F2}, Saisi: {request.ActualBalance:F2})",
+            Category = "Autres",
+            ImportLogId = null
+        };
+
+        _db.CcOperations.Add(op);
+        await _db.SaveChangesAsync();
+
+        return Ok(op);
+    }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, Input, signal, 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 import { AgGridModule, ICellRendererAngularComp } from 'ag-grid-angular';
 import {
@@ -44,6 +45,61 @@ ModuleRegistry.registerModules([AllCommunityModule]);
   `
 })
 export class ConfirmDialogComponent { }
+
+@Component({
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title>Réaligner le solde</h2>
+    <mat-dialog-content class="flex flex-col gap-4 pt-4">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Compte</mat-label>
+        <mat-select [(ngModel)]="data.bank">
+          <mat-option *ngFor="let acc of accounts" [value]="acc.bankName">
+            {{ acc.bankName }} ({{ acc.name }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Date de l'ajustement</mat-label>
+        <input matInput type="date" [(ngModel)]="data.date" cdkFocusInitial>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Solde réel exact à cette date</mat-label>
+        <input matInput type="number" step="0.01" [(ngModel)]="data.actualBalance">
+      </mat-form-field>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Annuler</button>
+      <button mat-raised-button color="primary" [mat-dialog-close]="data" [disabled]="!data.bank || !data.date || data.actualBalance === null || data.actualBalance === undefined">
+        Calculer et ajuster
+      </button>
+    </mat-dialog-actions>
+  `,
+  styles: [`.w-full { width: 100%; margin-top: 20px }`]
+})
+export class AdjustBalanceDialogComponent implements OnInit {
+  accounts: any[] = [];
+  
+  constructor(
+    public dialogRef: MatDialogRef<AdjustBalanceDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { bank: string, date: string, actualBalance: number },
+    private http: HttpClient
+  ) {}
+
+  ngOnInit() {
+    this.http.get<any[]>(environment.apiUrl + '/Accounts').subscribe(res => {
+      this.accounts = res.filter(a => (a.type === 0 || a.type === 'Checking') && a.isActive);
+      // Prédestination si vide et 1 seul compte dispo
+      if (!this.data.bank && this.accounts.length > 0) {
+        this.data.bank = this.accounts[0].bankName;
+      }
+    });
+  }
+}
 
 @Component({
   standalone: true,
@@ -336,6 +392,30 @@ export class CcOperationsList implements OnInit, OnDestroy, OnChanges {
           this.refresh.emit();
         }
       });
+    });
+  }
+
+  openAdjustBalanceDialog() {
+    // Date du jour par défaut format "YYYY-MM-DD"
+    const today = new Date().toISOString().split('T')[0];
+
+    const dialogRef = this.dialog.open(AdjustBalanceDialogComponent, {
+      width: '500px',
+      data: { bank: '', date: today, actualBalance: null }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.bank && result.date && result.actualBalance !== null) {
+        this.opService.adjustBalance(result.bank, result.date, result.actualBalance).subscribe({
+          next: () => {
+             this.refresh.emit(); // Rafraîchit après succès
+          },
+          error: (err) => {
+             console.error('Erreur lors du réalignement', err);
+             alert("Une erreur s'est produite ou le solde est déjà aligné.");
+          }
+        });
+      }
     });
   }
 
