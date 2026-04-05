@@ -169,6 +169,17 @@ public class OperationsController : ControllerBase
         return Ok(new { category = "", isSuggested = false });
     }
 
+    [HttpGet("balance")]
+    public async Task<IActionResult> GetBalance([FromQuery] string bank, [FromQuery] DateTime date)
+    {
+        if (string.IsNullOrEmpty(bank)) return BadRequest();
+        var targetDate = date.Date;
+        var balance = await _db.CcOperations
+            .Where(o => o.Bank == bank && o.Date.Date <= targetDate)
+            .SumAsync(o => o.Amount);
+        return Ok(new { balance });
+    }
+
     [HttpPost("adjust-balance")]
     public async Task<IActionResult> AdjustBalance([FromBody] AdjustBalanceRequestDto request)
     {
@@ -193,7 +204,8 @@ public class OperationsController : ControllerBase
             Bank = request.Bank,
             Date = targetDate,
             Amount = adjustmentAmount,
-            Description = $"Ajustement Solde (Calculé: {theoreticalBalance:F2}, Saisi: {request.ActualBalance:F2})",
+            Description = $"Ajustement Solde",
+            Comment = $"Saisi: {request.ActualBalance:F2} | Calculé: {theoreticalBalance:F2}",
             Category = "Autres",
             ImportLogId = null
         };

@@ -54,7 +54,7 @@ export class ConfirmDialogComponent { }
     <mat-dialog-content class="flex flex-col gap-4 pt-4">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Compte</mat-label>
-        <mat-select [(ngModel)]="data.bank">
+        <mat-select [(ngModel)]="data.bank" (ngModelChange)="onSelectionChange()">
           <mat-option *ngFor="let acc of accounts" [value]="acc.bankName">
             {{ acc.bankName }} ({{ acc.name }})
           </mat-option>
@@ -63,8 +63,12 @@ export class ConfirmDialogComponent { }
       
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Date de l'ajustement</mat-label>
-        <input matInput type="date" [(ngModel)]="data.date" cdkFocusInitial>
+        <input matInput type="date" [(ngModel)]="data.date" (ngModelChange)="onSelectionChange()" cdkFocusInitial>
       </mat-form-field>
+
+      <div *ngIf="theoreticalBalance !== null" class="w-full p-3 bg-blue-50 text-blue-800 rounded-md border border-blue-200">
+        Solde calculé à cette date : <strong>{{ theoreticalBalance | number:'1.2-2' }} €</strong>
+      </div>
 
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Solde réel exact à cette date</mat-label>
@@ -79,15 +83,17 @@ export class ConfirmDialogComponent { }
       </button>
     </mat-dialog-actions>
   `,
-  styles: [`.w-full { width: 100%; margin-top: 20px }`]
+  styles: [`.w-full { width: 100%; margin-top: 15px }`]
 })
 export class AdjustBalanceDialogComponent implements OnInit {
   accounts: any[] = [];
+  theoreticalBalance: number | null = null;
   
   constructor(
     public dialogRef: MatDialogRef<AdjustBalanceDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { bank: string, date: string, actualBalance: number },
-    private http: HttpClient
+    private http: HttpClient,
+    private opService: OperationsService
   ) {}
 
   ngOnInit() {
@@ -97,7 +103,19 @@ export class AdjustBalanceDialogComponent implements OnInit {
       if (!this.data.bank && this.accounts.length > 0) {
         this.data.bank = this.accounts[0].bankName;
       }
+      this.onSelectionChange();
     });
+  }
+
+  onSelectionChange() {
+    if (this.data.bank && this.data.date) {
+      this.opService.getTheoreticalBalance(this.data.bank, this.data.date).subscribe({
+        next: (res) => this.theoreticalBalance = res.balance,
+        error: () => this.theoreticalBalance = null
+      });
+    } else {
+      this.theoreticalBalance = null;
+    }
   }
 }
 

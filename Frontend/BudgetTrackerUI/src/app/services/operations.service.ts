@@ -52,6 +52,12 @@ export class OperationsService {
     );
   }
 
+  getTheoreticalBalance(bank: string, date: string): Observable<{ balance: number }> {
+    return this.http.get<{ balance: number }>(`${this.apiUrl}/balance`, {
+      params: { bank, date }
+    });
+  }
+
   adjustBalance(bank: string, date: string, actualBalance: number): Observable<CcOperation> {
     return this.http.post<CcOperation>(`${this.apiUrl}/adjust-balance`, { bank, date, actualBalance });
   }
