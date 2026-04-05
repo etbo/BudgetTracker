@@ -16,6 +16,7 @@ public class RevolutParser : IBankParser
 
         string? line;
         bool isHeader = true;
+        var hashContext = new ImportHashContext();
 
         while ((line = reader.ReadLine()) != null)
         {
@@ -63,6 +64,8 @@ public class RevolutParser : IBankParser
             var amountOperation = double.Parse(values[5], System.Globalization.CultureInfo.InvariantCulture);
             var amountFees = double.Parse(values[6], System.Globalization.CultureInfo.InvariantCulture);
 
+            Console.WriteLine($"Date: {parsedDate}, Description: {values[4]}, Amount: {amountOperation + amountFees}, Bank: Revolut");
+
             var operation = new CcOperation
             {
                 Date = parsedDate,
@@ -71,6 +74,10 @@ public class RevolutParser : IBankParser
                 Bank = "Revolut",
                 Comment = (amountFees > 0) ? $"dont frais = {amountFees}" : "",
             };
+
+            // Attribution du Hash (n'oublie pas d'utiliser ImportHashContext pour éviter les doublons sur un même jour)
+            var baseHash = operation.GenerateBaseHash();
+            operation.Hash = hashContext.GetUniqueHash(baseHash);
 
             listOperations.Add(operation);
         }
