@@ -11,11 +11,13 @@ public class OperationsController : ControllerBase
 {
     private readonly AppDbContext _db;
     private readonly IRuleService _ruleService;
+    private readonly CcAdjustmentService _adjustmentService;
 
-    public OperationsController(AppDbContext db, IRuleService ruleService)
+    public OperationsController(AppDbContext db, IRuleService ruleService, CcAdjustmentService adjustmentService)
     {
         _db = db;
         _ruleService = ruleService;
+        _adjustmentService = adjustmentService;
     }
 
     [HttpGet]
@@ -140,11 +142,30 @@ public class OperationsController : ControllerBase
             }
         }
 
+        // Sauvegarde des anciennes valeurs pour le recalcul
+        var oldDate = op.Date;
+        var oldAmount = op.Amount;
+        var oldDescription = op.Description;
+
         // Mise à jour des champs du Model depuis le DTO
         op.Category = dto.Category;
         op.Comment = dto.Comment;
+        op.Date = dto.Date;
+        op.Amount = (double)dto.Amount;
+        op.Description = dto.Label;
 
         await _db.SaveChangesAsync();
+
+        // Si le montant, la date ou la description (cible potentielle) a changé, on recalcule
+        if (Math.Abs(oldAmount - op.Amount) > 0.001 || oldDate.Date != op.Date.Date || oldDescription != op.Description)
+        {
+            var startDate = oldDate < op.Date ? oldDate : op.Date;
+            if (!string.IsNullOrEmpty(op.Bank))
+            {
+                await _adjustmentService.RecalculateAsync(op.Bank, startDate);
+            }
+        }
+
         return NoContent();
     }
 
@@ -204,14 +225,18 @@ public class OperationsController : ControllerBase
             Bank = request.Bank,
             Date = targetDate,
             Amount = adjustmentAmount,
-            Description = $"Ajustement Solde",
-            Comment = $"Saisi: {request.ActualBalance:F2} | Calculé: {theoreticalBalance:F2}",
+            Description = $"Ajustement Solde ({request.ActualBalance:F2}€)",
+            Comment = $"Initial: Saisi: {request.ActualBalance:F2} | Calculé: {theoreticalBalance:F2}",
             Category = "Autres",
             ImportLogId = null
         };
 
         _db.CcOperations.Add(op);
         await _db.SaveChangesAsync();
+
+        // Une fois ajouté, on recalcule les ajustements FUTURS 
+        // (au cas où on vient d'insérer un ajustement dans le passé)
+        await _adjustmentService.RecalculateAsync(request.Bank, targetDate);
 
         return Ok(op);
     }

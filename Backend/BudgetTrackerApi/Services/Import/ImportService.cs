@@ -8,7 +8,12 @@ namespace BudgetTrackerApi.Services
     public class ImportService
     {
         private readonly AppDbContext _db;
-        public ImportService(AppDbContext db) => _db = db;
+        private readonly CcAdjustmentService _adjustmentService;
+        public ImportService(AppDbContext db, CcAdjustmentService adjustmentService)
+        {
+            _db = db;
+            _adjustmentService = adjustmentService;
+        }
 
         public async Task<ImportResultDto> ProcessImportAsync(IFormFile file)
         {
@@ -89,6 +94,12 @@ namespace BudgetTrackerApi.Services
                         }
 
                         await transaction.CommitAsync();
+
+                        // Recalcul des ajustements si de nouvelles opérations ont été insérées
+                        if (hasOps && importLog.DateMin.HasValue && !string.IsNullOrEmpty(importLog.BankName))
+                        {
+                            await _adjustmentService.RecalculateAsync(importLog.BankName, importLog.DateMin.Value);
+                        }
                     }
                     catch
                     {
