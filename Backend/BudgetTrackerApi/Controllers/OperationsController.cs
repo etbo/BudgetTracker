@@ -112,7 +112,7 @@ public class OperationsController : ControllerBase
         if (!string.IsNullOrEmpty(excludedCategories))
         {
             var excludedList = excludedCategories.Split(',').ToList();
-            results = results.Where(dto => !excludedList.Contains(dto.Category)).ToList();
+            results = results.Where(dto => dto.Category == null || !excludedList.Contains(dto.Category)).ToList();
         }
 
         return Ok(results);

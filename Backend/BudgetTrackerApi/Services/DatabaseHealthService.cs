@@ -77,7 +77,7 @@ namespace BudgetTrackerApi.Services
 
             // On filtre ensuite côté C# pour éviter les problèmes de traduction EF Core/SQLite
             var unknownCats = usedCategories
-                .Where(g => !existingCategories.Contains(g.Category))
+                .Where(g => g.Category != null && !existingCategories.Contains(g.Category))
                 .Select(g => new UnknownCategoryDto
                 {
                     CategoryName = g.Category ?? "Inconnue",
