@@ -27,6 +27,11 @@
         <mat-form-field appearance="outline" class="full-height-search">
           <mat-label>Recherche globale</mat-label>
           <input matInput [(ngModel)]="parentSearchString" placeholder="Ex: Courses, 15.50, Auchan...">
+          @if (parentSearchString) {
+          <button mat-icon-button matSuffix (click)="parentSearchString=''" aria-label="Effacer">
+            <mat-icon>close</mat-icon>
+          </button>
+          }
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>

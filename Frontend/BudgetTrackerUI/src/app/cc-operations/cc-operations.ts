@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatButtonModule } from '@angular/material/button';
 
 import { OperationsService } from '../services/operations.service';
 import { filtersService, FilterState } from '../services/filters.service';
@@ -24,6 +25,7 @@ import { distinctUntilChanged, Subscription } from 'rxjs';
     MatInputModule,
     MatIconModule,
     MatChipsModule,
+    MatButtonModule,
     DateFilter,
     CcOperationsList
   ],
