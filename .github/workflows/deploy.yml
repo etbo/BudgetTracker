@@ -1,0 +1,53 @@
+name: Build and Push Docker Images to GHCR
+
+on:
+  push:
+    branches: [ "main" ]  # Se déclenche lors d'un push sur la branche main (remplace par 'master' si c'est le nom de ta branche)
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write  # Autorise le workflow à publier des packages Docker sur GHCR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (pour la compilation multi-architecture)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Downcase repository owner
+        id: owner
+        run: echo "OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      # --- BUILD BACKEND ---
+      - name: Build & Push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Backend/BudgetTrackerApi
+          file: ./Backend/BudgetTrackerApi/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/${{ env.OWNER }}/budgettracker-backend:latest
+
+      # --- BUILD FRONTEND ---
+      - name: Build & Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Frontend/BudgetTrackerUI
+          file: ./Frontend/BudgetTrackerUI/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/${{ env.OWNER }}/budgettracker-frontend:latest
