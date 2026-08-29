@@ -2,7 +2,7 @@ name: Build and Push Docker Images to GHCR
 
 on:
   push:
-    branches: [ "main" ]  # Remplace par 'master' si ta branche principale s'appelle master
+    branches: [ "main" ]  # Remplace par 'master' si besoin
 
 jobs:
   build-and-push:
@@ -28,6 +28,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Étape pour convertir le nom du propriétaire en minuscules
+      - name: Set repository owner in lowercase
+        run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
       # --- BUILD BACKEND ---
       - name: Build & Push Backend
         uses: docker/build-push-action@v6
@@ -36,7 +40,7 @@ jobs:
           file: ./Backend/BudgetTrackerApi/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ lower(github.repository_owner) }}/budgettracker-backend:latest
+          tags: ghcr.io/${{ env.OWNER }}/budgettracker-backend:latest
 
       # --- BUILD FRONTEND ---
       - name: Build & Push Frontend
@@ -46,4 +50,4 @@ jobs:
           file: ./BudgetTrackerUI/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ lower(github.repository_owner) }}/budgettracker-frontend:latest
+          tags: ghcr.io/${{ env.OWNER }}/budgettracker-frontend:latest
