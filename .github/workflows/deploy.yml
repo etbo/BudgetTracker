@@ -46,8 +46,8 @@ jobs:
       - name: Build & Push Frontend
         uses: docker/build-push-action@v6
         with:
-          context: ./BudgetTrackerUI
-          file: ./BudgetTrackerUI/Dockerfile
+          context: ./Frontend/BudgetTrackerUI
+          file: ./Frontend/BudgetTrackerUI/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/${{ env.OWNER }}/budgettracker-frontend:latest
