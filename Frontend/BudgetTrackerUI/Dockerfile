@@ -3,14 +3,15 @@ FROM node:20 AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+# Si npm ci pose problème en CI, npm install assure l'installation des deps
+RUN npm install
 
 COPY . ./
-RUN npm run build -- --configuration production
+# Commande directe Angular
+RUN npx ng build --configuration production
 
 # 2. Serveur Nginx léger
 FROM nginx:alpine
-# Copie des fichiers statiques générés vers le dossier de Nginx
 COPY --from=build /app/dist/budget-tracker-ui/browser /usr/share/nginx/html
 
 EXPOSE 80

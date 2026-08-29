@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU (pour la compilation multi-architecture)
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
@@ -28,13 +28,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Downcase repository owner
-        id: owner
-        run: echo "OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
       # --- BUILD BACKEND ---
       - name: Build & Push Backend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./Backend/BudgetTrackerApi
           file: ./Backend/BudgetTrackerApi/Dockerfile
@@ -44,10 +40,10 @@ jobs:
 
       # --- BUILD FRONTEND ---
       - name: Build & Push Frontend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
-          context: ./Frontend/BudgetTrackerUI
-          file: ./Frontend/BudgetTrackerUI/Dockerfile
+          context: ./BudgetTrackerUI
+          file: ./BudgetTrackerUI/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/${{ env.OWNER }}/budgettracker-frontend:latest
