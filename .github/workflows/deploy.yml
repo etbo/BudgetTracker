@@ -2,14 +2,14 @@ name: Build and Push Docker Images to GHCR
 
 on:
   push:
-    branches: [ "main" ]  # Se déclenche lors d'un push sur la branche main (remplace par 'master' si c'est le nom de ta branche)
+    branches: [ "main" ]  # Remplace par 'master' si ta branche principale s'appelle master
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write  # Autorise le workflow à publier des packages Docker sur GHCR
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
           file: ./Backend/BudgetTrackerApi/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ env.OWNER }}/budgettracker-backend:latest
+          tags: ghcr.io/${{ lower(github.repository_owner) }}/budgettracker-backend:latest
 
       # --- BUILD FRONTEND ---
       - name: Build & Push Frontend
@@ -46,4 +46,4 @@ jobs:
           file: ./BudgetTrackerUI/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ env.OWNER }}/budgettracker-frontend:latest
+          tags: ghcr.io/${{ lower(github.repository_owner) }}/budgettracker-frontend:latest
