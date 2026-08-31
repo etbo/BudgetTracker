@@ -2,6 +2,7 @@ using BudgetTrackerApi.Data;
 using BudgetTrackerApi.Services;
 using BudgetTrackerApi.Services.Export;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // <-- Ajouté pour .MigrateAsync()
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +46,22 @@ builder.Services.AddHttpClient<FinanceService>();
 builder.Services.AddSingleton<FiltersState>();
 
 var app = builder.Build();
+
+// --- EXÉCUTION DES MIGRATIONS AU DÉMARRAGE ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        await context.Database.MigrateAsync();
+        Console.WriteLine("---> Migrations SQLite appliquées avec succès !");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"---> Erreur lors de l'application des migrations : {ex.Message}");
+    }
+}
 
 // --- PIPELINE HTTP ---
 app.UseCors("AllowAngular");
