@@ -22,15 +22,23 @@ namespace BudgetTrackerApi.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                // On cherche le dossier Database à partir de la racine de la solution
-                var executionDir = AppDomain.CurrentDomain.BaseDirectory;
-                // On remonte jusqu'à trouver le dossier "Database"
-                var dataDir = Path.Combine(executionDir, "..", "..", "..", "Database");
+                string dataDir;
 
-                // Si ça ne marche pas en debug, on utilise le chemin relatif direct
-                if (!Directory.Exists(dataDir))
+                // Si le dossier /Database existe à la racine (cas de Docker avec volume)
+                if (Directory.Exists("/Database"))
                 {
-                    dataDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "Database"));
+                    dataDir = "/Database";
+                }
+                else
+                {
+                    // Fallback pour l'environnement de dev local (VS Code / Visual Studio)
+                    var executionDir = AppDomain.CurrentDomain.BaseDirectory;
+                    dataDir = Path.GetFullPath(Path.Combine(executionDir, "..", "..", "..", "Database"));
+
+                    if (!Directory.Exists(dataDir))
+                    {
+                        dataDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "Database"));
+                    }
                 }
 
                 string dbFileName = _dbSelector.CurrentDatabase == "Test"
@@ -39,7 +47,6 @@ namespace BudgetTrackerApi.Data
 
                 string fullPath = Path.Combine(dataDir, dbFileName);
 
-                // LOG DE DEBUG : Très important pour voir où l'API cherche vraiment
                 Console.WriteLine($"---> Connexion à la base : {fullPath}");
 
                 optionsBuilder.UseSqlite($"Data Source={fullPath};Pooling=False");
