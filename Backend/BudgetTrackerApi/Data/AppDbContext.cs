@@ -10,12 +10,9 @@ namespace BudgetTrackerApi.Data
 {
     public class AppDbContext : DbContext
     {
-        private readonly DatabaseSelectorService _dbSelector;
-
-        public AppDbContext(DbContextOptions<AppDbContext> options, DatabaseSelectorService dbSelector)
+        public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
-            _dbSelector = dbSelector;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -41,9 +38,7 @@ namespace BudgetTrackerApi.Data
                     }
                 }
 
-                string dbFileName = _dbSelector.CurrentDatabase == "Test"
-                    ? "BudgetTrackerTest.db"
-                    : "BudgetTracker.db";
+                string dbFileName = "BudgetTracker.db";
 
                 if (!Directory.Exists(dataDir))
                 {

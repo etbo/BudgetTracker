@@ -25,11 +25,7 @@ namespace BudgetTracker.Tests
                 .UseSqlite(_connection)
                 .Options;
 
-            // Mock du sélecteur de base de données
-            var mockHttp = new Mock<Microsoft.AspNetCore.Http.IHttpContextAccessor>();
-            var mockSelector = new Mock<DatabaseSelectorService>(mockHttp.Object);
-
-            _context = new AppDbContext(options, mockSelector.Object);
+            _context = new AppDbContext(options);
             _context.Database.EnsureCreated();
         }
 

@@ -19,9 +19,6 @@ builder.Services.AddCors(options => {
                         .AllowAnyHeader());
 });
 
-// --- INFRASTRUCTURE ---
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<DatabaseSelectorService>();
 
 // --- BASE DE DONNÉES ---
 builder.Services.AddDbContext<AppDbContext>();
