@@ -16,6 +16,7 @@ namespace BudgetTrackerApi.Models
         public required string Name { get; set; }
         public required string Owner { get; set; }
         public string? BankName { get; set; } // Utile pour le parsing CC et Livrets
+        public string? AccountNumber { get; set; } // Pour détecter le compte lors de l'import ZIP
         public bool IsActive { get; set; } = true;
         public int UpdateFrequencyInMonths { get; set; } = 1;
         public AccountType Type { get; set; }

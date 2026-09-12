@@ -23,6 +23,7 @@ namespace BudgetTrackerApi.Data
                 Name = "Compte Courant BoursoBank",
                 Owner = "Alex",
                 BankName = "BoursoBank",
+                AccountNumber = "0123456789",
                 Type = AccountType.Checking,
                 IsActive = true,
                 UpdateFrequencyInMonths = 1
@@ -33,6 +34,7 @@ namespace BudgetTrackerApi.Data
                 Name = "Livret A",
                 Owner = "Alex",
                 BankName = "BoursoBank",
+                AccountNumber = "9876543210",
                 Type = AccountType.Savings,
                 IsActive = true,
                 UpdateFrequencyInMonths = 1
