@@ -69,12 +69,29 @@ export class SavingsStatement extends BaseGrid implements OnInit {
           },
           valueFormatter: params => {
             const account = accounts.find(a => a.id === params.value);
-            return account ? `${account.name} (${account.owner})` : 'Choisir...';
+            if (!account) return 'Choisir...';
+            // Dans le menu déroulant de sélection (params.node est null), on affiche le nom et le propriétaire
+            if (!params.node) return `${account.name} (${account.owner})`;
+            return account.name;
           },
           filter: 'agTextColumnFilter',
           filterValueGetter: params => {
-            const account = accounts.find(a => a.id === params.data.accountId);
-            return account ? `${account.name} ${account.owner}` : '';
+            const account = accounts.find(a => a.id === params.data?.accountId);
+            return account ? account.name : (params.data?.accountName ?? '');
+          }
+        },
+        {
+          field: 'owner',
+          headerName: 'Propriétaire',
+          editable: false,
+          valueGetter: params => {
+            const account = accounts.find(a => a.id === params.data?.accountId);
+            return account ? account.owner : (params.data?.owner ?? '');
+          },
+          filter: 'agTextColumnFilter',
+          filterValueGetter: params => {
+            const account = accounts.find(a => a.id === params.data?.accountId);
+            return account ? account.owner : (params.data?.owner ?? '');
           }
         },
         {
@@ -119,9 +136,12 @@ export class SavingsStatement extends BaseGrid implements OnInit {
 
   addNewRow() {
     const currentAccounts = this.savingsService.accounts();
+    const firstAccount = currentAccounts.length > 0 ? currentAccounts[0] : null;
     const newRow = {
       date: new Date().toISOString().split('T')[0],
-      accountId: currentAccounts.length > 0 ? currentAccounts[0].id : null,
+      accountId: firstAccount ? firstAccount.id : null,
+      accountName: firstAccount ? firstAccount.name : '',
+      owner: firstAccount ? firstAccount.owner : '',
       amount: 0,
       note: ''
     };
@@ -130,6 +150,14 @@ export class SavingsStatement extends BaseGrid implements OnInit {
 
   onCellValueChanged(event: any) {
     const row = event.data;
+    if (event.colDef.field === 'accountId') {
+      const account = this.savingsService.accounts().find(a => a.id === row.accountId);
+      if (account) {
+        row.accountName = account.name;
+        row.owner = account.owner;
+      }
+      this.gridApi.refreshCells({ rowNodes: [event.node], force: true });
+    }
     this.savingsService.saveStatement(row).subscribe({
       next: () => {
         this.snackBar.open('✅ Relevé enregistré', 'OK', { duration: 3000 });
