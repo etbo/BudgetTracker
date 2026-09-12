@@ -48,6 +48,7 @@ builder.Services.AddSingleton<FiltersState>();
 var app = builder.Build();
 
 // --- EXÉCUTION DES MIGRATIONS AU DÉMARRAGE ---
+// --- EXÉCUTION DES MIGRATIONS ET SEEDING AU DÉMARRAGE ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -56,6 +57,11 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<AppDbContext>();
         await context.Database.MigrateAsync();
         Console.WriteLine("---> Migrations SQLite appliquées avec succès !");
+
+        if (app.Environment.IsDevelopment())
+        {
+            await DbInitializer.SeedAsync(context);
+        }
     }
     catch (Exception ex)
     {
@@ -71,6 +77,14 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.MapPost("/api/dev/reset-and-seed", async (AppDbContext context) =>
+    {
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.MigrateAsync();
+        await DbInitializer.SeedAsync(context);
+        return Results.Ok(new { message = "Base réinitialisée et repeuplée avec les données de test." });
+    }).WithTags("Dev");
 }
 
 app.UseHttpsRedirection();

@@ -45,6 +45,11 @@ namespace BudgetTrackerApi.Data
                     ? "BudgetTrackerTest.db"
                     : "BudgetTracker.db";
 
+                if (!Directory.Exists(dataDir))
+                {
+                    Directory.CreateDirectory(dataDir);
+                }
+
                 string fullPath = Path.Combine(dataDir, dbFileName);
 
                 Console.WriteLine($"---> Connexion à la base : {fullPath}");
