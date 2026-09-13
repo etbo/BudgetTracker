@@ -53,6 +53,9 @@ namespace BudgetTrackerApi.Data
             }
         }
 
+        // --- Authentification ---
+        public DbSet<User> Users => Set<User>();
+
         // --- Table Unifiée des Comptes ---
         public DbSet<Account> Accounts { get; set; } = null!;
 
@@ -90,6 +93,13 @@ namespace BudgetTrackerApi.Data
             }
 
             // 2. Ajustements manuels et Relations
+            
+            // Configuration de l'entité User
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(u => u.Username).IsUnique();
+            });
+
             modelBuilder.Entity<SavingStatement>(entity =>
             {
                 entity.HasOne(s => s.Account)

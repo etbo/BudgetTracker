@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using BudgetTrackerApi.Data;
 using BudgetTrackerApi.Models; // Pour accéder à Account et AccountType
 using BudgetTrackerApi.Models.Savings;
+using BudgetTrackerApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class SavingAccountsController : ControllerBase
+public class SavingAccountsController : BaseApiController
 {
     private readonly AppDbContext _db;
 

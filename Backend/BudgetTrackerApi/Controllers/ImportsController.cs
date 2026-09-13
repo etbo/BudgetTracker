@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using BudgetTrackerApi.Services;
-using BudgetTrackerApi.DTOs; // Adapte selon tes namespaces
+using BudgetTrackerApi.DTOs;
+using BudgetTrackerApi.Controllers; // Adapte selon tes namespaces
 
 [ApiController]
 [Route("api/[controller]")]
-public class ImportsController : ControllerBase
+public class ImportsController : BaseApiController
 {
     private readonly ImportService _importService;
 

@@ -1,3 +1,4 @@
+using BudgetTrackerApi.Controllers;
 using BudgetTrackerApi.Data;
 using BudgetTrackerApi.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
-public class GlobalPatrimonyController : ControllerBase
+public class GlobalPatrimonyController : BaseApiController
 {
     private readonly AppDbContext _db;
     private readonly BudgetTrackerApi.Services.PatrimonyService _patrimonyService;

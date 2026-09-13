@@ -4,10 +4,11 @@ using BudgetTrackerApi.Services;
 using BudgetTrackerApi.DTOs; // Assure-toi d'importer tes DTOs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BudgetTrackerApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class OperationsController : ControllerBase
+public class OperationsController : BaseApiController
 {
     private readonly AppDbContext _db;
     private readonly IRuleService _ruleService;

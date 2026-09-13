@@ -1,10 +1,11 @@
+using BudgetTrackerApi.Controllers;
 using BudgetTrackerApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CcCategoriesController : ControllerBase
+public class CcCategoriesController : BaseApiController
 {
     private readonly AppDbContext _db;
     public CcCategoriesController(AppDbContext db) => _db = db;

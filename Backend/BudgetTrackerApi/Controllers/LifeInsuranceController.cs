@@ -1,3 +1,4 @@
+using BudgetTrackerApi.Controllers;
 using BudgetTrackerApi.Data;
 using BudgetTrackerApi.DTOs;
 using BudgetTrackerApi.Models;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
-public class LifeInsuranceController : ControllerBase
+public class LifeInsuranceController : BaseApiController
 {
     private readonly AppDbContext _db;
 

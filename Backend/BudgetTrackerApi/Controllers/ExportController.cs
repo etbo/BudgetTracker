@@ -1,9 +1,10 @@
+using BudgetTrackerApi.Controllers;
 using BudgetTrackerApi.Services.Export;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExportController : ControllerBase
+public class ExportController : BaseApiController
 {
     private readonly DatabaseExportService _exportService;
 

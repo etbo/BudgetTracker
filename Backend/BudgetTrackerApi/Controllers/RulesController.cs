@@ -1,3 +1,4 @@
+using BudgetTrackerApi.Controllers;
 using BudgetTrackerApi.Data;
 using BudgetTrackerApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RulesController : ControllerBase
+public class RulesController : BaseApiController
 {
     private readonly AppDbContext _db;
     public RulesController(AppDbContext db) => _db = db;

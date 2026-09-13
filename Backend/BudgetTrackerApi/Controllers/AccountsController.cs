@@ -4,10 +4,11 @@ using BudgetTrackerApi.Data;
 using BudgetTrackerApi.Models;
 using BudgetTrackerApi.Services;
 using BudgetTrackerApi.DTOs;
+using BudgetTrackerApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AccountsController : ControllerBase
+public class AccountsController : BaseApiController
 {
     private readonly AppDbContext _db;
     private readonly AccountService _accountService;
@@ -60,4 +61,4 @@ public class AccountsController : ControllerBase
         await _db.SaveChangesAsync();
         return NoContent();
     }
-}
+}

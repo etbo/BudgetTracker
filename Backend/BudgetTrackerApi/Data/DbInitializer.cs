@@ -9,11 +9,25 @@ namespace BudgetTrackerApi.Data
     {
         public static async Task SeedAsync(AppDbContext context)
         {
-            // Ne rien faire si des comptes existent déjà
-            if (await context.Accounts.AnyAsync())
+            // S'assurer que le compte admin existe toujours
+            var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Username == "admin");
+            
+            if (adminUser == null)
             {
-                return;
+                context.Users.Add(new User
+                {
+                    Username = "admin",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("ChangeMe123!"),
+                    CreatedAt = DateTime.UtcNow
+                });
             }
+            else
+            {
+                // Réinitialise le mot de passe au cas où le hash stocké soit corrompu
+                adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword("ChangeMe123!");
+            }
+
+            await context.SaveChangesAsync();
 
             Console.WriteLine("---> Début de l'injection des données de test (Seed)...");
 

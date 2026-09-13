@@ -7,7 +7,7 @@ namespace BudgetTrackerApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")] // Ceci devient /api/finance
-    public class PeaGraphController : ControllerBase
+    public class PeaGraphController : BaseApiController
     {
         private readonly IPeaService _peaService;
         private readonly FinanceService _financeService;

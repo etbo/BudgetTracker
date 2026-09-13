@@ -6,7 +6,7 @@ namespace BudgetTrackerApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DatabaseHealthController : ControllerBase
+    public class DatabaseHealthController : BaseApiController
     {
         private readonly DatabaseHealthService _healthService;
 

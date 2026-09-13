@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using BudgetTrackerApi.Services;
 using BudgetTrackerApi.Data;
 using BudgetTrackerApi.Models;
-using Microsoft.EntityFrameworkCore; // Adapte selon tes namespaces
+using Microsoft.EntityFrameworkCore;
+using BudgetTrackerApi.Controllers; // Adapte selon tes namespaces
 
 [ApiController]
 [Route("api/[controller]")]
-public class PeaController : ControllerBase
+public class PeaController : BaseApiController
 {
     private readonly AppDbContext _db;
 
